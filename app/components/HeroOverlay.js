@@ -8,14 +8,14 @@ export default function HeroOverlay() {
       {/* Layer 5 — Floating shapes behind text */}
       <FloatingShapes />
 
-      {/* Gradient vignette overlay for text contrast */}
+      {/* Gradient vignette overlay — warm brown tint */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 1,
           background:
-            "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, rgba(5,5,5,0.65) 100%)",
+            "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, rgba(42,26,16,0.6) 100%)",
           pointerEvents: "none",
         }}
       />
@@ -30,19 +30,33 @@ export default function HeroOverlay() {
           height: "50%",
           zIndex: 1,
           background:
-            "linear-gradient(to top, rgba(5,5,5,0.85) 0%, rgba(5,5,5,0.4) 40%, transparent 100%)",
+            "linear-gradient(to top, rgba(42,26,16,0.85) 0%, rgba(42,26,16,0.4) 40%, transparent 100%)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Top bar with brand name */}
-      <div className="hero-topbar" id="hero-topbar">
-        <div className="hero-brand">MÜSELI</div>
-        <nav className="hero-nav">
-          <span className="hero-nav-link">Products</span>
-          <span className="hero-nav-link">Story</span>
-          <span className="hero-nav-link">Shop</span>
-        </nav>
+      {/* Wavy paper-cut bottom edge */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: -1,
+          left: 0,
+          right: 0,
+          zIndex: 6,
+          lineHeight: 0,
+          pointerEvents: "none",
+        }}
+      >
+        <svg
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+          style={{ display: "block", width: "100%", height: "60px" }}
+        >
+          <path
+            d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
+            fill="#FFF8F0"
+          />
+        </svg>
       </div>
 
       {/* Layer 2-4 — Text + CTA overlay */}

@@ -94,11 +94,13 @@ export default function HeroSection() {
     );
 
     // Top bar slides down
-    introTl.to(
-      topbar,
-      { opacity: 1, y: 0, duration: 0.8 },
-      0.4
-    );
+    if (topbar) {
+      introTl.to(
+        topbar,
+        { opacity: 1, y: 0, duration: 0.8 },
+        0.4
+      );
+    }
 
     // Tag badge pops in
     introTl.to(
@@ -198,7 +200,9 @@ export default function HeroSection() {
       0.05
     );
 
-    scrollTl.to(topbar, { y: -30, opacity: 0, ease: "none" }, 0);
+    if (topbar) {
+      scrollTl.to(topbar, { y: -30, opacity: 0, ease: "none" }, 0);
+    }
 
     if (scrollIndicator) {
       scrollTl.to(scrollIndicator, { opacity: 0, ease: "none" }, 0);
