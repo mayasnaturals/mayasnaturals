@@ -1,10 +1,13 @@
 import { Check, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { getProductSlug } from "@/data/productData";
 import styles from "../../products/products.module.css";
 
 
 function ProductCard({ product, index, onAdd, isAdded }) {
+    const productHref = `/products/${getProductSlug(product)}`;
     const cardStyle = {
         "--card-dark": product.colors[0],
         "--card-mid": product.colors[1],
@@ -21,7 +24,11 @@ function ProductCard({ product, index, onAdd, isAdded }) {
             className={styles.productCard}
             style={cardStyle}
         >
-            <div className={styles.productVisual}>
+            <Link
+                href={productHref}
+                className={styles.productVisual}
+                aria-label={`View ${product.name} details`}
+            >
                 <Image
                     className={styles.productImage}
                     src={product.image}
@@ -31,7 +38,7 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                 />
                 <div className={styles.imageShade} />
                 <span className={styles.productBadge}>{product.badge}</span>
-            </div>
+            </Link>
 
             <div className={styles.productBody}>
                 <div className={styles.productMeta}>
@@ -39,7 +46,9 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                     <span>•</span>
                     <span>{product.weight}</span>
                 </div>
-                <h3>{product.name}</h3>
+                <h3>
+                    <Link href={productHref}>{product.name}</Link>
+                </h3>
                 <p>{product.description}</p>
                 <div className={styles.productBottom}>
                     <div>

@@ -11,12 +11,6 @@ export default function MarqueeSection() {
     offset: ["start end", "end start"],
   });
 
-  const x1 = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
-  const x2 = useTransform(scrollYProgress, [0, 1], ["-30%", "0%"]);
-
-  const row1 = "BREAKFAST REIMAGINED • FUEL YOUR ADVENTURE • HANDCRAFTED GOODNESS • ORGANIC INGREDIENTS • ";
-  const row2 = "WARNING: MAY CAUSE AN IRRESISTIBLE URGE TO SNACK ALL THE TIME • PURE DELICIOUS JOY • ";
-
   return (
     <section
       ref={containerRef}
@@ -53,46 +47,6 @@ export default function MarqueeSection() {
           No artificial anything. Just honest, delicious ingredients crafted for your daily adventure.
         </motion.p>
       </div>
-
-      {/* Marquee Row 1 — tilted slightly */}
-      {/* <div className="relative mb-6" style={{ transform: "rotate(-2deg)" }}>
-        <div
-          className="py-4 overflow-hidden"
-          style={{ background: "#F5A623" }}
-        >
-          <motion.div
-            className="flex whitespace-nowrap"
-            style={{ x: x1 }}
-          >
-            <span
-              className="font-display font-black text-xl md:text-3xl uppercase tracking-wide px-4"
-              style={{ color: "#2A1A10" }}
-            >
-              {row1.repeat(6)}
-            </span>
-          </motion.div>
-        </div>
-      </div> */}
-
-      {/* Marquee Row 2 — tilted opposite */}
-      {/* <div className="relative" style={{ transform: "rotate(1.5deg)" }}>
-        <div
-          className="py-4 overflow-hidden"
-          style={{ background: "#E85D5D" }}
-        >
-          <motion.div
-            className="flex whitespace-nowrap"
-            style={{ x: x2 }}
-          >
-            <span
-              className="font-display font-black text-xl md:text-3xl uppercase tracking-wide px-4"
-              style={{ color: "#FFF8F0" }}
-            >
-              {row2.repeat(6)}
-            </span>
-          </motion.div>
-        </div>
-      </div> */}
 
       {/* Wavy bottom */}
       <div className="wave-divider wave-divider-bottom">

@@ -105,6 +105,16 @@ export const products = [
     },
 ];
 
+export const getProductSlug = (product) =>
+    product.name
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+export const getProductBySlug = (slug) =>
+    products.find((product) => getProductSlug(product) === slug);
+
 export const sortOptions = [
     { value: "relevance", label: "Relevance" },
     { value: "new", label: "New arrivals" },
