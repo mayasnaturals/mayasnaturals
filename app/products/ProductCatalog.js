@@ -11,13 +11,14 @@ import FilterPanel from "../components/productPage/FilterPanel";
 import ProductGrid from "../components/productPage/ProductGrid";
 import PromiseBanner from "../components/productPage/PromiseBanner";
 import SortSelect from "../components/productPage/SortSelect";
-import { products } from "@/data/productData";
 import styles from "./products.module.css";
+import { useCart } from "@/context/CartContext";
 
 const MAX_PRICE = 600;
 
-export default function ProductCatalog() {
+export default function ProductCatalog({ initialProducts }) {
   const [query, setQuery] = useState("");
+  const { addToCart } = useCart();
   const [sortBy, setSortBy] = useState("relevance");
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
@@ -33,7 +34,7 @@ export default function ProductCatalog() {
 
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const filtered = products.filter((product) => {
+    const filtered = initialProducts.filter((product) => {
       const matchesQuery =
         !normalizedQuery ||
         `${product.name} ${product.type} ${product.description}`
@@ -49,9 +50,9 @@ export default function ProductCatalog() {
       if (sortBy === "new") return b.newness - a.newness;
       if (sortBy === "high") return b.price - a.price;
       if (sortBy === "low") return a.price - b.price;
-      return a.id - b.id;
+      return a.id.localeCompare ? a.id.localeCompare(b.id) : a.id - b.id;
     });
-  }, [maxPrice, query, selectedTypes, sortBy]);
+  }, [maxPrice, query, selectedTypes, sortBy, initialProducts]);
 
   const activeFilterCount =
     selectedTypes.length + (query ? 1 : 0) + (maxPrice < MAX_PRICE ? 1 : 0);
@@ -70,8 +71,9 @@ export default function ProductCatalog() {
     setMaxPrice(MAX_PRICE);
   };
 
-  const handleAdd = (id) => {
+  const handleAdd = async (id) => {
     setAddedId(id);
+    await addToCart(id, 1);
     window.setTimeout(() => setAddedId(null), 1600);
   };
 

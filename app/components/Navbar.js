@@ -3,10 +3,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, User, Menu, X } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { useCustomer } from "@/context/CustomerContext";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cartCount, setIsCartOpen } = useCart();
+  const { customer } = useCustomer();
+  const router = useRouter();
+
+  const handleAccountClick = () => {
+    if (customer) {
+      router.push("/account");
+    } else {
+      router.push("/login");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,12 +59,12 @@ export default function Navbar() {
 
           {/* Icons (Right) */}
           <div className="navbar-actions">
-            <button aria-label="Account" className="navbar-icon-btn">
+            <button onClick={handleAccountClick} aria-label="Account" className="navbar-icon-btn">
               <User className="w-5 h-5" strokeWidth={2.5} />
             </button>
-            <button aria-label="Cart" className="navbar-cart-btn">
+            <button onClick={() => setIsCartOpen(true)} aria-label="Cart" className="navbar-cart-btn">
               <ShoppingBag className="w-5 h-5" strokeWidth={2.5} />
-              <span className="navbar-cart-badge">0</span>
+              <span className="navbar-cart-badge">{cartCount}</span>
             </button>
             <button
               aria-label="Menu"
@@ -89,13 +103,13 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="navbar-mobile-actions">
-            <button className="navbar-mobile-action-btn">
+            <button onClick={() => { setIsMobileMenuOpen(false); handleAccountClick(); }} className="navbar-mobile-action-btn">
               <User className="w-5 h-5" strokeWidth={2.5} />
-              <span>Account</span>
+              <span>{customer ? "Account" : "Login"}</span>
             </button>
-            <button className="navbar-mobile-action-btn">
+            <button onClick={() => { setIsMobileMenuOpen(false); setIsCartOpen(true); }} className="navbar-mobile-action-btn">
               <ShoppingBag className="w-5 h-5" strokeWidth={2.5} />
-              <span>Cart</span>
+              <span>Cart ({cartCount})</span>
             </button>
           </div>
         </div>
