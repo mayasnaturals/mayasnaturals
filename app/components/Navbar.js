@@ -34,13 +34,19 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "Products", href: "/products" },
     { name: "Our Story", href: "/our-story" },
-    { name: "Contact", href: "/#contact" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
     <>
       <header
         className={`navbar-header ${isScrolled ? "navbar-scrolled" : ""}`}
+        style={{
+          background: isScrolled ? "rgba(42, 26, 16, 0.88)" : "rgba(42, 26, 16, 0.6)",
+          backdropFilter: isScrolled ? "blur(20px) saturate(1.5)" : "blur(12px) saturate(1.2)",
+          WebkitBackdropFilter: isScrolled ? "blur(20px) saturate(1.5)" : "blur(12px) saturate(1.2)",
+          borderBottom: isScrolled ? "none" : "1px solid rgba(255, 248, 240, 0.05)"
+        }}
       >
         <div className="navbar-inner">
           {/* Logo (Left) */}

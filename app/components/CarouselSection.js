@@ -4,16 +4,17 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 const CAROUSEL_ITEMS = [
-  { id: 1, title: "Wild Berry", subtitle: "Berry & Oat Crunch", color: "#E85D5D", emoji: "🍓" },
-  { id: 2, title: "Citrus Orange", subtitle: "Zesty Morning Boost", color: "#E8752A", emoji: "🍊" },
-  { id: 3, title: "Dark Chocolate", subtitle: "Rich Cocoa Delight", color: "#6B3A23", emoji: "🍫" },
-  { id: 4, title: "Matcha Glow", subtitle: "Green Tea Vitality", color: "#5EAD5E", emoji: "🍵" },
+  { id: 1, title: "Cocoa & Almond", subtitle: "Rich cocoa blend", color: "#8f503b", image: "/products/Cocoa Almond Museli.png" },
+  { id: 2, title: "Nuts & Seeds", subtitle: "Hearty mix of oats", color: "#087f7d", image: "/products/Nutsseeds Museli.png" },
+  { id: 3, title: "Chocolate Delight", subtitle: "Deep cocoa crunch", color: "#604032", image: "/products/Chocolate Museli.png" },
+  { id: 4, title: "Classic Super", subtitle: "Original 20-in-1", color: "#c52b67", image: "/products/Default Museli.png" },
 ];
 
 export default function CarouselSection() {
@@ -64,26 +65,26 @@ export default function CarouselSection() {
         </svg>
       </div>
 
-      <div className="text-center mb-10 z-10 relative px-6">
-        <h2 className="text-5xl md:text-7xl font-display font-black uppercase tracking-tighter"
+      <div className="text-center mb-6 md:mb-10 z-10 relative px-5">
+        <h2 className="text-3xl md:text-5xl lg:text-7xl font-display font-black uppercase tracking-tighter"
           style={{ color: "#FFF8F0" }}>
           Explore the Range
         </h2>
-        <p className="mt-3 text-lg font-body font-medium" style={{ color: "rgba(255,248,240,0.75)" }}>
+        <p className="mt-2 md:mt-3 text-sm md:text-lg font-body font-medium" style={{ color: "rgba(255,248,240,0.75)" }}>
           Swipe through our handcrafted flavors
         </p>
       </div>
 
-      <div ref={wrapperRef} className="w-full overflow-hidden z-10 flex items-center h-[55vh]">
+      <div ref={wrapperRef} className="w-full overflow-hidden z-10 flex items-center h-[50vh] md:h-[55vh]">
         <div
           ref={containerRef}
-          className="flex gap-10 px-[50vw] items-center h-full will-change-transform"
+          className="flex gap-6 md:gap-10 px-[50vw] items-center h-full will-change-transform"
           style={{ width: "max-content" }}
         >
           {CAROUSEL_ITEMS.map((item, i) => (
             <div
               key={item.id}
-              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[280px] md:w-[380px]"
+              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[220px] md:w-[380px]"
             >
               <motion.div
                 className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
@@ -94,17 +95,15 @@ export default function CarouselSection() {
                 whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 2 : -2 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <span className="text-7xl mb-4 drop-shadow-lg">{item.emoji}</span>
-                <div className="text-xl font-display font-black uppercase tracking-widest"
-                  style={{ color: "rgba(255,248,240,0.9)" }}>
-                  {item.title}
+                <div className="relative w-[92%] h-[92%] rounded-[24px] overflow-hidden group-hover:scale-[1.03] transition-transform duration-500">
+                  <Image src={item.image} alt={item.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
                 </div>
               </motion.div>
-              <div className="mt-6 text-center">
-                <h3 className="text-2xl font-display font-black mb-1" style={{ color: "#FFF8F0" }}>
+              <div className="mt-4 md:mt-6 text-center">
+                <h3 className="text-lg md:text-2xl font-display font-black mb-1" style={{ color: "#FFF8F0" }}>
                   {item.title}
                 </h3>
-                <p className="font-body font-medium text-sm" style={{ color: "rgba(255,248,240,0.7)" }}>
+                <p className="font-body font-medium text-xs md:text-sm" style={{ color: "rgba(255,248,240,0.7)" }}>
                   {item.subtitle}
                 </p>
               </div>

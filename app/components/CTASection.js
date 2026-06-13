@@ -32,7 +32,7 @@ export default function CTASection() {
       </div> */}
 
       {/* Main CTA Content */}
-      <div className="relative z-10 text-center max-w-[1100px] mx-auto px-6 py-28 md:py-36 flex flex-col items-center" style={{ justifyContent: "center", margin: "0 auto 30px auto" }}>
+      <div className="relative z-10 text-center max-w-[1100px] mx-auto px-5 md:px-6 py-20 md:py-36 flex flex-col items-center" style={{ justifyContent: "center", margin: "0 auto 30px auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -42,7 +42,7 @@ export default function CTASection() {
 
         >
           <h2
-            className="text-6xl md:text-8xl lg:text-[9rem] font-display font-black uppercase tracking-tighter leading-[0.85] mb-8"
+            className="text-4xl md:text-8xl lg:text-[9rem] font-display font-black uppercase tracking-tighter leading-[0.85] mb-6 md:mb-8"
             style={{ color: "#FFF8F0" }}
           >
             Join The
@@ -61,7 +61,7 @@ export default function CTASection() {
         </motion.div>
 
         <motion.p
-          className="text-lg md:text-xl font-body max-w-2xl mb-12 font-medium"
+          className="text-base md:text-xl font-body max-w-2xl mb-8 md:mb-12 font-medium px-2"
           style={{ color: "rgba(255,248,240,0.65)" }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

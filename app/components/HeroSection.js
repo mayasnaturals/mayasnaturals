@@ -1,258 +1,145 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import HeroCanvas from "./HeroCanvas";
-import HeroOverlay from "./HeroOverlay";
-import LoadingScreen from "./LoadingScreen";
-import useImageSequence from "../hooks/useImageSequence";
-
-gsap.registerPlugin(ScrollTrigger);
-
-const INTRO_FRAMES = 60;
+import Image from "next/image";
+import styles from "./HeroSection.module.css";
 
 export default function HeroSection() {
-  const { images, progress, isLoaded, preload, cleanup, totalFrames } = useImageSequence();
-  const canvasRef = useRef(null);
-  const heroRef = useRef(null);
-  const scrollSpacerRef = useRef(null);
-  const [loadingDone, setLoadingDone] = useState(false);
-  const hasInitializedRef = useRef(false);
-  const frameObjRef = useRef({ value: 0 });
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    preload();
-    return () => cleanup();
-  }, [preload, cleanup]);
+    const ctx = gsap.context(() => {
+      // Subtle entrance animation for left content
+      gsap.from(`.${styles.leftContent} > *`, {
+        y: 30,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.8,
+        ease: "power3.out"
+      });
 
-  const renderFrame = useCallback(
-    (index) => {
-      const clamped = Math.min(Math.max(Math.round(index), 0), totalFrames - 1);
-      if (canvasRef.current) {
-        canvasRef.current.renderFrame(clamped);
-      }
-    },
-    [totalFrames]
-  );
+      // Cards staggered animation
+      gsap.from(`.${styles.card}`, {
+        x: 100,
+        opacity: 0,
+        rotation: 15,
+        stagger: 0.15,
+        duration: 1,
+        ease: "back.out(1.2)",
+        delay: 0.3
+      });
+      
+      // Floating animation for cards
+      gsap.to(`.${styles.card}`, {
+        y: "-=15",
+        duration: 2,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+        stagger: 0.2,
+        delay: 1.5
+      });
 
-  const handleLoadingComplete = useCallback(() => {
-    setLoadingDone(true);
+    }, containerRef);
+
+    return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    if (!loadingDone || hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
-
-    renderFrame(0);
-
-    const timer = setTimeout(() => {
-      initAnimations();
-    }, 150);
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadingDone]);
-
-  function initAnimations() {
-    const heroEl = heroRef.current;
-    const spacerEl = scrollSpacerRef.current;
-    if (!heroEl || !spacerEl) return;
-
-    const words = heroEl.querySelectorAll("[data-word]");
-    const subtext = heroEl.querySelector("#hero-subtext");
-    const btnPrimary = heroEl.querySelector("#cta-discover");
-    const btnSecondary = heroEl.querySelector("#cta-watch");
-    const shapes = heroEl.querySelectorAll(".floating-shape");
-    const topbar = heroEl.querySelector("#hero-topbar");
-    const tag = heroEl.querySelector("#hero-tag");
-    const scrollIndicator = heroEl.querySelector("#hero-scroll-indicator");
-
-    // =============================================
-    // PHASE 1: Cinematic intro
-    // =============================================
-    const introTl = gsap.timeline({
-      delay: 0.1,
-      defaults: { ease: "power3.out" },
-      onUpdate: () => {
-        renderFrame(Math.round(frameObjRef.current.value));
-      },
-    });
-
-    // Frame sequence autoplay
-    introTl.to(
-      frameObjRef.current,
-      { value: INTRO_FRAMES, duration: 2.8, ease: "power2.inOut" },
-      0
-    );
-
-    // Floating shapes emerge softly
-    introTl.to(
-      shapes,
-      { opacity: 0.7, duration: 2, stagger: 0.2, ease: "power1.out" },
-      0.2
-    );
-
-    // Top bar slides down
-    if (topbar) {
-      introTl.to(
-        topbar,
-        { opacity: 1, y: 0, duration: 0.8 },
-        0.4
-      );
-    }
-
-    // Tag badge pops in
-    introTl.to(
-      tag,
-      { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" },
-      0.6
-    );
-
-    // Word-by-word headline reveal with blur + scale + upward
-    introTl.to(
-      words,
-      {
-        opacity: 1,
-        y: "0%",
-        filter: "blur(0px)",
-        scale: 1,
-        duration: 0.8,
-        stagger: 0.09,
-        ease: "power4.out",
-      },
-      0.7
-    );
-
-    // Supporting text
-    introTl.to(
-      subtext,
-      { opacity: 1, y: 0, duration: 0.7 },
-      1.8
-    );
-
-    // CTA buttons stagger in
-    introTl.to(
-      btnPrimary,
-      { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.4)" },
-      2.0
-    );
-
-    introTl.to(
-      btnSecondary,
-      { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.4)" },
-      2.15
-    );
-
-    // Scroll indicator fades in last
-    if (scrollIndicator) {
-      introTl.to(
-        scrollIndicator,
-        { opacity: 1, duration: 0.8 },
-        2.6
-      );
-    }
-
-    // =============================================
-    // PHASE 2: ScrollTrigger — cinematic scrub
-    // =============================================
-    ScrollTrigger.create({
-      trigger: spacerEl,
-      start: "top top",
-      end: "bottom bottom",
-      pin: heroEl,
-      pinSpacing: false,
-      anticipatePin: 1,
-      scrub: 1,
-      onUpdate: (self) => {
-        const scrollFrame =
-          INTRO_FRAMES +
-          Math.round(self.progress * (totalFrames - 1 - INTRO_FRAMES));
-        renderFrame(scrollFrame);
-      },
-    });
-
-    // Text exit animation on scroll
-    const scrollTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: spacerEl,
-        start: "top top",
-        end: "30% top",
-        scrub: 0.8,
-      },
-    });
-
-    // Tag slides up and fades
-    scrollTl.to(tag, { y: -30, opacity: 0, ease: "none" }, 0);
-
-    // Words parallax upward with staggered blur
-    scrollTl.to(
-      words,
-      { y: -60, opacity: 0, filter: "blur(8px)", stagger: 0.015, ease: "none" },
-      0
-    );
-
-    scrollTl.to(subtext, { y: -40, opacity: 0, ease: "none" }, 0);
-
-    scrollTl.to(
-      [btnPrimary, btnSecondary],
-      { y: -30, opacity: 0, stagger: 0.02, ease: "none" },
-      0.05
-    );
-
-    if (topbar) {
-      scrollTl.to(topbar, { y: -30, opacity: 0, ease: "none" }, 0);
-    }
-
-    if (scrollIndicator) {
-      scrollTl.to(scrollIndicator, { opacity: 0, ease: "none" }, 0);
-    }
-
-    // Shapes parallax at different depths
-    shapes.forEach((shape, i) => {
-      gsap.to(shape, {
-        scrollTrigger: {
-          trigger: spacerEl,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1.5,
-        },
-        y: -(40 + i * 25),
-        rotation: (i % 2 === 0 ? 1 : -1) * (8 + i * 4),
-        scale: 0.8,
-        ease: "none",
-      });
-    });
-
-    // Ambient floating animation on shapes
-    shapes.forEach((shape, i) => {
-      gsap.to(shape, {
-        y: `+=${6 + i * 4}`,
-        x: `+=${(i % 2 === 0 ? 1 : -1) * (3 + i * 2)}`,
-        rotation: `+=${(i % 2 === 0 ? 1 : -1) * 3}`,
-        duration: 4 + i * 0.8,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        delay: i * 0.5,
-      });
-    });
-  }
-
   return (
-    <>
-      <LoadingScreen progress={progress} onComplete={handleLoadingComplete} />
+    <section ref={containerRef} className={styles.heroSection}>
+      {/* Right side cream background for split look */}
+      <div className={styles.bgRight}></div>
 
-      <div ref={scrollSpacerRef} className="scroll-spacer">
-        <div ref={heroRef} className="hero-wrapper" id="hero-section">
-          <HeroCanvas
-            ref={canvasRef}
-            images={images}
-            totalFrames={totalFrames}
-          />
-          <HeroOverlay />
+      {/* Horizontal Divider for Mobile */}
+      <div className={styles.dividerHorizontal}>
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+          <path d="M0,80 C240,0 480,80 720,0 C960,80 1200,0 1440,80 L1440,80 L0,80 Z" fill="#FFF8F0" />
+        </svg>
+      </div>
+
+      {/* Vertical Divider for Desktop */}
+      <div className={styles.dividerVertical}>
+        <svg viewBox="0 0 100 1440" preserveAspectRatio="none">
+          <path d="M100,0 C30,120 70,240 50,360 C30,480 70,600 50,720 C30,840 70,960 50,1080 C30,1200 70,1320 100,1440 Z" fill="#FFF8F0" />
+        </svg>
+      </div>
+
+      {/* Background patterns/shapes for hard vibrant color feel */}
+      <div className={styles.bgBlob1}></div>
+      <div className={styles.bgBlob2}></div>
+
+      <div className={styles.container}>
+        
+        {/* Left Content */}
+        <div className={styles.leftContent}>
+          <div className={styles.badge}>
+            <span className={styles.badgeDot}></span>
+            Premium Craft Muesli
+          </div>
+          
+          <h1 className={styles.title}>
+            Fuel Your <br/> 
+            <span className={styles.titleHighlight}>Mornings.</span>
+          </h1>
+          
+          <p className={styles.description}>
+            Wholesome grains, sun-kissed fruits, and premium nuts — crafted for those who start each day with intention and energy.
+          </p>
+          
+          <div className={styles.actions}>
+            <button className={styles.btnPrimary}>
+              Discover Now
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button className={styles.btnSecondary}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              Watch Our Story
+            </button>
+          </div>
+        </div>
+
+        {/* Right Content - Staggered Cards */}
+        <div className={styles.rightContent}>
+          {/* Card 1 */}
+          <div className={`${styles.card} ${styles.card1}`}>
+            <div className={`${styles.cardImage} ${styles.card1Image}`}>
+              <Image src="/products/Cocoa Almond Museli.png" alt="Cocoa & Almond" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
+            </div>
+            <div className={styles.cardTitle}>Cocoa & Almond</div>
+            <div className={styles.cardPrice}>Rs. 499</div>
+          </div>
+
+          {/* Card 2 */}
+          <div className={`${styles.card} ${styles.card2}`}>
+            <div className={`${styles.cardImage} ${styles.card2Image}`}>
+              <Image src="/products/Default Museli.png" alt="Classic Super Muesli" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
+            </div>
+            <div className={styles.cardTitle}>Classic Super Muesli</div>
+            <div className={styles.cardPrice}>Rs. 449</div>
+          </div>
+
+          {/* Card 3 */}
+          <div className={`${styles.card} ${styles.card3}`}>
+            <div className={`${styles.cardImage} ${styles.card3Image}`}>
+              <Image src="/products/Chocolate Museli.png" alt="Chocolate Delight" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
+            </div>
+            <div className={styles.cardTitle}>Chocolate Delight</div>
+            <div className={styles.cardPrice}>Rs. 525</div>
+          </div>
         </div>
       </div>
-    </>
+      
+      {/* Wavy bottom paper edge */}
+      <div className={styles.wavyBottom}>
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+          <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#FFF8F0" />
+        </svg>
+      </div>
+    </section>
   );
 }

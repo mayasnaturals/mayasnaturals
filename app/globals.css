@@ -613,6 +613,7 @@ body {
 }
 
 .product-card-image {
+  position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   display: flex;
@@ -626,7 +627,12 @@ body {
 }
 
 .product-card-body {
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+@media (min-width: 768px) {
+  .product-card-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
 }
 
 .product-card-name {
@@ -672,6 +678,10 @@ body {
   right: 0;
   z-index: 100;
   padding: 1.25rem 0;
+  background: rgba(42, 26, 16, 0.5);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid rgba(255, 248, 240, 0.05);
   transition: background 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
 }
 

@@ -51,13 +51,13 @@ export default function ContactTestPage() {
         <div className="sticky top-0 w-full h-screen flex items-center justify-center">
 
           {/* Full Circle Background — generous margins from all edges */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[#F5A623]/15 flex items-center justify-center border-[6px] border-[#E8752A] border-dashed pointer-events-none" style={{ width: 'min(72vw, 90vh)', height: 'min(72vw, 90vh)' }}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[#F5A623]/15 flex items-center justify-center border-[6px] border-[#E8752A] border-dashed pointer-events-none" style={{ width: 'min(90vw, 95vh)', height: 'min(90vw, 95vh)' }}>
             {/* Concentric Decorative Circles */}
             <div className="absolute w-[80%] aspect-square rounded-[50%] border-[3px] border-[#E85D5D] opacity-30" />
             <div className="absolute w-[55%] aspect-square rounded-[50%] border-4 border-[#5EAD5E] opacity-20" />
 
             {/* Center Content of the Wheel */}
-            <div className="absolute w-[40%] aspect-square rounded-[50%] bg-[#FFF8F0] shadow-[0_0_60px_rgba(232,117,42,0.3)] flex items-center justify-center text-center p-4 border-4 border-[#2A1A10] z-10">
+            <div className="absolute w-[35%] aspect-square rounded-[50%] bg-[#FFF8F0] shadow-[0_0_60px_rgba(232,117,42,0.3)] flex items-center justify-center text-center p-4 border-4 border-[#2A1A10] z-10">
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 md:w-14 md:h-14 bg-[#E85D5D] rounded-full mb-2 md:mb-3 border-[3px] border-[#2A1A10] shadow-[3px_3px_0_#2A1A10] flex items-center justify-center">
                   <span className="text-white text-xl md:text-2xl">💥</span>
@@ -71,7 +71,7 @@ export default function ContactTestPage() {
 
           {/* The Rotating Wheel */}
           <motion.div
-            style={{ rotate, width: 'min(72vw, 90vh)', height: 'min(72vw, 90vh)' }}
+            style={{ rotate, width: 'min(90vw, 95vh)', height: 'min(90vw, 95vh)' }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none"
           >
             {products.map((product, i) => {

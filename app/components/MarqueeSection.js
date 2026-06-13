@@ -14,39 +14,39 @@ export default function MarqueeSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full py-40 md:py-48 overflow-hidden flex flex-col justify-center items-center"
+      className="relative w-full pt-24 pb-40 md:py-40 lg:py-48 overflow-hidden flex flex-col justify-center items-center"
       style={{ background: "#FFF8F0" }}
     >
       {/* Decorative Food Elements */}
       <motion.div
-        className="absolute left-10 md:left-32 top-20 text-6xl opacity-80"
+        className="absolute left-6 md:left-32 top-16 md:top-20 text-4xl md:text-6xl opacity-80"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]) }}
       >
         🥣
       </motion.div>
       <motion.div
-        className="absolute right-10 md:right-32 bottom-32 text-6xl opacity-80"
+        className="absolute right-6 md:right-32 bottom-24 md:bottom-32 text-4xl md:text-6xl opacity-80"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
       >
         🌾
       </motion.div>
       <motion.div
-        className="absolute left-1/4 bottom-20 text-5xl opacity-60"
+        className="absolute left-1/4 bottom-12 md:bottom-20 text-3xl md:text-5xl opacity-60"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, -80]), rotate: 15 }}
       >
         🍯
       </motion.div>
       <motion.div
-        className="absolute right-1/4 top-32 text-5xl opacity-60"
+        className="absolute right-1/4 top-20 md:top-32 text-3xl md:text-5xl opacity-60"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, 80]), rotate: -15 }}
       >
         🍫
       </motion.div>
 
       {/* Heading */}
-      <div className="text-center z-10 relative px-6 max-w-4xl mx-auto">
+      <div className="text-center z-10 relative px-5 md:px-6 max-w-4xl mx-auto">
         <motion.h2
-          className="text-6xl md:text-8xl font-display font-black uppercase tracking-tighter leading-[0.9]"
+          className="text-4xl md:text-6xl lg:text-8xl font-display font-black uppercase tracking-tighter leading-[0.9]"
           style={{ color: "#2A1A10" }}
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -65,7 +65,7 @@ export default function MarqueeSection() {
           className="mt-10"
         >
           <p
-            className="text-xl md:text-2xl font-body font-bold max-w-2xl mx-auto"
+            className="text-base md:text-xl lg:text-2xl font-body font-bold max-w-2xl mx-auto"
             style={{ color: "#6B3A23", lineHeight: "1.6" }}
           >
             No artificial anything. Just honest, delicious ingredients crafted for your daily adventure.

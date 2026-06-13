@@ -2,11 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
+import Image from "next/image";
 
 const PRODUCTS = [
-  { name: "Wild Berry Crunch", color: "#E85D5D", price: "₹499", desc: "Bursting with sun-dried berries & toasted oats" },
-  { name: "Tropical Gold", color: "#F5A623", price: "₹549", desc: "Mango, pineapple & coconut paradise" },
-  { name: "Dark Choco Bliss", color: "#6B3A23", price: "₹599", desc: "Rich cocoa nibs with roasted almonds" },
+  { name: "Peri Peri Makhana", color: "#dc3421", price: "Rs. 299", desc: "Spicy, tangy and aromatic", image: "/products/Peri Peri Makhana.png" },
+  { name: "Cheese Makhana", color: "#efa900", price: "Rs. 349", desc: "Rich, creamy cheese seasoning", image: "/products/Cheese Makhana.png" },
+  { name: "Mint Masala", color: "#73a65a", price: "Rs. 279", desc: "Fresh savoury crunch", image: "/products/Mint Makhana.jpeg" },
 ];
 
 export default function CurvedTextSection() {
@@ -45,11 +46,11 @@ export default function CurvedTextSection() {
         </svg>
       </div>
 
-      <div className="pt-28 pb-32 px-6">
+      <div className="pt-32 pb-20 px-5 md:pt-32 md:pb-32 md:px-6">
         {/* Section Header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-10 md:mb-20">
           <motion.span
-            className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6"
+            className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 md:mb-6"
             style={{ background: "rgba(232,117,42,0.12)", color: "#E8752A" }}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -59,7 +60,7 @@ export default function CurvedTextSection() {
             Our Range
           </motion.span>
           <motion.h2
-            className="text-5xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter leading-none"
+            className="text-4xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter leading-none"
             style={{ color: "#2A1A10" }}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -71,7 +72,7 @@ export default function CurvedTextSection() {
         </div>
 
         {/* Product Cards in Arc Layout */}
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-end justify-center gap-8 md:gap-12 pb-10">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center md:items-end justify-center gap-6 md:gap-12 pb-4 md:pb-10">
           {PRODUCTS.map((product, i) => (
             <motion.div
               key={i}
@@ -79,18 +80,18 @@ export default function CurvedTextSection() {
               variants={cardVariants}
               initial="hidden"
               animate={controls}
-              className="product-card w-full md:w-[320px]"
+              className="product-card w-[260px] md:w-[320px] mx-auto"
               style={{
-                marginBottom: i === 1 ? "40px" : "0",
+                marginBottom: typeof window !== "undefined" && window.innerWidth >= 768 && i === 1 ? "40px" : "0",
               }}
             >
               <motion.div
-                className="product-card-image"
+                className="product-card-image relative overflow-hidden"
                 style={{ backgroundColor: product.color }}
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <span style={{ fontSize: "3rem", opacity: 0.3 }}>🥣</span>
+                <Image src={product.image} alt={product.name} fill priority style={{ objectFit: 'contain', padding: '1rem' }} sizes="(max-width: 768px) 100vw, 33vw" />
               </motion.div>
               <div className="product-card-body">
                 <h3 className="product-card-name">{product.name}</h3>
