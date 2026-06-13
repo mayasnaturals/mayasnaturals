@@ -46,7 +46,7 @@ export default function CurvedTextSection() {
         </svg>
       </div>
 
-      <div className="pt-32 pb-20 px-5 md:pt-32 md:pb-32 md:px-6">
+      <div className="pt-28 pb-20 px-5 md:pt-32 md:pb-32 md:px-6">
         {/* Section Header */}
         <div className="text-center mb-10 md:mb-20">
           <motion.span
@@ -72,7 +72,7 @@ export default function CurvedTextSection() {
         </div>
 
         {/* Product Cards in Arc Layout */}
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center md:items-end justify-center gap-6 md:gap-12 pb-4 md:pb-10">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-stretch md:items-end justify-center gap-6 md:gap-12 pb-4 md:pb-10">
           {PRODUCTS.map((product, i) => (
             <motion.div
               key={i}
