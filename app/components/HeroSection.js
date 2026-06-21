@@ -19,6 +19,7 @@ export default function HeroSection() {
         ease: "power3.out"
       });
 
+      /*
       // Cards staggered animation
       gsap.from(`.${styles.card}`, {
         x: 100,
@@ -40,6 +41,7 @@ export default function HeroSection() {
         stagger: 0.2,
         delay: 1.5
       });
+      */
 
     }, containerRef);
 
@@ -48,20 +50,32 @@ export default function HeroSection() {
 
   return (
     <section ref={containerRef} className={styles.heroSection}>
+      {/* Left side cream background to prevent image bleed */}
+      <div className={styles.bgLeft}></div>
+
       {/* Right side cream background for split look */}
-      <div className={styles.bgRight}></div>
+      <div className={styles.bgRight}>
+        <Image
+          src="/hero.png"
+          alt="Hero Background"
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          priority
+          sizes="(max-width: 1024px) 80vw, 50vw"
+        />
+      </div>
 
       {/* Horizontal Divider for Mobile */}
       <div className={styles.dividerHorizontal}>
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-          <path d="M0,80 C240,0 480,80 720,0 C960,80 1200,0 1440,80 L1440,80 L0,80 Z" fill="var(--warm-beige)" />
+          <path d="M0,0 L1440,0 L1440,80 C1200,0 960,80 720,0 C480,80 240,0 0,80 Z" fill="var(--cream)" />
         </svg>
       </div>
 
       {/* Vertical Divider for Desktop */}
       <div className={styles.dividerVertical}>
         <svg viewBox="0 0 100 1440" preserveAspectRatio="none">
-          <path d="M100,0 C30,120 70,240 50,360 C30,480 70,600 50,720 C30,840 70,960 50,1080 C30,1200 70,1320 100,1440 Z" fill="var(--warm-beige)" />
+          <path d="M0,0 L100,0 C30,120 70,240 50,360 C30,480 70,600 50,720 C30,840 70,960 50,1080 C30,1200 70,1320 100,1440 L0,1440 Z" fill="var(--cream)" />
         </svg>
       </div>
 
@@ -70,24 +84,24 @@ export default function HeroSection() {
       <div className={styles.bgBlob2}></div>
 
       <div className={styles.container}>
-        
+
         {/* Left Content */}
         <div className={styles.leftContent}>
           <div className={styles.badge}>
             <span className={styles.badgeDot}></span>
             Premium Craft Muesli
           </div>
-          
+
           <h1 className={styles.title}>
             Coming Soon. <br />
             <span className={styles.titleHighlight}>Worth The Wait.</span>
           </h1>
-          
+
           <p className={styles.description}>
             We&apos;re still building this website.<br /><br />
             A few things you&apos;re seeing here are placeholders, test products, and temporary content used during development. The real Maya&apos;s Naturals experience is on the way.
           </p>
-          
+
           <div className={styles.actions}>
             <button className={styles.btnPrimary}>
               Discover Now
@@ -106,7 +120,7 @@ export default function HeroSection() {
 
         {/* Right Content - Staggered Cards */}
         <div className={styles.rightContent}>
-          {/* Card 1 */}
+          {/* 
           <div className={`${styles.card} ${styles.card1}`}>
             <div className={`${styles.cardImage} ${styles.card1Image}`}>
               <Image src="/products/Cocoa Almond Museli.png" alt="Cocoa & Almond" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
@@ -115,7 +129,6 @@ export default function HeroSection() {
             <div className={styles.cardPrice}>Rs. 499</div>
           </div>
 
-          {/* Card 2 */}
           <div className={`${styles.card} ${styles.card2}`}>
             <div className={`${styles.cardImage} ${styles.card2Image}`}>
               <Image src="/products/Default Museli.png" alt="Classic Super Muesli" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
@@ -124,7 +137,6 @@ export default function HeroSection() {
             <div className={styles.cardPrice}>Rs. 449</div>
           </div>
 
-          {/* Card 3 */}
           <div className={`${styles.card} ${styles.card3}`}>
             <div className={`${styles.cardImage} ${styles.card3Image}`}>
               <Image src="/products/Chocolate Museli.png" alt="Chocolate Delight" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
@@ -132,9 +144,12 @@ export default function HeroSection() {
             <div className={styles.cardTitle}>Chocolate Delight</div>
             <div className={styles.cardPrice}>Rs. 525</div>
           </div>
+          */}
+
+          {/* Static background image is placed in bgRight to span the whole right part */}
         </div>
       </div>
-      
+
       {/* Wavy bottom paper edge */}
       <div className={styles.wavyBottom}>
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none">

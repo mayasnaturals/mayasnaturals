@@ -13,37 +13,54 @@
   .heroSection {
     min-height: 90vh;
     padding: 10rem 3rem;
+    margin-top: 7%;
   }
 }
 
-/* Right side cream background */
+.bgLeft {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .bgLeft {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: calc(50% - 98px);
+    background-color: var(--cream);
+    z-index: 2;
+  }
+}
+
 .bgRight {
   position: absolute;
   top: auto;
   bottom: 0;
-  height: 260px;
+  height: 340px;
   left: 0;
   right: 0;
-  background-color: var(--warm-beige);
   z-index: 1;
+  overflow: hidden;
 }
 @media (min-width: 1024px) {
   .bgRight {
     top: 0;
     height: auto;
-    left: 50%;
+    left: 40%;
+    z-index: 1;
   }
 }
 
 /* Wavy Dividers */
 .dividerHorizontal {
   position: absolute;
-  bottom: 260px;
+  bottom: 320px;
   top: auto;
   left: 0;
   width: 100%;
   transform: translateY(1px);
-  z-index: 1;
+  z-index: 5;
 }
 .dividerHorizontal svg {
   width: 100%;
@@ -61,10 +78,9 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
+  left: calc(50% - 100px);
   width: 100px;
-  transform: translateX(-99%);
-  z-index: 1;
+  z-index: 5;
 }
 .dividerVertical svg {
   width: 100%;
