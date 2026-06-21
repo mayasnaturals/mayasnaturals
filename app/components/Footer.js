@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -8,7 +9,9 @@ export default function Footer() {
         {/* Top row: Brand + Newsletter */}
         <div className="footer-top">
           <div className="footer-brand-block">
-            <h3 className="footer-brand">Maya</h3>
+            <div className="footer-brand">
+              <Image src="/logo.png" alt="Maya" width={200} height={80} className="h-20 w-auto object-contain" />
+            </div>
             <p className="footer-tagline">
               Premium craft muesli for the modern adventurer. Wholesome,
               energizing, and crafted with care.

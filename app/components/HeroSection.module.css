@@ -5,14 +5,14 @@
   min-height: 100dvh;
   display: flex;
   align-items: center;
-  background-color: #2A1A10;
+  background-color: var(--cream);
   overflow: hidden;
   padding: 6rem 1.25rem 3rem;
 }
 @media (min-width: 1024px) {
   .heroSection {
     min-height: 90vh;
-    padding: 5rem 3rem;
+    padding: 10rem 3rem;
   }
 }
 
@@ -24,7 +24,7 @@
   height: 260px;
   left: 0;
   right: 0;
-  background-color: #FFF8F0;
+  background-color: var(--warm-beige);
   z-index: 1;
 }
 @media (min-width: 1024px) {
@@ -90,13 +90,13 @@
   left: -10%;
   width: 50%;
   height: 50%;
-  background-color: #E8752A;
-  opacity: 0.25;
+  background-color: var(--accent-gold);
+  opacity: 0.15;
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 @keyframes pulse {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 0.15; }
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.08; }
 }
 
 .bgBlob2 {
@@ -104,9 +104,9 @@
   right: -10%;
   width: 50%;
   height: 50%;
-  background-color: #F5A623;
+  background-color: var(--brand-red);
   mix-blend-mode: multiply;
-  opacity: 0.2;
+  opacity: 0.05;
 }
 
 
@@ -131,7 +131,7 @@
 }
 
 .leftContent {
-  color: #FFF8F0;
+  color: var(--text-dark);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -144,9 +144,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(227, 6, 19, 0.05);
+  border: 1px solid rgba(227, 6, 19, 0.15);
+  color: var(--brand-red);
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 700;
@@ -158,7 +158,7 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 9999px;
-  background-color: #F5A623;
+  background-color: var(--accent-gold);
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -168,7 +168,6 @@
   line-height: 1.1;
   letter-spacing: -0.025em;
   text-transform: uppercase;
-  text-shadow: 0 10px 15px rgba(0,0,0,0.1);
   font-family: var(--font-display);
 }
 @media (min-width: 768px) {
@@ -179,16 +178,14 @@
 }
 
 .titleHighlight {
-  color: #F5A623;
-  text-shadow: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
+  color: var(--brand-red);
 }
 
 .description {
   font-size: 0.95rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-body);
   line-height: 1.625;
-  text-shadow: 0 4px 6px rgba(0,0,0,0.05);
   font-family: var(--font-body);
 }
 @media (min-width: 768px) {
@@ -210,15 +207,15 @@
 
 .btnPrimary {
   padding: 0.75rem 1.5rem;
-  background-color: #ffffff;
-  color: #E8752A;
+  background-color: var(--brand-red);
+  color: var(--white);
   border-radius: 9999px;
   font-weight: 700;
   font-size: 0.95rem;
   border: none;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(227, 6, 19, 0.3), 0 10px 10px -5px rgba(227, 6, 19, 0.2);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -230,16 +227,16 @@
   }
 }
 .btnPrimary:hover {
-  background-color: #FFF8F0;
+  background-color: var(--brand-red-dark);
   transform: scale(1.05);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(227, 6, 19, 0.4);
 }
 
 .btnSecondary {
   padding: 0.75rem 1.5rem;
   background-color: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff;
+  border: 2px solid var(--accent-gold);
+  color: var(--text-dark);
   border-radius: 9999px;
   font-weight: 700;
   font-size: 0.95rem;
@@ -256,8 +253,7 @@
   }
 }
 .btnSecondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(245, 179, 35, 0.1);
 }
 
 .rightContent {

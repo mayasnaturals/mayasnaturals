@@ -5,40 +5,47 @@
    ============================================ */
 
 :root {
-  /* Warm Food Palette */
-  --bg-cream: #FFF8F0;
-  --bg-warm: #FDF0E0;
+  /* Warm Food Palette (Updated to Bright D2C Aesthetic) */
+  --brand-red: #E30613;
+  --brand-red-dark: #C4000F;
+  
+  --cream: #FDF0E0;
+  --warm-beige: #F3E3D0;
+  
+  --bg-cream: #FDF0E0;
+  --bg-warm: #F3E3D0;
   --bg-deep-brown: #2A1A10;
   --bg-section-alt: #FFF1E3;
 
   --accent-orange: #E8752A;
   --accent-coral: #E85D5D;
-  --accent-gold: #F5A623;
+  --accent-gold: #F5B323;
   --accent-amber: #D4880F;
   --accent-green: #5EAD5E;
   --accent-lime: #8BC34A;
   --accent-brown: #6B3A23;
   --accent-rose: #E87B7B;
 
-  --text-dark: #2A1A10;
-  --text-body: #4A3628;
-  --text-muted: #8B7260;
-  --text-light: #FFF8F0;
+  --text-dark: #2B1B14;
+  --text-body: rgba(43, 27, 20, 0.8);
+  --text-muted: rgba(43, 27, 20, 0.6);
+  --text-light: #FFFFFF;
+  --white: #FFFFFF;
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #E8752A 0%, #F5A623 100%);
+  --gradient-primary: linear-gradient(135deg, #E8752A 0%, #F5B323 100%);
   --gradient-warm: linear-gradient(135deg, #E8752A 0%, #E85D5D 100%);
-  --gradient-gold: linear-gradient(135deg, #F5A623 0%, #E8752A 100%);
-  --gradient-sunset: linear-gradient(135deg, #E85D5D 0%, #F5A623 100%);
+  --gradient-gold: linear-gradient(135deg, #F5B323 0%, #E8752A 100%);
+  --gradient-sunset: linear-gradient(135deg, #E85D5D 0%, #F5B323 100%);
   --gradient-nature: linear-gradient(135deg, #5EAD5E 0%, #8BC34A 100%);
-  --gradient-cream: linear-gradient(180deg, #FFF8F0 0%, #FDF0E0 100%);
+  --gradient-cream: linear-gradient(180deg, #FFF7EE 0%, #F8EBDD 100%);
 
   --font-display: 'Outfit', var(--font-outfit), sans-serif;
   --font-body: 'Inter', var(--font-inter), sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--bg-cream);
+  --color-background: var(--cream);
   --color-foreground: var(--text-dark);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);

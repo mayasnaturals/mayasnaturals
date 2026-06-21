@@ -80,10 +80,7 @@ export default function CurvedTextSection() {
               variants={cardVariants}
               initial="hidden"
               animate={controls}
-              className="product-card w-[260px] md:w-[320px] mx-auto"
-              style={{
-                marginBottom: typeof window !== "undefined" && window.innerWidth >= 768 && i === 1 ? "40px" : "0",
-              }}
+              className={`product-card w-[260px] md:w-[320px] mx-auto ${i === 1 ? 'md:mb-[40px]' : ''}`}
             >
               <motion.div
                 className="product-card-image relative overflow-hidden"

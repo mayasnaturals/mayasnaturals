@@ -54,14 +54,14 @@ export default function HeroSection() {
       {/* Horizontal Divider for Mobile */}
       <div className={styles.dividerHorizontal}>
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-          <path d="M0,80 C240,0 480,80 720,0 C960,80 1200,0 1440,80 L1440,80 L0,80 Z" fill="#FFF8F0" />
+          <path d="M0,80 C240,0 480,80 720,0 C960,80 1200,0 1440,80 L1440,80 L0,80 Z" fill="var(--warm-beige)" />
         </svg>
       </div>
 
       {/* Vertical Divider for Desktop */}
       <div className={styles.dividerVertical}>
         <svg viewBox="0 0 100 1440" preserveAspectRatio="none">
-          <path d="M100,0 C30,120 70,240 50,360 C30,480 70,600 50,720 C30,840 70,960 50,1080 C30,1200 70,1320 100,1440 Z" fill="#FFF8F0" />
+          <path d="M100,0 C30,120 70,240 50,360 C30,480 70,600 50,720 C30,840 70,960 50,1080 C30,1200 70,1320 100,1440 Z" fill="var(--warm-beige)" />
         </svg>
       </div>
 
@@ -79,12 +79,13 @@ export default function HeroSection() {
           </div>
           
           <h1 className={styles.title}>
-            Fuel Your <br/> 
-            <span className={styles.titleHighlight}>Mornings.</span>
+            Coming Soon. <br />
+            <span className={styles.titleHighlight}>Worth The Wait.</span>
           </h1>
           
           <p className={styles.description}>
-            Wholesome grains, sun-kissed fruits, and premium nuts — crafted for those who start each day with intention and energy.
+            We&apos;re still building this website.<br /><br />
+            A few things you&apos;re seeing here are placeholders, test products, and temporary content used during development. The real Maya&apos;s Naturals experience is on the way.
           </p>
           
           <div className={styles.actions}>
@@ -137,7 +138,7 @@ export default function HeroSection() {
       {/* Wavy bottom paper edge */}
       <div className={styles.wavyBottom}>
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-          <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#FFF8F0" />
+          <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="var(--cream)" />
         </svg>
       </div>
     </section>

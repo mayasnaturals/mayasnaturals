@@ -17,10 +17,17 @@ export default function Home() {
         <HeroSection />
 
         {/* Marquee divider */}
-        <MarqueeBanner
+        {/* <MarqueeBanner
           text="HAVE YOU SNACKED TODAY? • PREMIUM CRAFT MUESLI • FUEL YOUR MORNINGS"
-          bgColor="#2A1A10"
-          textColor="#F5A623"
+          bgColor="#E30613"
+          textColor="#ffffffff"
+          speed={30}
+          fontSize="0.85rem"
+        /> */}
+        <MarqueeBanner
+          text="WE ARE NOT LIVE YET • COMING SOON"
+          bgColor="#E30613"
+          textColor="#ffffffff"
           speed={30}
           fontSize="0.85rem"
         />
