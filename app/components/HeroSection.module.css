@@ -12,7 +12,7 @@
 @media (min-width: 1024px) {
   .heroSection {
     min-height: 90vh;
-    padding: 10rem 3rem;
+    padding: 7rem 3rem;
     margin-top: 7%;
   }
 }
@@ -179,7 +179,7 @@
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.025em;
@@ -187,10 +187,10 @@
   font-family: var(--font-display);
 }
 @media (min-width: 768px) {
-  .title { font-size: 4.5rem; }
+  .title { font-size: 3.5rem; }
 }
 @media (min-width: 1024px) {
-  .title { font-size: 6rem; }
+  .title { font-size: 4rem; }
 }
 
 .titleHighlight {
