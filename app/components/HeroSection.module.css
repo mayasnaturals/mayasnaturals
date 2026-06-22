@@ -8,6 +8,7 @@
   background-color: var(--cream);
   overflow: hidden;
   padding: 6rem 1.25rem 3rem;
+  margin-top: 27%;
 }
 @media (min-width: 1024px) {
   .heroSection {
