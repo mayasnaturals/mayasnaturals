@@ -1,9 +1,7 @@
 .container {
   min-height: 100vh;
   background-color: #FFF8F0;
-  padding: 1.5rem;
-  padding-top: 8rem; /* to account for navbar */
-  padding-bottom: 6rem;
+  padding: 15rem 1.5rem 6rem 1.5rem; /* top right bottom left */
 }
 
 .inner {

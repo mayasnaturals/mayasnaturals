@@ -9,17 +9,18 @@ import {
   Minus,
   Plus,
   ShieldCheck,
-  ShoppingBag,
   Sparkles,
   Star,
   Truck,
 } from "lucide-react";
 
-import { getProductBySlug, getProductSlug, products } from "@/data/productData";
+import { getProducts, getProduct } from "@/lib/shopify";
 import s from "./detail.module.css";
 import DetailAnimations from "./DetailAnimations";
+import VariantSelector from "./VariantSelector";
+import ImageGallery from "./ImageGallery";
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 const productCopy = {
   Muesli: {
@@ -65,35 +66,116 @@ const benefits = [
 ];
 
 export async function generateStaticParams() {
-  return products.map((product) => ({
-    slug: getProductSlug(product),
+  const shopifyProducts = await getProducts(50);
+  return (shopifyProducts || []).map((product) => ({
+    slug: product.handle,
   }));
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const productRaw = await getProduct(slug);
 
-  if (!product) {
+  if (!productRaw) {
     return { title: "Product not found | Maya" };
   }
 
   return {
-    title: `${product.name} ${product.type} | Maya`,
-    description: product.description,
+    title: `${productRaw.title} ${productRaw.productType || ""} | Maya`,
+    description: productRaw.description,
   };
 }
 
 export default async function ProductDetailsPage({ params }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const productRaw = await getProduct(slug);
 
-  if (!product) notFound();
+  if (!productRaw) notFound();
 
-  const copy = productCopy[product.type];
+  const firstVariant = productRaw.variants?.edges[0]?.node;
+  const variants = productRaw.variants?.edges.map(e => e.node) || [];
+  const options = productRaw.options || [];
+
+  function formatMetafieldValue(mf) {
+    if (!mf) return null;
+    
+    // Check for references (list of metaobjects)
+    if (mf.references?.edges?.length > 0) {
+      return mf.references.edges.map(e => {
+        const nameField = e.node.fields?.find(f => f.key === 'name' || f.key === 'label');
+        return nameField ? nameField.value : (e.node.handle ? e.node.handle.replace(/-/g, " ") : "Unknown");
+      }).join(", ");
+    }
+    
+    // Check for single reference (single metaobject)
+    if (mf.reference?.fields) {
+      const nameField = mf.reference.fields.find(f => f.key === 'name' || f.key === 'label');
+      return nameField ? nameField.value : (mf.reference.handle ? mf.reference.handle.replace(/-/g, " ") : "Unknown");
+    }
+
+    // Fallback to parsing JSON array or raw string
+    try {
+      const parsed = JSON.parse(mf.value);
+      if (Array.isArray(parsed)) {
+        const clean = parsed.filter(p => typeof p === 'string' && !p.includes("gid://"));
+        return clean.length > 0 ? clean.join(", ") : null;
+      }
+      return typeof parsed === 'string' && parsed.includes("gid://") ? null : parsed;
+    } catch {
+      return mf.value && typeof mf.value === 'string' && mf.value.includes("gid://") ? null : mf.value;
+    }
+  }
+
+  const rawMetafields = [
+    { key: "Allergen Information", value: formatMetafieldValue(productRaw.allergenCustom || productRaw.allergenShopify || productRaw.allergenShopify2) },
+    { key: "Dietary Preferences", value: formatMetafieldValue(productRaw.dietaryCustom || productRaw.dietaryShopify || productRaw.dietaryShopify2) },
+    { key: "Flavor", value: formatMetafieldValue(productRaw.flavorCustom || productRaw.flavorShopify || productRaw.flavorShopify2) },
+    { key: "Form", value: formatMetafieldValue(productRaw.formCustom || productRaw.formShopify || productRaw.formShopify2) },
+  ];
+  const metafields = rawMetafields.filter(mf => mf.value);
+  const allImages = productRaw.images?.edges.map(e => e.node) || [];
+
+  const product = {
+      id: firstVariant?.id || productRaw.id,
+      handle: productRaw.handle,
+      name: productRaw.title,
+      type: productRaw.productType || "Product",
+      price: parseFloat(productRaw.priceRange?.minVariantPrice?.amount || 0),
+      description: productRaw.description,
+      badge: productRaw.badge?.value || null,
+      newness: parseInt(productRaw.newness?.value) || 5,
+      image: allImages[0]?.url || "/products/Default Museli.png",
+      weight: firstVariant?.weight ? `${firstVariant.weight}${firstVariant.weightUnit.toLowerCase()}` : "400g",
+      colors: [
+        productRaw.colorDark?.value || "#2A1A10", 
+        productRaw.colorMid?.value || "#E8752A", 
+        productRaw.colorLight?.value || "#FFF8F0"
+      ],
+  };
+
+  const copy = productCopy[product.type] || productCopy["Muesli"];
   const [dark, mid, light] = product.colors;
-  const relatedProducts = products
-    .filter((item) => item.id !== product.id && item.type === product.type)
+  
+  const allProducts = await getProducts(50);
+  const relatedProducts = (allProducts || [])
+    .filter((item) => item.id !== productRaw.id && item.productType === productRaw.productType)
+    .map(p => {
+        const v = p.variants?.edges[0]?.node;
+        return {
+            id: v?.id || p.id,
+            handle: p.handle,
+            name: p.title,
+            type: p.productType || "Product",
+            price: parseFloat(p.priceRange?.minVariantPrice?.amount || 0),
+            image: p.images?.edges[0]?.node?.url || "/products/Default Museli.png",
+            weight: v?.weight ? `${v.weight}${v.weightUnit.toLowerCase()}` : "400g",
+            colors: [
+              p.colorDark?.value || "#2A1A10", 
+              p.colorMid?.value || "#E8752A", 
+              p.colorLight?.value || "#FFF8F0"
+            ],
+        };
+    })
     .slice(0, 3);
 
   return (
@@ -119,11 +201,13 @@ export default async function ProductDetailsPage({ params }) {
               </Link>
 
               <div className={s.badges}>
-                <span className={s.badgePrimary} data-anim="badge">
-                  {product.badge}
-                </span>
+                {product.badge && (
+                  <span className={s.badgePrimary} data-anim="badge">
+                    {product.badge}
+                  </span>
+                )}
                 <span className={s.badgeSecondary} data-anim="badge">
-                  {product.type} / {product.weight}
+                  {product.type}
                 </span>
               </div>
 
@@ -131,40 +215,38 @@ export default async function ProductDetailsPage({ params }) {
                 {product.name}
               </h1>
 
-              <p className={s.heroDesc} data-anim="desc">
-                {copy.headline} {product.description}
-              </p>
-
-              <div className={s.heroActions}>
-                <div className={s.priceBox} data-anim="action">
-                  <p className={s.priceLabel}>Price</p>
-                  <strong className={s.priceValue}>
-                    Rs.&nbsp;{product.price}
-                  </strong>
-                </div>
-                <button className={s.addBtn} data-anim="action">
-                  <ShoppingBag size={20} strokeWidth={3} />
-                  Add to bag
-                </button>
+              <div className={s.heroDesc} data-anim="desc">
+                <p><strong>{copy.headline}</strong></p>
+                {product.description && product.description.includes("*") ? (
+                  <>
+                    <p>{product.description.split("*")[0].trim()}</p>
+                    <ul className={s.descList}>
+                      {product.description.split("*").slice(1).map((point, idx) => (
+                        <li key={idx}>{point.trim()}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>{product.description}</p>
+                )}
               </div>
+
+              <VariantSelector 
+                options={options} 
+                variants={variants} 
+                initialVariant={firstVariant} 
+              />
             </div>
 
             {/* Image */}
-            <div className={s.heroImageWrap}>
-              <div className={s.imageCard} data-anim="image">
-                <span className={s.crunchBadge} data-anim="crunch">
-                  Crunch 10/10
-                </span>
-                <div className={s.imageFrame}>
-                  <Image
-                    src={product.image}
-                    alt={`${product.name} ${product.type} pack`}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 85vw, 480px"
-                    className={s.productImg}
-                  />
-                </div>
+            <div className={s.heroVisual} data-anim="visual">
+              <div className={s.imageBlock}>
+                <ImageGallery 
+                  images={allImages} 
+                  productName={product.name} 
+                  productType={product.type} 
+                />
+                
                 <div className={s.colorStrip}>
                   {[dark, mid, light].map((c) => (
                     <div
@@ -213,6 +295,27 @@ export default async function ProductDetailsPage({ params }) {
               {copy.texture} The finish is bold, tidy, and snackable.
             </p>
           </article>
+
+          {/* Metafields Info */}
+          {metafields.length > 0 && (
+            <article
+              className={`${s.featureCard} ${s.featureCardCream}`}
+              data-anim="feature"
+            >
+              <ShieldCheck size={30} strokeWidth={3} className={s.featureIcon} style={{ color: "#75b843" }} />
+              <p className={`${s.featureKicker} ${s.featureKickerOrange}`}>
+                The specifics
+              </p>
+              <h2 className={s.featureTitle}>Product Info</h2>
+              <ul className={s.metafieldList}>
+                {metafields.map((mf) => (
+                  <li key={mf.key} className={s.metafieldItem}>
+                    <strong>{mf.key}:</strong> {mf.value}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )}
 
           {/* Inside the Pack */}
           <article
@@ -321,7 +424,7 @@ export default async function ProductDetailsPage({ params }) {
                 {relatedProducts.map((item) => (
                   <Link
                     key={item.id}
-                    href={`/products/${getProductSlug(item)}`}
+                    href={`/products/${item.handle}`}
                     className={s.relatedCard}
                     data-anim="related-card"
                   >

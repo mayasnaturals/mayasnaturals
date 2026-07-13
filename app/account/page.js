@@ -19,9 +19,7 @@ export default function AccountPage() {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    await logout();
-    await refreshCustomer();
-    router.push("/");
+    window.location.href = "/api/auth/logout";
   };
 
   if (isLoading || !customer) {
@@ -42,7 +40,7 @@ export default function AccountPage() {
             <h1 className={styles.userName}>
               Hi, {customer.firstName || 'There'}!
             </h1>
-            <p className={styles.userEmail}>{customer.email}</p>
+            <p className={styles.userEmail}>{customer.emailAddress?.emailAddress}</p>
           </div>
           <button
             onClick={handleLogout}
@@ -75,7 +73,7 @@ export default function AccountPage() {
                 return (
                   <div key={order.id} className={styles.orderRow}>
                     <div className={styles.orderMeta}>
-                      <p className={styles.orderId}>Order #{order.orderNumber}</p>
+                      <p className={styles.orderId}>{order.name || 'Order'}</p>
                       <p className={styles.orderDate}>
                         {new Date(order.processedAt).toLocaleDateString()}
                       </p>

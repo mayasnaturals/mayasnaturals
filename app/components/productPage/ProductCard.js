@@ -2,18 +2,16 @@ import { Check, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { getProductSlug } from "@/data/productData";
 import styles from "../../products/products.module.css";
 
 
 function ProductCard({ product, index, onAdd, isAdded }) {
-    const productHref = `/products/${getProductSlug(product)}`;
+    const productHref = `/products/${product.handle}`;
     const cardStyle = {
         "--card-dark": product.colors[0],
         "--card-mid": product.colors[1],
         "--card-light": product.colors[2],
     };
-
     return (
         <motion.article
             layout
@@ -47,9 +45,11 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                     <span>{product.weight}</span>
                 </div>
                 <h3>
-                    <Link href={productHref}>{product.name}</Link>
+                    <Link href={productHref} style={{ textTransform: "capitalize" }}>
+                        {product.name.toLowerCase()}
+                    </Link>
                 </h3>
-                <p>{product.description}</p>
+
                 <div className={styles.productBottom}>
                     <div>
                         <strong>₹{product.price}</strong>

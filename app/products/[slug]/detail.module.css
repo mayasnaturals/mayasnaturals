@@ -21,7 +21,7 @@
   border-bottom: 3px solid var(--ink);
   background: var(--product-mid);
   color: #fff9ed;
-  padding: 160px 32px 72px;
+  padding: 220px 32px 72px;
 }
 
 .heroTexture {
@@ -125,6 +125,15 @@
   color: rgba(255, 249, 237, 0.9);
 }
 
+.descList {
+  list-style: disc;
+  margin-top: 12px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .heroActions {
   display: flex;
   flex-wrap: wrap;
@@ -184,6 +193,83 @@
   color: var(--ink);
 }
 
+.qtySelector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.qtySelectorBtn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  color: var(--orange);
+}
+
+.qtySelectorNum {
+  font-size: 1rem;
+  font-weight: 900;
+  min-width: 20px;
+  text-align: center;
+}
+
+.optionsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.optionsLabel {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 249, 237, 0.9);
+}
+
+.optionsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.optionBtn {
+  padding: 10px 18px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: all 180ms ease;
+}
+
+.optionBtn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.optionBtnActive {
+  background: var(--yellow);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 1px 1px 0 var(--ink);
+  transform: translate(2px, 2px);
+}
+
+
 /* Hero image card */
 .heroImageWrap {
   display: flex;
@@ -239,6 +325,45 @@
   gap: 10px;
   margin-top: 12px;
 }
+
+.thumbnailRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.thumbnailWrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 2px solid var(--ink);
+  background: var(--product-light);
+  overflow: hidden;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.thumbnailWrap:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.thumbnailActive {
+  border-color: var(--orange);
+  box-shadow: 2px 2px 0 var(--orange);
+}
+
+.thumbnailImg {
+  object-fit: contain;
+  padding: 4px;
+}
+
 
 .colorSwatch {
   height: 12px;
@@ -364,6 +489,26 @@
   font-weight: 900;
   text-transform: uppercase;
   box-shadow: 3px 3px 0 var(--ink);
+}
+
+.metafieldList {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.metafieldItem {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(41, 24, 14, 0.2);
+}
+
+.metafieldItem:last-child {
+  border-bottom: none;
 }
 
 .ritualsList {

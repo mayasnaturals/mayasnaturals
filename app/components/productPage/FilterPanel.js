@@ -2,7 +2,7 @@ import { Check, Search, Sparkles, X } from "lucide-react";
 
 import styles from "../../products/products.module.css";
 
-const MAX_PRICE = 600;
+const MAX_PRICE = 3000;
 
 function FilterPanel({
     query,
@@ -83,12 +83,12 @@ function FilterPanel({
                     step="25"
                     value={maxPrice}
                     onChange={(event) => setMaxPrice(Number(event.target.value))}
-                    style={{ "--range-progress": `${((maxPrice - 200) / 400) * 100}%` }}
+                    style={{ "--range-progress": `${((maxPrice - 200) / 2800) * 100}%` }}
                     aria-label={`Maximum price ₹${maxPrice}`}
                 />
                 <div className={styles.rangeLabels}>
                     <span>₹200</span>
-                    <span>₹600</span>
+                    <span>₹3000</span>
                 </div>
             </div>
 

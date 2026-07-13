@@ -14,7 +14,7 @@ import SortSelect from "../components/productPage/SortSelect";
 import styles from "./products.module.css";
 import { useCart } from "@/context/CartContext";
 
-const MAX_PRICE = 600;
+const MAX_PRICE = 3000;
 
 export default function ProductCatalog({ initialProducts }) {
   const [query, setQuery] = useState("");

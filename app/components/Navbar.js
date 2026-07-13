@@ -19,7 +19,7 @@ export default function Navbar() {
     if (customer) {
       router.push("/account");
     } else {
-      router.push("/login");
+      window.location.href = "/api/auth/login";
     }
   };
 
