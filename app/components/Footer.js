@@ -86,6 +86,11 @@ export default function Footer() {
               <Link href="#">Track Order</Link>
             </nav>
           </div>
+          <div className="footer-col items-center lg:items-end justify-center w-full mt-4 lg:mt-0">
+            <a href="https://www.refrens.com" target="_blank" rel="noopener noreferrer" className="opacity-90 hover:opacity-100 transition-opacity duration-300 w-full max-w-[280px]">
+              <Image src="/refrens.png" alt="Accounting Powered by Refrens" width={350} height={120} className="w-full h-auto object-contain mx-auto" />
+            </a>
+          </div>
         </div>
 
         {/* Bottom bar */}
