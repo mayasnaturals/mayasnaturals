@@ -2,11 +2,12 @@
 
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import styles from "./CartDrawer.module.css";
 
 export default function CartDrawer() {
-  const { isCartOpen, setIsCartOpen, cart, updateQuantity, removeLineItem, checkoutUrl, isLoading } = useCart();
+  const { isCartOpen, setIsCartOpen, cart, updateQuantity, removeLineItem, isLoading } = useCart();
 
   if (!isCartOpen) return null;
 
@@ -99,12 +100,13 @@ export default function CartDrawer() {
                 ₹{cart.cost.subtotalAmount.amount}
               </span>
             </div>
-            <a
-              href={checkoutUrl}
+            <Link
+              href="/checkout"
+              onClick={() => setIsCartOpen(false)}
               className={styles.checkoutBtn}
             >
               Checkout
-            </a>
+            </Link>
           </div>
         )}
       </div>
