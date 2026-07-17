@@ -60,7 +60,7 @@ export default function Navbar() {
       <div
         className="absolute top-0 left-0 w-full overflow-hidden z-[101] flex items-center bg-white"
         style={{
-          height: '64px',
+          height: '36px',
           borderBottom: '1px solid rgba(227, 6, 19, 0.1)'
         }}
       >
@@ -72,13 +72,13 @@ export default function Navbar() {
                 className="m-0 font-black tracking-wider"
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '2rem',
+                  fontSize: '0.85rem',
                   color: 'var(--brand-red)',
                   lineHeight: 1,
                   whiteSpace: 'nowrap'
                 }}
               >
-                WE ARE COMING SOON
+                CRAZY CRUNCHY • ZERO JUNK • BOLD FLAVOURS
               </h2>
             ))}
           </div>
@@ -89,13 +89,13 @@ export default function Navbar() {
                 className="m-0 font-black tracking-wider"
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '2rem',
+                  fontSize: '0.85rem',
                   color: 'var(--brand-red)',
                   lineHeight: 1,
                   whiteSpace: 'nowrap'
                 }}
               >
-                WE ARE COMING SOON
+                CRAZY CRUNCHY • ZERO JUNK • BOLD FLAVOURS
               </h2>
             ))}
           </div>
@@ -105,7 +105,7 @@ export default function Navbar() {
       <header
         className={`navbar-header ${isScrolled ? "navbar-scrolled" : ""}`}
         style={{
-          top: isScrolled ? "0" : "64px",
+          top: isScrolled ? "0" : "36px",
           padding: isScrolled ? "1.5rem 0" : "2rem 0",
           transition: "top 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease",
           background: isScrolled ? "rgba(227, 6, 19, 0.95)" : "var(--brand-red)",

@@ -20,7 +20,7 @@ export default async function Home() {
         <HeroSection />
 
         <MarqueeBanner
-          text="WE ARE NOT LIVE YET • COMING SOON"
+          text="PREMIUM CRAFT MUESLI • 100% REAL INGREDIENTS • ZERO REFINED SUGAR • BOLD FLAVOURS"
           bgColor="#E30613"
           textColor="#ffffffff"
           speed={30}
