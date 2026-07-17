@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="footer-top">
           <div className="footer-brand-block">
             <div className="footer-brand">
-              <Image src="/logo.png" alt="Maya" width={200} height={80} className="h-20 w-auto object-contain" />
+              <Image src="/logo.png" alt="Maya" width={200} height={80} className="h-20 w-auto object-contain" style={{ width: "auto", height: "auto" }} />
             </div>
             <p className="footer-tagline">
               Premium craft muesli for the modern adventurer. Wholesome,

@@ -108,7 +108,7 @@
   font-family: var(--font-display);
   font-size: clamp(3rem, 7vw, 6.5rem);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 1.05;
   letter-spacing: -0.04em;
   text-transform: uppercase;
   text-shadow: 4px 4px 0 var(--ink);
@@ -139,7 +139,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  margin-top: 32px;
+  margin-top: 30px;
 }
 
 .priceBox {
@@ -184,6 +184,7 @@
   cursor: pointer;
   box-shadow: 5px 5px 0 var(--yellow);
   transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, color 180ms ease;
+  margin-bottom: 30px;
 }
 
 .addBtn:hover {
@@ -376,7 +377,7 @@
 .benefits {
   border-bottom: 3px solid var(--ink);
   background: var(--yellow);
-  padding: 18px 32px;
+  padding: 8px 32px 32px; /* Heavily biased bottom padding to push tags up */
 }
 
 .benefitsInner {
@@ -385,12 +386,14 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 10px;
 }
 
 .benefitTag {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 9px 16px;
   border: 2px solid var(--ink);
@@ -400,136 +403,64 @@
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
   box-shadow: 3px 3px 0 var(--ink);
 }
 
-/* ────────────────── FEATURE CARDS ────────────────── */
+.benefitTag svg {
+  margin-top: -1px; /* Optically align icon with uppercase text */
+}
 
-.features {
+/* ────────────────── CLEAN CRUNCH (MINIMAL) ────────────────── */
+
+.cleanCrunch {
+  padding: 40px 32px 60px;
+  background: var(--bg-cream);
+}
+
+.cleanCrunchInner {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 80px 32px 88px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
-.featureCard {
-  padding: 28px 24px;
-  border: 3px solid var(--ink);
-  border-radius: 24px;
-  box-shadow: 7px 7px 0 var(--ink);
-}
-
-.featureCardCream {
-  background: #fffdf8;
-  color: var(--ink);
-}
-
-.featureCardOrange {
-  background: var(--orange);
-  color: #fff9ed;
-}
-
-.featureCardGreen {
-  background: var(--green);
-  color: #203313;
-}
-
-.featureIcon {
-  margin-bottom: 20px;
-}
-
-.featureKicker {
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.featureKickerOrange {
-  color: var(--orange);
-}
-
-.featureKickerYellow {
-  color: var(--yellow);
-}
-
-.featureTitle {
-  margin-top: 10px;
+.cleanCrunchTitle {
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 2.5vw, 2.4rem);
-  font-weight: 900;
-  line-height: 0.95;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--ink);
   text-transform: uppercase;
-}
-
-.featureDesc {
-  margin-top: 18px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  line-height: 1.65;
-  color: #715a4b;
+  margin-bottom: 20px;
 }
 
 .ingredientTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
+  justify-content: center;
+  gap: 12px;
 }
 
 .ingredientTag {
-  padding: 8px 12px;
+  display: inline-block;
+  padding: 10px 18px;
   border: 2px solid var(--ink);
   border-radius: 999px;
-  background: var(--cream);
+  background: #fffdf8;
   color: var(--ink);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 900;
   text-transform: uppercase;
   box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
-.metafieldList {
-  list-style: none;
-  display: grid;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.metafieldItem {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.4;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(41, 24, 14, 0.2);
-}
-
-.metafieldItem:last-child {
-  border-bottom: none;
-}
-
-.ritualsList {
-  list-style: none;
-  display: grid;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.ritualItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border: 2px solid var(--ink);
-  border-radius: 16px;
-  background: #effbc8;
-  color: #203313;
-  font-size: 0.88rem;
-  font-weight: 800;
-  box-shadow: 3px 3px 0 var(--ink);
+.ingredientTag:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--ink);
 }
 
 /* ────────────────── NUTRITION ────────────────── */
@@ -889,7 +820,7 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 140px 22px 56px;
+    padding: 200px 22px 56px;
   }
 
   .heroTitle {
@@ -941,13 +872,13 @@
   }
 
   .benefits {
-    padding: 14px 22px;
+    padding: 6px 22px 20px; /* Heavily biased bottom padding to push tags up */
   }
 }
 
 @media (max-width: 560px) {
   .hero {
-    padding: 128px 16px 48px;
+    padding: 210px 16px 48px;
   }
 
   .heroTitle {

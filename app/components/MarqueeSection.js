@@ -14,7 +14,7 @@ export default function MarqueeSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full pt-24 pb-40 md:py-40 lg:py-48 overflow-hidden flex flex-col justify-center items-center"
+      className="relative w-full pt-24 pb-32 mt-10 md:mt-20 md:py-40 lg:py-48 overflow-hidden flex flex-col justify-center items-center"
       style={{ background: "#FFF8F0" }}
     >
       {/* Decorative Food Elements */}
@@ -56,13 +56,13 @@ export default function MarqueeSection() {
           Pure Joy in<br />
           <span style={{ color: "#E8752A" }}>Every Bite</span>
         </motion.h2>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="mt-10"
+          className="mt-5"
         >
           <p
             className="text-base md:text-xl lg:text-2xl font-body font-bold max-w-2xl mx-auto"

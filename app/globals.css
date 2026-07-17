@@ -51,15 +51,10 @@
   --font-display: var(--font-display);
 }
 
-/* ============================================
-   Base
-   ============================================ */
+/* Tailwind v4 Preflight already handles box-sizing, margin, and padding resets.
+   The previous manual reset (*, *::before, *::after { margin:0; padding:0; })
+   was overriding Tailwind utility classes like mt-10, px-5, etc. */
 
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 html {
   background: var(--bg-cream);

@@ -57,7 +57,7 @@ const values = [
 ];
 
 const reels = [
-  { id: 1, label: "Farm to Pack" },
+  { id: 1, label: "Farm to Pack", video: "/videos/video1.mp4" },
   { id: 2, label: "Morning Rituals" },
   { id: 3, label: "The Roast" },
   { id: 4, label: "Community" },
@@ -269,43 +269,6 @@ export default function OurStoryClient() {
           </div>
         </div>
       </section>
-
-      {/* ══════════════ VALUES ══════════════ */}
-      <section ref={valuesRef} className="os-values">
-        <div className="wave-divider wave-divider-top">
-          <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-            <path d="M0,30 C240,70 480,10 720,50 C960,80 1200,20 1440,40 L1440,0 L0,0 Z" fill="#fff8eb" />
-          </svg>
-        </div>
-        <div className="os-values-inner">
-          <div className="os-values-header">
-            <p className="os-section-kicker" style={{ color: "#ffc833" }}>
-              What we stand for
-            </p>
-            <h2 className="os-section-title" style={{ color: "#fff9ed" }}>
-              Principles, not marketing.
-            </h2>
-          </div>
-          <div className="os-values-grid">
-            {values.map((v) => (
-              <article
-                key={v.title}
-                className="os-value-card"
-                style={{
-                  background: v.bg,
-                  color: v.fg,
-                  "--card-shadow": v.shadow,
-                }}
-              >
-                <v.icon size={28} strokeWidth={3} className="os-value-icon" />
-                <h3>{v.title}</h3>
-                <p>{v.desc}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════ REELS ══════════════ */}
       <section ref={reelsRef} className="os-reels">
         <div className="wave-divider wave-divider-top">
@@ -329,14 +292,28 @@ export default function OurStoryClient() {
               {reels.map((reel) => (
                 <div key={reel.id} className="os-reel-card">
                   <div className="os-reel-placeholder">
-                    {/* Video will be placed here — 9:16 */}
-                    <div className="os-reel-overlay">
-                      <div className="os-reel-play">
-                        <Play size={28} strokeWidth={3} fill="currentColor" />
-                      </div>
-                      <span className="os-reel-coming">Coming Soon</span>
-                    </div>
-                    <div className="os-reel-grain" />
+                    {reel.video ? (
+                      <video
+                        src={reel.video}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        className="os-reel-video"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <>
+                        <div className="os-reel-overlay">
+                          <div className="os-reel-play">
+                            <Play size={28} strokeWidth={3} fill="currentColor" />
+                          </div>
+                          <span className="os-reel-coming">Coming Soon</span>
+                        </div>
+                        <div className="os-reel-grain" />
+                      </>
+                    )}
                   </div>
                   <p className="os-reel-label">{reel.label}</p>
                 </div>

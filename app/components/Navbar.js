@@ -123,6 +123,7 @@ export default function Navbar() {
               width={260}
               height={360}
               className="w-auto h-[360px] object-contain drop-shadow-xl"
+              style={{ width: "auto", height: "auto" }}
               priority
             />
           </Link>

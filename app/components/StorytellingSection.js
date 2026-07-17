@@ -101,12 +101,12 @@ export default function StorytellingSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-screen overflow-hidden flex mx-auto items-center py-10 justify-center"
+      className="relative w-full py-24 md:py-10 md:min-h-screen overflow-hidden flex mx-auto items-center justify-center"
       style={{ backgroundColor: STORY_IMAGES[0].bg }}
     >
-      <div className="relative z-10 w-full h-full flex flex-col md:flex-row items-center justify-center max-w-[1400px] mx-auto px-5 md:px-16 gap-8 md:gap-20">
+      <div className="relative z-10 w-full flex flex-col md:flex-row items-center justify-center max-w-[1400px] mx-auto px-5 md:px-16 gap-16 md:gap-20">
         {/* Story Text */}
-        <div className="flex-1 text-center md:text-left">
+        <div className="w-full md:flex-1 text-center md:text-left">
           <p
             ref={kickerRef}
             className="text-sm font-body tracking-[0.25em] uppercase mb-6 font-bold"
@@ -126,7 +126,7 @@ export default function StorytellingSection() {
         </div>
 
         {/* Rotating Product Graphic */}
-        <div className="flex-1 flex justify-center items-center mt-6 md:mt-0">
+        <div className="w-full md:flex-1 flex justify-center items-center mt-6 md:mt-0">
           <div
             ref={productRef}
             className="w-[220px] h-[250px] md:w-[500px] md:h-[550px] flex items-center justify-center relative group cursor-pointer"

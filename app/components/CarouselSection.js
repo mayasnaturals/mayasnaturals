@@ -10,17 +10,18 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const CAROUSEL_ITEMS = [
-  { id: 1, title: "Cocoa & Almond", subtitle: "Rich cocoa blend", color: "#8f503b", image: "/products/Cocoa Almond Museli.png" },
-  { id: 2, title: "Nuts & Seeds", subtitle: "Hearty mix of oats", color: "#087f7d", image: "/products/Nutsseeds Museli.png" },
-  { id: 3, title: "Chocolate Delight", subtitle: "Deep cocoa crunch", color: "#604032", image: "/products/Chocolate Museli.png" },
-  { id: 4, title: "Classic Super", subtitle: "Original 20-in-1", color: "#c52b67", image: "/products/Default Museli.png" },
-];
-
-export default function CarouselSection() {
+export default function CarouselSection({ products = [] }) {
   const sectionRef = useRef(null);
   const containerRef = useRef(null);
   const wrapperRef = useRef(null);
+
+  const displayProducts = products?.length > 0 ? products.map(p => ({
+    id: p.id,
+    title: p.title,
+    price: p.priceRange?.minVariantPrice ? `Rs. ${parseInt(p.priceRange.minVariantPrice.amount)}` : "",
+    color: p.colorDark?.value || "#604032",
+    image: p.images?.edges?.[0]?.node?.url || "/products/Chocolate Museli.png"
+  })) : [];
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -29,62 +30,68 @@ export default function CarouselSection() {
 
     if (!section || !container || !wrapper) return;
 
-    const amountToScroll = container.scrollWidth - wrapper.offsetWidth;
+    let mm = gsap.matchMedia();
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: `+=${amountToScroll + 1000}`,
-        pin: true,
-        scrub: 1,
-        anticipatePin: 1,
-      }
+    mm.add("(min-width: 768px)", () => {
+      // Desktop: Horizontal Scroll
+      const amountToScroll = container.scrollWidth - wrapper.offsetWidth;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: `+=${amountToScroll + 1000}`,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        }
+      });
+
+      tl.to(container, {
+        x: -amountToScroll,
+        ease: "none",
+      }, 0);
+
+      return () => {
+        tl.kill();
+        ScrollTrigger.getAll().forEach(t => t.trigger === section ? t.kill() : null);
+      };
     });
 
-    tl.to(container, {
-      x: -amountToScroll,
-      ease: "none",
-    }, 0);
+    return () => mm.revert();
+  }, [displayProducts]);
 
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.trigger === section ? t.kill() : null);
-    };
-  }, []);
+  if (!displayProducts || displayProducts.length === 0) return null;
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden flex flex-col justify-center"
+      className="relative w-full h-auto md:h-screen overflow-hidden flex flex-col justify-center pt-28 pb-28 md:pt-0 md:pb-0"
       style={{ background: "#E8752A" }}
     >
       {/* Wavy top edge */}
-      <div className="wave-divider wave-divider-top">
+      <div className="wave-divider wave-divider-top  md:block">
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
           <path d="M0,60 C360,20 720,80 1080,30 C1260,10 1380,50 1440,20 L1440,0 L0,0 Z" fill="#FDF0E0" />
         </svg>
       </div>
 
-      <div className="text-center mb-6 md:mb-10 z-10 relative px-5">
+      <div className="text-center mb-6 z-10 relative px-5">
         <h2 className="text-3xl md:text-5xl lg:text-7xl font-display font-black uppercase tracking-tighter"
           style={{ color: "#FFF8F0" }}>
           Explore the Range
         </h2>
-        <p className="mt-2 md:mt-3 text-sm md:text-lg font-body font-medium" style={{ color: "rgba(255,248,240,0.75)" }}>
-          Swipe through our handcrafted flavors
-        </p>
       </div>
 
-      <div ref={wrapperRef} className="w-full overflow-hidden z-10 flex items-center h-[50vh] md:h-[55vh]">
+      <div ref={wrapperRef} className="w-full z-10 flex items-center md:h-[55vh]">
         <div
           ref={containerRef}
-          className="flex gap-6 md:gap-10 px-[50vw] items-center h-full will-change-transform"
-          style={{ width: "max-content" }}
+          className="flex flex-col md:flex-row gap-8 md:gap-10 px-5 md:px-[50vw] items-center w-full md:w-max md:h-full md:will-change-transform mx-auto md:mx-0"
         >
-          {CAROUSEL_ITEMS.map((item, i) => (
+          {displayProducts.map((item, i) => (
             <div
               key={item.id}
-              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[220px] md:w-[380px]"
+              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[380px] gap-7"
             >
               <motion.div
                 className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
@@ -100,11 +107,11 @@ export default function CarouselSection() {
                 </div>
               </motion.div>
               <div className="mt-4 md:mt-6 text-center">
-                <h3 className="text-lg md:text-2xl font-display font-black mb-1" style={{ color: "#FFF8F0" }}>
+                <h3 className="text-xl md:text-2xl font-display font-black mb-1" style={{ color: "#FFF8F0" }}>
                   {item.title}
                 </h3>
-                <p className="font-body font-medium text-xs md:text-sm" style={{ color: "rgba(255,248,240,0.7)" }}>
-                  {item.subtitle}
+                <p className="font-body font-bold text-lg md:text-xl" style={{ color: "rgba(255,248,240,0.9)" }}>
+                  {item.price}
                 </p>
               </div>
             </div>
@@ -113,7 +120,7 @@ export default function CarouselSection() {
       </div>
 
       {/* Wavy bottom edge */}
-      <div className="wave-divider wave-divider-bottom">
+      <div className="wave-divider wave-divider-bottom md:block">
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
           <path d="M0,30 C240,70 480,10 720,50 C960,80 1200,20 1440,40 L1440,80 L0,80 Z" fill="#FFF8F0" />
         </svg>

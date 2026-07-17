@@ -1,5 +1,3 @@
-"use client";
-
 import SmoothScroller from "./components/SmoothScroller";
 import HeroSection from "./components/HeroSection";
 import MarqueeBanner from "./components/MarqueeBanner";
@@ -8,22 +6,19 @@ import CarouselSection from "./components/CarouselSection";
 import MarqueeSection from "./components/MarqueeSection";
 import StorytellingSection from "./components/StorytellingSection";
 import CTASection from "./components/CTASection";
+import { getProducts } from "../lib/shopify";
 
-export default function Home() {
+export default async function Home() {
+  // Fetch mueslis and makhanas from Shopify
+  const mueslis = await getProducts(3, "Muesli");
+  const makhanas = await getProducts(9, "Makhana");
+
   return (
     <SmoothScroller>
       <main className="overflow-hidden" style={{ background: "#FFF8F0" }}>
         {/* SECTION 1 — Hero with image sequence */}
         <HeroSection />
 
-        {/* Marquee divider */}
-        {/* <MarqueeBanner
-          text="HAVE YOU SNACKED TODAY? • PREMIUM CRAFT MUESLI • FUEL YOUR MORNINGS"
-          bgColor="#E30613"
-          textColor="#ffffffff"
-          speed={30}
-          fontSize="0.85rem"
-        /> */}
         <MarqueeBanner
           text="WE ARE NOT LIVE YET • COMING SOON"
           bgColor="#E30613"
@@ -33,10 +28,10 @@ export default function Home() {
         />
 
         {/* SECTION 2 — Product Showcase */}
-        <CurvedTextSection />
+        <CurvedTextSection products={mueslis} />
 
         {/* SECTION 3 — Flavor Carousel */}
-        <CarouselSection />
+        <CarouselSection products={makhanas} />
 
         {/* SECTION 4 — Double Marquee */}
         <MarqueeSection />

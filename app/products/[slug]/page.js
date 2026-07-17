@@ -98,7 +98,7 @@ export default async function ProductDetailsPage({ params }) {
 
   function formatMetafieldValue(mf) {
     if (!mf) return null;
-    
+
     // Check for references (list of metaobjects)
     if (mf.references?.edges?.length > 0) {
       return mf.references.edges.map(e => {
@@ -106,7 +106,7 @@ export default async function ProductDetailsPage({ params }) {
         return nameField ? nameField.value : (e.node.handle ? e.node.handle.replace(/-/g, " ") : "Unknown");
       }).join(", ");
     }
-    
+
     // Check for single reference (single metaobject)
     if (mf.reference?.fields) {
       const nameField = mf.reference.fields.find(f => f.key === 'name' || f.key === 'label');
@@ -136,45 +136,45 @@ export default async function ProductDetailsPage({ params }) {
   const allImages = productRaw.images?.edges.map(e => e.node) || [];
 
   const product = {
-      id: firstVariant?.id || productRaw.id,
-      handle: productRaw.handle,
-      name: productRaw.title,
-      type: productRaw.productType || "Product",
-      price: parseFloat(productRaw.priceRange?.minVariantPrice?.amount || 0),
-      description: productRaw.description,
-      badge: productRaw.badge?.value || null,
-      newness: parseInt(productRaw.newness?.value) || 5,
-      image: allImages[0]?.url || "/products/Default Museli.png",
-      weight: firstVariant?.weight ? `${firstVariant.weight}${firstVariant.weightUnit.toLowerCase()}` : "400g",
-      colors: [
-        productRaw.colorDark?.value || "#2A1A10", 
-        productRaw.colorMid?.value || "#E8752A", 
-        productRaw.colorLight?.value || "#FFF8F0"
-      ],
+    id: firstVariant?.id || productRaw.id,
+    handle: productRaw.handle,
+    name: productRaw.title,
+    type: productRaw.productType || "Product",
+    price: parseFloat(productRaw.priceRange?.minVariantPrice?.amount || 0),
+    description: productRaw.description,
+    badge: productRaw.badge?.value || null,
+    newness: parseInt(productRaw.newness?.value) || 5,
+    image: allImages[0]?.url || "/products/Default Museli.png",
+    weight: firstVariant?.weight ? `${firstVariant.weight}${firstVariant.weightUnit.toLowerCase()}` : "400g",
+    colors: [
+      productRaw.colorDark?.value || "#2A1A10",
+      productRaw.colorMid?.value || "#E8752A",
+      productRaw.colorLight?.value || "#FFF8F0"
+    ],
   };
 
   const copy = productCopy[product.type] || productCopy["Muesli"];
   const [dark, mid, light] = product.colors;
-  
+
   const allProducts = await getProducts(50);
   const relatedProducts = (allProducts || [])
     .filter((item) => item.id !== productRaw.id && item.productType === productRaw.productType)
     .map(p => {
-        const v = p.variants?.edges[0]?.node;
-        return {
-            id: v?.id || p.id,
-            handle: p.handle,
-            name: p.title,
-            type: p.productType || "Product",
-            price: parseFloat(p.priceRange?.minVariantPrice?.amount || 0),
-            image: p.images?.edges[0]?.node?.url || "/products/Default Museli.png",
-            weight: v?.weight ? `${v.weight}${v.weightUnit.toLowerCase()}` : "400g",
-            colors: [
-              p.colorDark?.value || "#2A1A10", 
-              p.colorMid?.value || "#E8752A", 
-              p.colorLight?.value || "#FFF8F0"
-            ],
-        };
+      const v = p.variants?.edges[0]?.node;
+      return {
+        id: v?.id || p.id,
+        handle: p.handle,
+        name: p.title,
+        type: p.productType || "Product",
+        price: parseFloat(p.priceRange?.minVariantPrice?.amount || 0),
+        image: p.images?.edges[0]?.node?.url || "/products/Default Museli.png",
+        weight: v?.weight ? `${v.weight}${v.weightUnit.toLowerCase()}` : "400g",
+        colors: [
+          p.colorDark?.value || "#2A1A10",
+          p.colorMid?.value || "#E8752A",
+          p.colorLight?.value || "#FFF8F0"
+        ],
+      };
     })
     .slice(0, 3);
 
@@ -231,22 +231,22 @@ export default async function ProductDetailsPage({ params }) {
                 )}
               </div>
 
-              <VariantSelector 
-                options={options} 
-                variants={variants} 
-                initialVariant={firstVariant} 
+              <VariantSelector
+                options={options}
+                variants={variants}
+                initialVariant={firstVariant}
               />
             </div>
 
             {/* Image */}
             <div className={s.heroVisual} data-anim="visual">
               <div className={s.imageBlock}>
-                <ImageGallery 
-                  images={allImages} 
-                  productName={product.name} 
-                  productType={product.type} 
+                <ImageGallery
+                  images={allImages}
+                  productName={product.name}
+                  productType={product.type}
                 />
-                
+
                 <div className={s.colorStrip}>
                   {[dark, mid, light].map((c) => (
                     <div
@@ -274,85 +274,18 @@ export default async function ProductDetailsPage({ params }) {
           </div>
         </section>
 
-        {/* ══════ FEATURE CARDS ══════ */}
-        <section className={s.features} data-anim="features">
-          {/* Taste Notes */}
-          <article
-            className={`${s.featureCard} ${s.featureCardCream}`}
-            data-anim="feature"
-          >
-            <Sparkles
-              size={30}
-              strokeWidth={3}
-              className={s.featureIcon}
-              style={{ color: "#f25c2a" }}
-            />
-            <p className={`${s.featureKicker} ${s.featureKickerOrange}`}>
-              Taste notes
-            </p>
-            <h2 className={s.featureTitle}>Built for cravings</h2>
-            <p className={s.featureDesc}>
-              {copy.texture} The finish is bold, tidy, and snackable.
-            </p>
-          </article>
-
-          {/* Metafields Info */}
-          {metafields.length > 0 && (
-            <article
-              className={`${s.featureCard} ${s.featureCardCream}`}
-              data-anim="feature"
-            >
-              <ShieldCheck size={30} strokeWidth={3} className={s.featureIcon} style={{ color: "#75b843" }} />
-              <p className={`${s.featureKicker} ${s.featureKickerOrange}`}>
-                The specifics
-              </p>
-              <h2 className={s.featureTitle}>Product Info</h2>
-              <ul className={s.metafieldList}>
-                {metafields.map((mf) => (
-                  <li key={mf.key} className={s.metafieldItem}>
-                    <strong>{mf.key}:</strong> {mf.value}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          )}
-
-          {/* Inside the Pack */}
-          <article
-            className={`${s.featureCard} ${s.featureCardOrange}`}
-            data-anim="feature"
-          >
-            <Leaf size={30} strokeWidth={3} className={s.featureIcon} />
-            <p className={`${s.featureKicker} ${s.featureKickerYellow}`}>
-              Inside the pack
-            </p>
-            <h2 className={s.featureTitle}>Clean crunch</h2>
+        {/* ══════ CLEAN CRUNCH ══════ */}
+        <section className={s.cleanCrunch} data-anim="features">
+          <div className={s.cleanCrunchInner}>
+            <h2 className={s.cleanCrunchTitle}>Inside the pack:</h2>
             <div className={s.ingredientTags}>
               {copy.ingredients.map((item) => (
-                <span key={item} className={s.ingredientTag}>
+                <span key={item} className={s.ingredientTag} data-anim="feature">
                   {item}
                 </span>
               ))}
             </div>
-          </article>
-
-          {/* Daily Rituals */}
-          <article
-            className={`${s.featureCard} ${s.featureCardGreen}`}
-            data-anim="feature"
-          >
-            <Star size={30} strokeWidth={3} className={s.featureIcon} />
-            <p className={s.featureKicker}>Best with</p>
-            <h2 className={s.featureTitle}>Daily rituals</h2>
-            <ul className={s.ritualsList}>
-              {copy.rituals.map((item) => (
-                <li key={item} className={s.ritualItem}>
-                  <BadgeCheck size={18} strokeWidth={3} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </article>
+          </div>
         </section>
 
         {/* ══════ NUTRITION FACTS ══════ */}
@@ -370,39 +303,6 @@ export default async function ProductDetailsPage({ params }) {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ══════ ONE PACK MANY MOODS ══════ */}
-        <section className={s.onePack} data-anim="onepack">
-          <div data-anim="onepack-text">
-            <p className={s.onePackKicker}>Make it yours</p>
-            <h2 className={s.onePackTitle}>One pack. Many moods.</h2>
-          </div>
-
-          <div className={s.qtyCard} data-anim="onepack-card">
-            <div className={s.qtyRow}>
-              <div>
-                <p className={s.qtyLabel}>Quantity</p>
-                <strong className={s.qtyValue}>1 pack</strong>
-              </div>
-              <div className={s.qtyBtns}>
-                <button className={s.qtyBtn} aria-label="Decrease quantity">
-                  <Minus size={18} strokeWidth={3} />
-                </button>
-                <button
-                  className={`${s.qtyBtn} ${s.qtyBtnAccent}`}
-                  aria-label="Increase quantity"
-                >
-                  <Plus size={18} strokeWidth={3} />
-                </button>
-              </div>
-            </div>
-            <p className={s.storeTip}>
-              <Heart size={20} strokeWidth={3} className={s.storeTipIcon} />
-              Store sealed in a cool, dry spot. Once opened, finish within 30
-              days for the best crunch.
-            </p>
           </div>
         </section>
 

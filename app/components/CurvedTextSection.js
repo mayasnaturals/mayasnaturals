@@ -10,10 +10,18 @@ const PRODUCTS = [
   { name: "Mint Masala", color: "#73a65a", price: "Rs. 279", desc: "Fresh savoury crunch", image: "/products/Mint Makhana.jpeg" },
 ];
 
-export default function CurvedTextSection() {
+export default function CurvedTextSection({ products = [] }) {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: false, margin: "-20%" });
   const controls = useAnimation();
+
+  // Map Shopify products or fallback to local static data
+  const displayProducts = products?.length > 0 ? products.map(p => ({
+    name: p.title,
+    color: p.colorDark?.value || "#E8752A",
+    price: p.priceRange?.minVariantPrice ? `Rs. ${parseInt(p.priceRange.minVariantPrice.amount)}` : "",
+    image: p.images?.edges?.[0]?.node?.url || "/products/Default Museli.png"
+  })) : PRODUCTS;
 
   useEffect(() => {
     if (isInView) {
@@ -46,9 +54,9 @@ export default function CurvedTextSection() {
         </svg>
       </div>
 
-      <div className="pt-28 pb-20 px-5 md:pt-32 md:pb-32 md:px-6">
+      <div className="relative z-10 pt-[180px] pb-20 px-5 md:pt-[220px] md:pb-32 md:px-6 mt-12">
         {/* Section Header */}
-        <div className="text-center mb-10 md:mb-20">
+        <div className="text-center mb-20 md:mb-28">
           <motion.span
             className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 md:mb-6"
             style={{ background: "rgba(232,117,42,0.12)", color: "#E8752A" }}
@@ -67,13 +75,13 @@ export default function CurvedTextSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1 }}
           >
-            Taste the<br />Revolution
+            Taste the Revolution
           </motion.h2>
         </div>
 
         {/* Product Cards in Arc Layout */}
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-stretch md:items-end justify-center gap-6 md:gap-12 pb-4 md:pb-10">
-          {PRODUCTS.map((product, i) => (
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center md:items-end justify-center gap-6 md:gap-12 pb-4 md:pb-10 mt-12 mb-16">
+          {displayProducts.map((product, i) => (
             <motion.div
               key={i}
               custom={i}
@@ -92,7 +100,7 @@ export default function CurvedTextSection() {
               </motion.div>
               <div className="product-card-body">
                 <h3 className="product-card-name">{product.name}</h3>
-                <p className="product-card-desc">{product.desc}</p>
+
                 <div className="product-card-price">{product.price}</div>
               </div>
             </motion.div>
