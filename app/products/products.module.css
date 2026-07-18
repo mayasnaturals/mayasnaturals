@@ -9,7 +9,7 @@
 
 .hero {
   min-height: 740px;
-  padding: 150px 32px 96px;
+  padding: 30px 32px 96px;
   position: relative;
   overflow: hidden;
   background: #f04e24;
@@ -18,52 +18,11 @@
   align-items: center;
 }
 
-.heroTexture {
+.heroImageOverlay {
   position: absolute;
   inset: 0;
-  opacity: 0.22;
-  background-image: radial-gradient(#5b1d10 1px, transparent 1px);
-  background-size: 18px 18px;
-  mask-image: linear-gradient(to bottom, #000, transparent 90%);
-}
-
-.heroOrbOne,
-.heroOrbTwo {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.heroOrbOne {
-  width: min(48vw, 680px);
-  aspect-ratio: 1;
-  right: -14%;
-  top: -20%;
-  background: #ffc928;
-  border: 18px solid #29180e;
-  box-shadow: -28px 32px 0 #ff7b37;
-  animation: floatOrb 7s ease-in-out infinite;
-}
-
-.heroOrbTwo {
-  width: 230px;
-  aspect-ratio: 1;
-  left: -70px;
-  bottom: 60px;
-  background: #78b84a;
-  border: 14px solid #29180e;
-  box-shadow: 22px 22px 0 #ffd44a;
-  animation: floatOrb 6s 0.8s ease-in-out infinite reverse;
-}
-
-@keyframes floatOrb {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(-10px, 18px, 0) rotate(5deg);
-  }
+  z-index: 1;
+  background: linear-gradient(135deg, rgba(160, 40, 10, 0.75), rgba(41, 24, 14, 0.85));
 }
 
 .heroInner {
@@ -786,19 +745,10 @@
 @media (max-width: 820px) {
   .hero {
     min-height: 680px;
-    padding: 140px 24px 100px;
+    padding: 20px 24px 100px;
   }
 
-  .heroOrbOne {
-    width: 520px;
-    right: -300px;
-    top: -80px;
-  }
 
-  .heroOrbTwo {
-    width: 150px;
-    left: -70px;
-  }
 
   .shopSection {
     padding: 82px 22px 90px;
@@ -950,7 +900,7 @@
 @media (max-width: 560px) {
   .hero {
     min-height: 650px;
-    padding: 128px 18px 90px;
+    padding: 18px 18px 90px;
   }
 
   .heroTitle {

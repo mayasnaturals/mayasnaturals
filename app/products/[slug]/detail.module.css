@@ -21,7 +21,7 @@
   border-bottom: 3px solid var(--ink);
   background: var(--product-mid);
   color: #fff9ed;
-  padding: 220px 32px 72px;
+  padding: 70px 32px 72px;
 }
 
 .heroTexture {
@@ -820,7 +820,7 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 200px 22px 56px;
+    padding: 50px 22px 56px;
   }
 
   .heroTitle {
@@ -878,7 +878,7 @@
 
 @media (max-width: 560px) {
   .hero {
-    padding: 210px 16px 48px;
+    padding: 60px 16px 48px;
   }
 
   .heroTitle {

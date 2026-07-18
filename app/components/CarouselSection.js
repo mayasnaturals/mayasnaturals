@@ -91,7 +91,7 @@ export default function CarouselSection({ products = [] }) {
           {displayProducts.map((item, i) => (
             <div
               key={item.id}
-              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[380px] gap-7"
+              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[380px] gap-4 md:gap-5"
             >
               <motion.div
                 className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
@@ -102,17 +102,14 @@ export default function CarouselSection({ products = [] }) {
                 whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 2 : -2 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <div className="relative w-[92%] h-[92%] rounded-[24px] overflow-hidden group-hover:scale-[1.03] transition-transform duration-500">
+                <div className="relative w-[calc(100%-12px)] h-[calc(100%-12px)] rounded-[26px] overflow-hidden group-hover:scale-[1.03] transition-transform duration-500">
                   <Image src={item.image} alt={item.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
                 </div>
               </motion.div>
-              <div className="mt-4 md:mt-6 text-center">
-                <h3 className="text-xl md:text-2xl font-display font-black mb-1" style={{ color: "#FFF8F0" }}>
+              <div className="text-center w-full px-4 flex items-start justify-center min-h-[60px] md:min-h-[72px]">
+                <h3 className="text-lg md:text-2xl font-display font-black mb-1 line-clamp-2 leading-tight tracking-wide" style={{ color: "#FFF8F0" }}>
                   {item.title}
                 </h3>
-                <p className="font-body font-bold text-lg md:text-xl" style={{ color: "rgba(255,248,240,0.9)" }}>
-                  {item.price}
-                </p>
               </div>
             </div>
           ))}

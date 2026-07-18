@@ -1,7 +1,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 270px 20px 40px; /* Increased top padding to clear fixed header */
+  padding: 120px 20px 40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;

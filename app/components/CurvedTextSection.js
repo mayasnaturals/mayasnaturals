@@ -54,9 +54,9 @@ export default function CurvedTextSection({ products = [] }) {
         </svg>
       </div>
 
-      <div className="relative z-10 pt-[180px] pb-20 px-5 md:pt-[220px] md:pb-32 md:px-6 mt-12">
+      <div className="relative z-10 pt-20 pb-16 px-5 md:pt-20 md:pb-18 md:px-6">
         {/* Section Header */}
-        <div className="text-center mb-20 md:mb-28">
+        <div className="text-center mb-16 md:mb-20">
           <motion.span
             className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4 md:mb-6"
             style={{ background: "rgba(232,117,42,0.12)", color: "#E8752A" }}
@@ -88,20 +88,25 @@ export default function CurvedTextSection({ products = [] }) {
               variants={cardVariants}
               initial="hidden"
               animate={controls}
-              className={`product-card w-[260px] md:w-[320px] mx-auto ${i === 1 ? 'md:mb-[40px]' : ''}`}
+              className={`relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[320px] mx-auto gap-4 md:gap-5 ${i === 1 ? 'md:mb-[40px]' : ''}`}
             >
               <motion.div
-                className="product-card-image relative overflow-hidden"
-                style={{ backgroundColor: product.color }}
-                whileHover={{ scale: 1.03 }}
+                className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
+                style={{
+                  backgroundColor: product.color,
+                  boxShadow: "0 12px 40px rgba(42,26,16,0.1)",
+                }}
+                whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Image src={product.image} alt={product.name} fill priority style={{ objectFit: 'contain', padding: '1rem' }} sizes="(max-width: 768px) 100vw, 33vw" />
+                <div className="relative w-[calc(100%-12px)] h-[calc(100%-12px)] rounded-[26px] overflow-hidden group-hover:scale-[1.03] transition-transform duration-500">
+                  <Image src={product.image} alt={product.name} fill priority style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
+                </div>
               </motion.div>
-              <div className="product-card-body">
-                <h3 className="product-card-name">{product.name}</h3>
-
-                <div className="product-card-price">{product.price}</div>
+              <div className="text-center w-full px-4 flex items-start justify-center min-h-[60px] md:min-h-[72px]">
+                <h3 className="text-lg md:text-2xl font-display font-black mb-1 line-clamp-2 leading-tight tracking-wide text-gray-900">
+                  {product.name}
+                </h3>
               </div>
             </motion.div>
           ))}

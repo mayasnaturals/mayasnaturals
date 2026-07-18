@@ -135,17 +135,48 @@ export default async function ProductDetailsPage({ params }) {
   const metafields = rawMetafields.filter(mf => mf.value);
   const allImages = productRaw.images?.edges.map(e => e.node) || [];
 
+  let minWeightVariant = variants[0];
+  if (variants.length > 0) {
+    minWeightVariant = variants.reduce((minVar, currentVar) => {
+      const minVal = parseFloat(minVar.weight || 0);
+      const currentVal = parseFloat(currentVar.weight || 0);
+      if (minVal === 0 && currentVal > 0) return currentVar;
+      if (currentVal > 0 && currentVal < minVal) return currentVar;
+      return minVar;
+    }, variants[0]);
+  }
+  
+  let weightStr = "400g";
+  if (minWeightVariant?.weight && minWeightVariant?.weightUnit) {
+    weightStr = `${minWeightVariant.weight}${minWeightVariant.weightUnit.toLowerCase()}`;
+  } else if (minWeightVariant?.title && minWeightVariant.title !== 'Default Title') {
+    weightStr = minWeightVariant.title;
+  }
+
+  const price = minWeightVariant?.price?.amount 
+    ? parseFloat(minWeightVariant.price.amount) 
+    : parseFloat(productRaw.priceRange?.minVariantPrice?.amount || 0);
+
+  let productType = productRaw.productType;
+  if (!productType || productType.toLowerCase() === 'product') {
+     if (productRaw.title.toLowerCase().includes('makhana')) productType = 'Makhana';
+     else if (productRaw.title.toLowerCase().includes('museli') || productRaw.title.toLowerCase().includes('muesli')) productType = 'Muesli';
+     else productType = 'Snack';
+  } else {
+     if (productType.toLowerCase().includes('museli')) productType = 'Muesli';
+  }
+
   const product = {
-    id: firstVariant?.id || productRaw.id,
+    id: minWeightVariant?.id || productRaw.id,
     handle: productRaw.handle,
     name: productRaw.title,
-    type: productRaw.productType || "Product",
-    price: parseFloat(productRaw.priceRange?.minVariantPrice?.amount || 0),
+    type: productType,
+    price: price,
     description: productRaw.description,
     badge: productRaw.badge?.value || null,
     newness: parseInt(productRaw.newness?.value) || 5,
     image: allImages[0]?.url || "/products/Default Museli.png",
-    weight: firstVariant?.weight ? `${firstVariant.weight}${firstVariant.weightUnit.toLowerCase()}` : "400g",
+    weight: weightStr,
     colors: [
       productRaw.colorDark?.value || "#2A1A10",
       productRaw.colorMid?.value || "#E8752A",
@@ -160,15 +191,46 @@ export default async function ProductDetailsPage({ params }) {
   const relatedProducts = (allProducts || [])
     .filter((item) => item.id !== productRaw.id && item.productType === productRaw.productType)
     .map(p => {
-      const v = p.variants?.edges[0]?.node;
+      const pVariants = p.variants?.edges?.map(e => e.node) || [];
+      let minPVariant = pVariants[0];
+      if (pVariants.length > 0) {
+        minPVariant = pVariants.reduce((minVar, currentVar) => {
+          const minVal = parseFloat(minVar.weight || 0);
+          const currentVal = parseFloat(currentVar.weight || 0);
+          if (minVal === 0 && currentVal > 0) return currentVar;
+          if (currentVal > 0 && currentVal < minVal) return currentVar;
+          return minVar;
+        }, pVariants[0]);
+      }
+      
+      let pWeightStr = "400g";
+      if (minPVariant?.weight && minPVariant?.weightUnit) {
+        pWeightStr = `${minPVariant.weight}${minPVariant.weightUnit.toLowerCase()}`;
+      } else if (minPVariant?.title && minPVariant.title !== 'Default Title') {
+        pWeightStr = minPVariant.title;
+      }
+      
+      const pPrice = minPVariant?.price?.amount 
+        ? parseFloat(minPVariant.price.amount) 
+        : parseFloat(p.priceRange?.minVariantPrice?.amount || 0);
+
+      let pType = p.productType;
+      if (!pType || pType.toLowerCase() === 'product') {
+         if (p.title.toLowerCase().includes('makhana')) pType = 'Makhana';
+         else if (p.title.toLowerCase().includes('museli') || p.title.toLowerCase().includes('muesli')) pType = 'Muesli';
+         else pType = 'Snack';
+      } else {
+         if (pType.toLowerCase().includes('museli')) pType = 'Muesli';
+      }
+
       return {
-        id: v?.id || p.id,
+        id: minPVariant?.id || p.id,
         handle: p.handle,
         name: p.title,
-        type: p.productType || "Product",
-        price: parseFloat(p.priceRange?.minVariantPrice?.amount || 0),
+        type: pType,
+        price: pPrice,
         image: p.images?.edges[0]?.node?.url || "/products/Default Museli.png",
-        weight: v?.weight ? `${v.weight}${v.weightUnit.toLowerCase()}` : "400g",
+        weight: pWeightStr,
         colors: [
           p.colorDark?.value || "#2A1A10",
           p.colorMid?.value || "#E8752A",

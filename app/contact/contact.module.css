@@ -18,7 +18,7 @@
   position: relative;
   background: var(--ink);
   color: #fff9ed;
-  padding: 260px 32px 80px;
+  padding: 110px 32px 80px;
   border-bottom: 3px solid var(--ink);
   text-align: center;
 }
@@ -159,7 +159,7 @@
   }
   
   .hero {
-    padding: 140px 22px 60px;
+    padding: 0 22px 60px;
   }
   
   .infoBlock {

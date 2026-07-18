@@ -44,7 +44,7 @@
   background: #29180e;
   color: #fff9ed;
   overflow: hidden;
-  padding: 120px 32px 80px;
+  padding: 0 32px 80px;
 }
 
 .os-hero-texture {
@@ -651,7 +651,7 @@
 
 @media (max-width: 768px) {
   .os-hero {
-    padding: 140px 22px 60px;
+    padding: 0 22px 60px;
     min-height: 90vh;
   }
 

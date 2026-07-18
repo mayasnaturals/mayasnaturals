@@ -11,14 +11,21 @@ const tickerItems = [
   "No boring bites",
 ];
 
+import Image from "next/image";
+
 export default function CatalogHero() {
   return (
     <section className={styles.hero}>
-      <div className={styles.heroTexture} />
-      <div className={styles.heroOrbOne} />
-      <div className={styles.heroOrbTwo} />
+      <Image
+        src="/images/snack_hero_background.png"
+        alt="Premium crunchy muesli and makhana background"
+        fill
+        priority
+        style={{ objectFit: "cover", objectPosition: "center", zIndex: 0, }}
+      />
+      {/* <div className={styles.heroImageOverlay} /> */}
       <div className={styles.heroInner}>
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -26,8 +33,8 @@ export default function CatalogHero() {
         >
           <Sparkles size={17} fill="currentColor" />
           The Maya snack shop
-        </motion.div>
-        <h1 className={styles.heroTitle}>
+        </motion.div> */}
+        {/* <h1 className={styles.heroTitle}>
           {headingWords.map((word, index) => (
             <motion.span
               key={word}
@@ -43,8 +50,8 @@ export default function CatalogHero() {
               {word}
             </motion.span>
           ))}
-        </h1>
-        <motion.p
+        </h1> */}
+        {/* <motion.p
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.58 }}
@@ -60,9 +67,9 @@ export default function CatalogHero() {
           className={styles.heroLink}
         >
           Shop all flavours <ArrowRight size={18} />
-        </motion.a>
+        </motion.a> */}
       </div>
-      <div className={styles.heroTicker}>
+      {/* <div className={styles.heroTicker}>
         <div>
           {[...tickerItems, ...tickerItems].map((item, index) => (
             <span key={`${item}-${index}`}>
@@ -71,7 +78,7 @@ export default function CatalogHero() {
             </span>
           ))}
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }
