@@ -11,17 +11,13 @@ const tickerItems = [
   "No boring bites",
 ];
 
-import Image from "next/image";
-
 export default function CatalogHero() {
   return (
     <section className={styles.hero}>
-      <Image
+      <img
         src="/images/snack_hero_background.png"
         alt="Premium crunchy muesli and makhana background"
-        fill
-        priority
-        style={{ objectFit: "cover", objectPosition: "center", zIndex: 0, }}
+        className={styles.heroImage}
       />
       {/* <div className={styles.heroImageOverlay} /> */}
       <div className={styles.heroInner}>
