@@ -67,7 +67,7 @@ export default function CarouselSection({ products = [] }) {
     <section
       ref={sectionRef}
       className="relative w-full h-auto md:h-screen overflow-hidden flex flex-col justify-center pt-28 pb-28 md:pt-0 md:pb-0"
-      style={{ background: "#E8752A" }}
+      style={{ background: "#2A1A10" }}
     >
       {/* Wavy top edge */}
       <div className="wave-divider wave-divider-top  md:block">

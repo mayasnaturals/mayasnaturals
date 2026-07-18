@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { GiFruitBowl, GiWheat, GiHoneyJar, GiChocolateBar } from "react-icons/gi";
 
 export default function MarqueeSection() {
   const containerRef = useRef(null);
@@ -14,33 +15,33 @@ export default function MarqueeSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full pt-24 pb-32 mt-10 md:mt-20 md:py-40 lg:py-48 overflow-hidden flex flex-col justify-center items-center"
+      className="relative w-full pt-32 pb-36 mt-10 md:mt-20 md:py-40 lg:py-48 overflow-hidden flex flex-col justify-center items-center"
       style={{ background: "#FFF8F0" }}
     >
-      {/* Decorative Food Elements */}
+      {/* Decorative Food Icons */}
       <motion.div
-        className="absolute left-6 md:left-32 top-16 md:top-20 text-4xl md:text-6xl opacity-80"
+        className="absolute left-6 md:left-32 top-10 md:top-20 opacity-80"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]) }}
       >
-        🥣
+        <GiFruitBowl className="w-10 h-10 md:w-16 md:h-16" color="#5EAD5E" />
       </motion.div>
       <motion.div
-        className="absolute right-6 md:right-32 bottom-24 md:bottom-32 text-4xl md:text-6xl opacity-80"
+        className="absolute right-6 md:right-32 bottom-12 md:bottom-24 opacity-80"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
       >
-        🌾
+        <GiWheat className="w-10 h-10 md:w-16 md:h-16" color="#F5B323" />
       </motion.div>
       <motion.div
-        className="absolute left-1/4 bottom-12 md:bottom-20 text-3xl md:text-5xl opacity-60"
+        className="absolute left-10 md:left-1/4 bottom-16 md:bottom-20 opacity-60"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, -80]), rotate: 15 }}
       >
-        🍯
+        <GiHoneyJar className="w-12 h-12 md:w-20 md:h-20" color="#E8752A" />
       </motion.div>
       <motion.div
-        className="absolute right-1/4 top-20 md:top-32 text-3xl md:text-5xl opacity-60"
+        className="absolute right-10 md:right-1/4 top-12 md:top-24 opacity-60"
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, 80]), rotate: -15 }}
       >
-        🍫
+        <GiChocolateBar className="w-10 h-10 md:w-16 md:h-16" color="#6B3A23" />
       </motion.div>
 
       {/* Heading */}
@@ -62,7 +63,7 @@ export default function MarqueeSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="mt-5"
+          className="mt-6 md:mt-8"
         >
           <p
             className="text-base md:text-xl lg:text-2xl font-body font-bold max-w-2xl mx-auto"

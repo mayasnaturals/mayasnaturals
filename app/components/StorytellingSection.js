@@ -43,59 +43,57 @@ export default function StorytellingSection() {
 
     const spans = textEl.querySelectorAll("span");
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container,
-        start: "top top",
-        end: "+=2500",
-        pin: true,
-        scrub: 1,
-        anticipatePin: 1,
-      },
-    });
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: "top top",
+          end: "+=2500",
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
 
-    // Animate words opacity
-    tl.to(
-      spans,
-      {
-        opacity: 1,
-        stagger: 0.1,
-        ease: "none",
-        duration: 2,
-      },
-      0
-    );
-
-    // Rotate and scale product
-    tl.to(
-      productRef.current,
-      {
-        rotate: 180,
-        scale: 1.15,
-        ease: "none",
-        duration: 2,
-      },
-      0
-    );
-
-    // Crossfade images and animate colors based on scroll
-    const durationPerStep = 2 / (STORY_IMAGES.length - 1);
-    STORY_IMAGES.forEach((item, i) => {
-      if (i === 0) return;
-      const startTime = (i - 1) * durationPerStep;
-      
-      tl.to(container, { backgroundColor: item.bg, ease: "none", duration: durationPerStep }, startTime);
-      tl.to(textRef.current, { color: item.text, ease: "none", duration: durationPerStep }, startTime);
-      tl.to(kickerRef.current, { color: item.kicker, ease: "none", duration: durationPerStep }, startTime);
-      tl.to(imgRefs.current[i - 1], { opacity: 0, ease: "none", duration: durationPerStep }, startTime);
-      tl.to(imgRefs.current[i], { opacity: 1, ease: "none", duration: durationPerStep }, startTime);
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach((t) =>
-        t.trigger === container ? t.kill() : null
+      // Animate words opacity
+      tl.to(
+        spans,
+        {
+          opacity: 1,
+          stagger: 0.1,
+          ease: "none",
+          duration: 2,
+        },
+        0
       );
-    };
+
+      // Rotate and scale product
+      tl.to(
+        productRef.current,
+        {
+          rotate: 180,
+          scale: 1.15,
+          ease: "none",
+          duration: 2,
+        },
+        0
+      );
+
+      // Crossfade images and animate colors based on scroll
+      const durationPerStep = 2 / (STORY_IMAGES.length - 1);
+      STORY_IMAGES.forEach((item, i) => {
+        if (i === 0) return;
+        const startTime = (i - 1) * durationPerStep;
+        
+        tl.to(container, { backgroundColor: item.bg, ease: "none", duration: durationPerStep }, startTime);
+        tl.to(textRef.current, { color: item.text, ease: "none", duration: durationPerStep }, startTime);
+        tl.to(kickerRef.current, { color: item.kicker, ease: "none", duration: durationPerStep }, startTime);
+        tl.to(imgRefs.current[i - 1], { opacity: 0, ease: "none", duration: durationPerStep }, startTime);
+        tl.to(imgRefs.current[i], { opacity: 1, ease: "none", duration: durationPerStep }, startTime);
+      });
+    }, container);
+
+    return () => ctx.revert();
   }, []);
 
   return (

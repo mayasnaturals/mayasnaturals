@@ -118,6 +118,8 @@ export default function CheckoutPage() {
   const subtotal = cart?.cost?.subtotalAmount?.amount ? parseFloat(cart.cost.subtotalAmount.amount) : 0;
   const shipping = subtotal > 0 && subtotal < 500 ? 49 : 0;
   const total = subtotal + shipping;
+  const totalQuantity = cart?.lines?.edges?.reduce((acc, edge) => acc + edge.node.quantity, 0) || 0;
+  const totalSavings = totalQuantity * 100;
 
   return (
     <>
@@ -186,8 +188,16 @@ export default function CheckoutPage() {
                   <div className={styles.summaryDetails}>
                     <div className={styles.summaryTitle}>{item.merchandise.product.title}</div>
                     <div className={styles.summaryQuantity}>Qty: {item.quantity}</div>
+                    <div className={styles.discountBadge}>🔥 You save ₹{100 * item.quantity}</div>
                   </div>
-                  <div className={styles.summaryPrice}>₹{item.cost.totalAmount.amount}</div>
+                  <div className={styles.priceContainer}>
+                    <span className={styles.originalPrice}>
+                      ₹{(parseFloat(item.cost.totalAmount.amount) + 100 * item.quantity).toFixed(2)}
+                    </span>
+                    <span className={styles.discountedPrice}>
+                      ₹{parseFloat(item.cost.totalAmount.amount).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               );
             })}
@@ -196,7 +206,12 @@ export default function CheckoutPage() {
             
             <div className={styles.summaryItem}>
               <span>Subtotal</span>
-              <span>₹{subtotal.toFixed(2)}</span>
+              <div className={styles.priceContainer}>
+                <span className={styles.originalPrice}>
+                  ₹{(subtotal + (cart?.lines?.edges?.reduce((acc, edge) => acc + edge.node.quantity, 0) || 0) * 100).toFixed(2)}
+                </span>
+                <span className={styles.discountedPrice}>₹{subtotal.toFixed(2)}</span>
+              </div>
             </div>
             <div className={styles.summaryItem}>
               <span>Shipping {subtotal >= 500 && "(Free above ₹500)"}</span>
@@ -204,6 +219,11 @@ export default function CheckoutPage() {
             </div>
             
             <div className={styles.divider} />
+            
+            <div className={styles.summaryItem} style={{ marginBottom: '10px' }}>
+              <span style={{ color: '#2b8a3e', fontWeight: '600' }}>Total Savings</span>
+              <span style={{ color: '#2b8a3e', fontWeight: '600' }}>-₹{totalSavings.toFixed(2)}</span>
+            </div>
             
             <div className={styles.totalRow}>
               <span>Total</span>

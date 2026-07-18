@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./HeroSection.module.css";
 
 export default function HeroSection() {
@@ -93,28 +94,29 @@ export default function HeroSection() {
           </div>
 
           <h1 className={styles.title}>
-            Coming Soon. <br />
-            <span className={styles.titleHighlight}>Worth The Wait.</span>
+            20-in-1 <br />
+            <span className={styles.titleHighlight}>Super Muesli.</span>
           </h1>
 
           <p className={styles.description}>
-            We&apos;re still building this website.<br /><br />
-            A few things you&apos;re seeing here are placeholders, test products, and temporary content used during development. The real Maya&apos;s Naturals experience is on the way.
+            Packed with 20 real ingredients and rich in Omega 3.<br />
+            Absolutely no added sugar or preservatives.<br />
+            Fully customizable to make your perfect bowl.
           </p>
 
           <div className={styles.actions}>
-            <button className={styles.btnPrimary}>
+            <Link href="/products" className={styles.btnPrimary}>
               Discover Now
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-            </button>
-            <button className={styles.btnSecondary}>
+            </Link>
+            <Link href="/our-story" className={styles.btnSecondary}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
               Watch Our Story
-            </button>
+            </Link>
           </div>
         </div>
 

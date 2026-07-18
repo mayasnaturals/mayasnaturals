@@ -36,7 +36,7 @@ export default function CurvedTextSection({ products = [] }) {
     visible: (i) => ({
       opacity: 1,
       y: 0,
-      rotate: i === 0 ? -4 : i === 2 ? 4 : 0,
+      rotate: i % 2 === 0 ? -4 : 4,
       transition: {
         delay: i * 0.15,
         duration: 0.8,
@@ -54,7 +54,7 @@ export default function CurvedTextSection({ products = [] }) {
         </svg>
       </div>
 
-      <div className="relative z-10 pt-20 pb-16 px-5 md:pt-20 md:pb-18 md:px-6">
+      <div className="relative z-10 pt-20 pb-16 px-5 md:pt-20 md:pb-3 md:px-6">
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
           <motion.span

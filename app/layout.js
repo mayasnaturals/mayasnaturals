@@ -18,12 +18,12 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  title: "Museli — Fuel Your Mornings",
+  title: "Maya's Naturals India",
   description:
     "Premium craft muesli for the modern adventurer. Experience the Museli revolution — wholesome, energizing, and crafted with care.",
   keywords: ["muesli", "premium", "breakfast", "healthy", "organic", "craft"],
   openGraph: {
-    title: "Museli — Fuel Your Mornings",
+    title: "Maya's Naturals India",
     description:
       "Premium craft muesli for the modern adventurer. The Museli revolution starts here.",
     type: "website",

@@ -48,7 +48,7 @@ export default function Navbar() {
         .animate-marquee {
           display: flex;
           width: max-content;
-          animation: marquee 15s linear infinite;
+          animation: marquee 35s linear infinite;
         }
         .marquee-content {
           display: flex;
