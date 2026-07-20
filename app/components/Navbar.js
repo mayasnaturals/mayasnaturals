@@ -78,7 +78,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                CRAZY CRUNCHY • ZERO JUNK • BOLD FLAVOURS
+                Free Delivery on Orders Above ₹499
               </h2>
             ))}
           </div>
@@ -95,7 +95,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                CRAZY CRUNCHY • ZERO JUNK • BOLD FLAVOURS
+                Free Delivery on Orders Above ₹499
               </h2>
             ))}
           </div>

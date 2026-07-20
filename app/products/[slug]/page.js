@@ -297,6 +297,7 @@ export default async function ProductDetailsPage({ params }) {
                 options={options}
                 variants={variants}
                 initialVariant={firstVariant}
+                productName={product.name}
               />
             </div>
 

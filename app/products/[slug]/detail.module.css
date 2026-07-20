@@ -166,6 +166,15 @@
   font-weight: 900;
 }
 
+.mrpValue {
+  color: #b39d8e;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  margin-right: 8px;
+}
+
 .addBtn {
   display: inline-flex;
   align-items: center;

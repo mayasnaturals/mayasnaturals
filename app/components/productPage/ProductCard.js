@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import styles from "../../products/products.module.css";
+import { getMrp } from "@/lib/utils";
 
 
 function ProductCard({ product, index, onAdd, isAdded }) {
@@ -12,6 +13,8 @@ function ProductCard({ product, index, onAdd, isAdded }) {
         "--card-mid": product.colors[1],
         "--card-light": product.colors[2],
     };
+
+    const mrp = getMrp(product.name, product.weight, product.price);
     return (
         <motion.article
             layout
@@ -52,7 +55,10 @@ function ProductCard({ product, index, onAdd, isAdded }) {
 
                 <div className={styles.productBottom}>
                     <div>
-                        <strong>₹{product.price}</strong>
+                        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                            {mrp && <del className={styles.productMrp}>₹{mrp}</del>}
+                            <strong>₹{product.price}</strong>
+                        </div>
                         <span>incl. taxes</span>
                     </div>
                     <button

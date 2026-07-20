@@ -609,6 +609,16 @@
   font-weight: 900;
 }
 
+.productMrp {
+  color: #b39d8e;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-right: 6px;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+
 .productBottom > div span {
   color: #9b8576;
   font-size: 0.55rem;
