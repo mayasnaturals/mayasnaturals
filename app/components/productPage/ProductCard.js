@@ -15,6 +15,8 @@ function ProductCard({ product, index, onAdd, isAdded }) {
     };
 
     const mrp = getMrp(product.name, product.weight, product.price);
+    const discountAmount = mrp ? mrp - product.price : 0;
+    const discountPercent = mrp ? Math.round((discountAmount / mrp) * 100) : 0;
     return (
         <motion.article
             layout
@@ -54,11 +56,16 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                 </h3>
 
                 <div className={styles.productBottom}>
-                    <div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
                             {mrp && <del className={styles.productMrp}>₹{mrp}</del>}
                             <strong>₹{product.price}</strong>
                         </div>
+                        {mrp && discountAmount > 0 && (
+                            <div className={styles.discountTag}>
+                                Save ₹{discountAmount} ({discountPercent}%)
+                            </div>
+                        )}
                         <span>incl. taxes</span>
                     </div>
                     <button

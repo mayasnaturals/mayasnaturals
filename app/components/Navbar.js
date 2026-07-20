@@ -78,7 +78,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                Free Delivery on Orders Above ₹499
+                FREE DELIVERY ON ORDERS ABOVE ₹499
               </h2>
             ))}
           </div>
@@ -95,7 +95,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                Free Delivery on Orders Above ₹499
+                FREE DELIVERY ON ORDERS ABOVE ₹499
               </h2>
             ))}
           </div>

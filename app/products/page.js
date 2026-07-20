@@ -11,17 +11,37 @@ export default async function ProductsPage() {
   const shopifyProducts = await getProducts(50);
   
   const formattedProducts = (shopifyProducts || []).map((p) => {
+    let productType = p.productType;
+    if (!productType || productType.toLowerCase() === 'product') {
+       if (p.title.toLowerCase().includes('makhana')) productType = 'Makhana';
+       else if (p.title.toLowerCase().includes('museli') || p.title.toLowerCase().includes('muesli')) productType = 'Muesli';
+       else productType = 'Snack';
+    } else {
+       if (productType.toLowerCase().includes('museli')) productType = 'Muesli';
+    }
+
     const variants = p.variants?.edges?.map(e => e.node) || [];
     let minWeightVariant = variants[0];
     
     if (variants.length > 0) {
-      minWeightVariant = variants.reduce((minVar, currentVar) => {
-        const minVal = parseFloat(minVar.weight || 0);
-        const currentVal = parseFloat(currentVar.weight || 0);
-        if (minVal === 0 && currentVal > 0) return currentVar;
-        if (currentVal > 0 && currentVal < minVal) return currentVar;
-        return minVar;
-      }, variants[0]);
+      if (productType === 'Muesli') {
+        const variant200 = variants.find(v => v.title && v.title.includes('200'));
+        minWeightVariant = variant200 || variants.reduce((minVar, currentVar) => {
+          const minVal = parseFloat(minVar.weight || 0);
+          const currentVal = parseFloat(currentVar.weight || 0);
+          if (minVal === 0 && currentVal > 0) return currentVar;
+          if (currentVal > 0 && currentVal < minVal) return currentVar;
+          return minVar;
+        }, variants[0]);
+      } else {
+        minWeightVariant = variants.reduce((minVar, currentVar) => {
+          const minVal = parseFloat(minVar.weight || 0);
+          const currentVal = parseFloat(currentVar.weight || 0);
+          if (minVal === 0 && currentVal > 0) return currentVar;
+          if (currentVal > 0 && currentVal < minVal) return currentVar;
+          return minVar;
+        }, variants[0]);
+      }
     }
     
     const price = minWeightVariant?.price?.amount 
@@ -33,15 +53,6 @@ export default async function ProductsPage() {
       weightStr = `${minWeightVariant.weight}${minWeightVariant.weightUnit.toLowerCase()}`;
     } else if (minWeightVariant?.title && minWeightVariant.title !== 'Default Title') {
       weightStr = minWeightVariant.title;
-    }
-
-    let productType = p.productType;
-    if (!productType || productType.toLowerCase() === 'product') {
-       if (p.title.toLowerCase().includes('makhana')) productType = 'Makhana';
-       else if (p.title.toLowerCase().includes('museli') || p.title.toLowerCase().includes('muesli')) productType = 'Muesli';
-       else productType = 'Snack';
-    } else {
-       if (productType.toLowerCase().includes('museli')) productType = 'Muesli';
     }
 
     return {

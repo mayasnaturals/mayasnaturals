@@ -95,7 +95,7 @@ export default function HeroSection() {
 
           <h1 className={styles.title}>
             20-in-1 <br />
-            <span className={styles.titleHighlight}>Super Muesli.</span>
+            <span className={styles.titleHighlight}>Super Muesli</span>
           </h1>
 
           <p className={styles.description}>

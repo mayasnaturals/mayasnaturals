@@ -30,16 +30,34 @@ export default function VariantSelector({ options, variants, initialVariant, pro
   const price = parseFloat(currentVariant?.price?.amount || 0);
   const baseMrp = getMrp(productName, weight, price);
   const totalMrp = baseMrp ? baseMrp * quantity : null;
+  const totalPrice = parseFloat(currentVariant?.price?.amount || 0) * quantity;
+  const discountAmount = totalMrp ? totalMrp - totalPrice : 0;
+  const discountPercent = totalMrp ? Math.round((discountAmount / totalMrp) * 100) : 0;
 
   return (
     <>
       {options && options.map((option) => {
         if (option.values.length <= 1) return null; // Don't show if there's only one option
+
+        // Sort values if it's a size/weight option
+        const isSizeOption = option.name.toLowerCase().includes('size') || option.name.toLowerCase().includes('weight') || option.name.toLowerCase().includes('quantity');
+        
+        const sortedValues = [...option.values].sort((a, b) => {
+          if (!isSizeOption) return 0; // Keep original order for other options
+          const getWeight = (val) => {
+            const num = parseFloat(val);
+            if (isNaN(num)) return 0;
+            if (val.toLowerCase().includes('kg')) return num * 1000;
+            return num;
+          };
+          return getWeight(a) - getWeight(b);
+        });
+
         return (
           <div key={option.name} className={s.optionsGroup} data-anim="action">
             <p className={s.optionsLabel}>{option.name}</p>
             <div className={s.optionsList}>
-              {option.values.map(val => (
+              {sortedValues.map(val => (
                 <button 
                   key={val} 
                   className={`${s.optionBtn} ${selectedOptions[option.name] === val ? s.optionBtnActive : ''}`}
@@ -63,9 +81,14 @@ export default function VariantSelector({ options, variants, initialVariant, pro
               </del>
             )}
             <strong className={s.priceValue}>
-              Rs.&nbsp;{(parseFloat(currentVariant?.price?.amount || 0) * quantity).toFixed(2).replace(/\.00$/, '')}
+              Rs.&nbsp;{totalPrice.toFixed(2).replace(/\.00$/, '')}
             </strong>
           </div>
+          {totalMrp && discountAmount > 0 && (
+            <div className={s.discountTag}>
+              Save Rs. {discountAmount.toFixed(2).replace(/\.00$/, '')} ({discountPercent}%)
+            </div>
+          )}
         </div>
         
         <div className={s.qtySelector} data-anim="action">

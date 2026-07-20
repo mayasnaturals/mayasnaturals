@@ -624,6 +624,23 @@
   font-size: 0.55rem;
 }
 
+.discountTag {
+  display: inline-flex;
+  align-items: center;
+  color: #fff9ed;
+  background: #e64020;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border: 1.5px solid #29180e;
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 #29180e;
+  width: fit-content;
+}
+
 .addButton {
   display: flex;
   align-items: center;

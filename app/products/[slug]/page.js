@@ -92,7 +92,6 @@ export default async function ProductDetailsPage({ params }) {
 
   if (!productRaw) notFound();
 
-  const firstVariant = productRaw.variants?.edges[0]?.node;
   const variants = productRaw.variants?.edges.map(e => e.node) || [];
   const options = productRaw.options || [];
 
@@ -135,15 +134,35 @@ export default async function ProductDetailsPage({ params }) {
   const metafields = rawMetafields.filter(mf => mf.value);
   const allImages = productRaw.images?.edges.map(e => e.node) || [];
 
+  let productType = productRaw.productType;
+  if (!productType || productType.toLowerCase() === 'product') {
+     if (productRaw.title.toLowerCase().includes('makhana')) productType = 'Makhana';
+     else if (productRaw.title.toLowerCase().includes('museli') || productRaw.title.toLowerCase().includes('muesli')) productType = 'Muesli';
+     else productType = 'Snack';
+  } else {
+     if (productType.toLowerCase().includes('museli')) productType = 'Muesli';
+  }
+
   let minWeightVariant = variants[0];
   if (variants.length > 0) {
-    minWeightVariant = variants.reduce((minVar, currentVar) => {
-      const minVal = parseFloat(minVar.weight || 0);
-      const currentVal = parseFloat(currentVar.weight || 0);
-      if (minVal === 0 && currentVal > 0) return currentVar;
-      if (currentVal > 0 && currentVal < minVal) return currentVar;
-      return minVar;
-    }, variants[0]);
+    if (productType === 'Muesli') {
+      const variant200 = variants.find(v => v.title && v.title.includes('200'));
+      minWeightVariant = variant200 || variants.reduce((minVar, currentVar) => {
+        const minVal = parseFloat(minVar.weight || 0);
+        const currentVal = parseFloat(currentVar.weight || 0);
+        if (minVal === 0 && currentVal > 0) return currentVar;
+        if (currentVal > 0 && currentVal < minVal) return currentVar;
+        return minVar;
+      }, variants[0]);
+    } else {
+      minWeightVariant = variants.reduce((minVar, currentVar) => {
+        const minVal = parseFloat(minVar.weight || 0);
+        const currentVal = parseFloat(currentVar.weight || 0);
+        if (minVal === 0 && currentVal > 0) return currentVar;
+        if (currentVal > 0 && currentVal < minVal) return currentVar;
+        return minVar;
+      }, variants[0]);
+    }
   }
   
   let weightStr = "400g";
@@ -157,14 +176,7 @@ export default async function ProductDetailsPage({ params }) {
     ? parseFloat(minWeightVariant.price.amount) 
     : parseFloat(productRaw.priceRange?.minVariantPrice?.amount || 0);
 
-  let productType = productRaw.productType;
-  if (!productType || productType.toLowerCase() === 'product') {
-     if (productRaw.title.toLowerCase().includes('makhana')) productType = 'Makhana';
-     else if (productRaw.title.toLowerCase().includes('museli') || productRaw.title.toLowerCase().includes('muesli')) productType = 'Muesli';
-     else productType = 'Snack';
-  } else {
-     if (productType.toLowerCase().includes('museli')) productType = 'Muesli';
-  }
+
 
   const product = {
     id: minWeightVariant?.id || productRaw.id,
@@ -191,16 +203,36 @@ export default async function ProductDetailsPage({ params }) {
   const relatedProducts = (allProducts || [])
     .filter((item) => item.id !== productRaw.id && item.productType === productRaw.productType)
     .map(p => {
+      let pType = p.productType;
+      if (!pType || pType.toLowerCase() === 'product') {
+         if (p.title.toLowerCase().includes('makhana')) pType = 'Makhana';
+         else if (p.title.toLowerCase().includes('museli') || p.title.toLowerCase().includes('muesli')) pType = 'Muesli';
+         else pType = 'Snack';
+      } else {
+         if (pType.toLowerCase().includes('museli')) pType = 'Muesli';
+      }
+
       const pVariants = p.variants?.edges?.map(e => e.node) || [];
       let minPVariant = pVariants[0];
       if (pVariants.length > 0) {
-        minPVariant = pVariants.reduce((minVar, currentVar) => {
-          const minVal = parseFloat(minVar.weight || 0);
-          const currentVal = parseFloat(currentVar.weight || 0);
-          if (minVal === 0 && currentVal > 0) return currentVar;
-          if (currentVal > 0 && currentVal < minVal) return currentVar;
-          return minVar;
-        }, pVariants[0]);
+        if (pType === 'Muesli') {
+          const variant200 = pVariants.find(v => v.title && v.title.includes('200'));
+          minPVariant = variant200 || pVariants.reduce((minVar, currentVar) => {
+            const minVal = parseFloat(minVar.weight || 0);
+            const currentVal = parseFloat(currentVar.weight || 0);
+            if (minVal === 0 && currentVal > 0) return currentVar;
+            if (currentVal > 0 && currentVal < minVal) return currentVar;
+            return minVar;
+          }, pVariants[0]);
+        } else {
+          minPVariant = pVariants.reduce((minVar, currentVar) => {
+            const minVal = parseFloat(minVar.weight || 0);
+            const currentVal = parseFloat(currentVar.weight || 0);
+            if (minVal === 0 && currentVal > 0) return currentVar;
+            if (currentVal > 0 && currentVal < minVal) return currentVar;
+            return minVar;
+          }, pVariants[0]);
+        }
       }
       
       let pWeightStr = "400g";
@@ -213,15 +245,6 @@ export default async function ProductDetailsPage({ params }) {
       const pPrice = minPVariant?.price?.amount 
         ? parseFloat(minPVariant.price.amount) 
         : parseFloat(p.priceRange?.minVariantPrice?.amount || 0);
-
-      let pType = p.productType;
-      if (!pType || pType.toLowerCase() === 'product') {
-         if (p.title.toLowerCase().includes('makhana')) pType = 'Makhana';
-         else if (p.title.toLowerCase().includes('museli') || p.title.toLowerCase().includes('muesli')) pType = 'Muesli';
-         else pType = 'Snack';
-      } else {
-         if (pType.toLowerCase().includes('museli')) pType = 'Muesli';
-      }
 
       return {
         id: minPVariant?.id || p.id,
@@ -296,7 +319,7 @@ export default async function ProductDetailsPage({ params }) {
               <VariantSelector
                 options={options}
                 variants={variants}
-                initialVariant={firstVariant}
+                initialVariant={minWeightVariant}
                 productName={product.name}
               />
             </div>
