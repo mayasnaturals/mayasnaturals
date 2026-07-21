@@ -17,7 +17,7 @@ export default function VariantSelector({ options, variants, initialVariant, pro
   };
 
   // Find the variant that matches all selected options
-  const currentVariant = variants.find(variant => 
+  const currentVariant = variants.find(variant =>
     variant.selectedOptions.every(opt => selectedOptions[opt.name] === opt.value)
   ) || initialVariant || variants[0];
 
@@ -41,7 +41,7 @@ export default function VariantSelector({ options, variants, initialVariant, pro
 
         // Sort values if it's a size/weight option
         const isSizeOption = option.name.toLowerCase().includes('size') || option.name.toLowerCase().includes('weight') || option.name.toLowerCase().includes('quantity');
-        
+
         const sortedValues = [...option.values].sort((a, b) => {
           if (!isSizeOption) return 0; // Keep original order for other options
           const getWeight = (val) => {
@@ -58,8 +58,8 @@ export default function VariantSelector({ options, variants, initialVariant, pro
             <p className={s.optionsLabel}>{option.name}</p>
             <div className={s.optionsList}>
               {sortedValues.map(val => (
-                <button 
-                  key={val} 
+                <button
+                  key={val}
                   className={`${s.optionBtn} ${selectedOptions[option.name] === val ? s.optionBtnActive : ''}`}
                   onClick={() => handleOptionChange(option.name, val)}
                 >
@@ -70,8 +70,13 @@ export default function VariantSelector({ options, variants, initialVariant, pro
           </div>
         );
       })}
-      
+
       <div className={s.heroActions}>
+        <div className={s.qtySelector} data-anim="action">
+          <button className={s.qtySelectorBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+          <span className={s.qtySelectorNum}>{quantity}</span>
+          <button className={s.qtySelectorBtn} onClick={() => setQuantity(quantity + 1)}>+</button>
+        </div>
         <div className={s.priceBox} data-anim="action">
           <p className={s.priceLabel}>Price</p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
@@ -90,12 +95,8 @@ export default function VariantSelector({ options, variants, initialVariant, pro
             </div>
           )}
         </div>
-        
-        <div className={s.qtySelector} data-anim="action">
-          <button className={s.qtySelectorBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-          <span className={s.qtySelectorNum}>{quantity}</span>
-          <button className={s.qtySelectorBtn} onClick={() => setQuantity(quantity + 1)}>+</button>
-        </div>
+
+
 
         <AddToCartButton productId={currentVariant?.id} quantity={quantity} />
       </div>

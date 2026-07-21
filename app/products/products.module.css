@@ -627,17 +627,15 @@
 .discountTag {
   display: inline-flex;
   align-items: center;
-  color: #fff9ed;
-  background: #e64020;
-  font-size: 0.72rem;
-  font-weight: 900;
+  color: #315221;
+  background: #e2f1c7;
+  font-size: 0.7rem;
+  font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-top: 6px;
-  padding: 4px 10px;
-  border: 1.5px solid #29180e;
+  padding: 4px 8px;
   border-radius: 6px;
-  box-shadow: 2px 2px 0 #29180e;
   width: fit-content;
 }
 
@@ -648,23 +646,23 @@
   gap: 7px;
   min-width: 43px;
   min-height: 43px;
-  padding: 0 13px;
+  padding: 0 16px;
   overflow: hidden;
-  border: 1.5px solid #29180e;
+  border: 2px solid #29180e;
   border-radius: 999px;
-  background: #29180e;
+  background: #f25c2a;
   color: #fff9ed;
   font: inherit;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 900;
   cursor: pointer;
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  box-shadow: 3px 3px 0 #29180e;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
 .addButton:hover {
-  transform: scale(1.04);
-  background: var(--card-light);
-  color: #29180e;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #29180e;
 }
 
 .addButtonDone {

@@ -21,6 +21,7 @@ export default function ProductCatalog({ initialProducts }) {
   const { addToCart } = useCart();
   const [sortBy, setSortBy] = useState("relevance");
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedWeights, setSelectedWeights] = useState([]);
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [addedId, setAddedId] = useState(null);
@@ -42,20 +43,29 @@ export default function ProductCatalog({ initialProducts }) {
           .includes(normalizedQuery);
       const matchesType =
         selectedTypes.length === 0 || selectedTypes.includes(product.type);
+      const matchesWeight =
+        selectedWeights.length === 0 || selectedWeights.some(w => parseInt(w) === parseInt(product.weight));
 
-      return matchesQuery && matchesType && product.price <= maxPrice;
+      return matchesQuery && matchesType && matchesWeight && product.price <= maxPrice;
     });
 
     return [...filtered].sort((a, b) => {
       if (sortBy === "new") return b.newness - a.newness;
       if (sortBy === "high") return b.price - a.price;
       if (sortBy === "low") return a.price - b.price;
+      if (sortBy === "relevance") {
+        const weightA = parseInt(a.weight) || 0;
+        const weightB = parseInt(b.weight) || 0;
+        if (a.type !== b.type) return a.type.localeCompare(b.type);
+        if (weightA !== weightB) return weightA - weightB;
+        return a.name.localeCompare(b.name);
+      }
       return a.id.localeCompare ? a.id.localeCompare(b.id) : a.id - b.id;
     });
-  }, [maxPrice, query, selectedTypes, sortBy, initialProducts]);
+  }, [maxPrice, query, selectedTypes, selectedWeights, sortBy, initialProducts]);
 
   const activeFilterCount =
-    selectedTypes.length + (query ? 1 : 0) + (maxPrice < MAX_PRICE ? 1 : 0);
+    selectedTypes.length + selectedWeights.length + (query ? 1 : 0) + (maxPrice < MAX_PRICE ? 1 : 0);
 
   const toggleType = (type) => {
     setSelectedTypes((current) =>
@@ -65,9 +75,18 @@ export default function ProductCatalog({ initialProducts }) {
     );
   };
 
+  const toggleWeight = (weight) => {
+    setSelectedWeights((current) =>
+      current.includes(weight)
+        ? current.filter((item) => item !== weight)
+        : [...current, weight],
+    );
+  };
+
   const clearFilters = () => {
     setQuery("");
     setSelectedTypes([]);
+    setSelectedWeights([]);
     setMaxPrice(MAX_PRICE);
   };
 
@@ -82,6 +101,8 @@ export default function ProductCatalog({ initialProducts }) {
     setQuery,
     selectedTypes,
     toggleType,
+    selectedWeights,
+    toggleWeight,
     maxPrice,
     setMaxPrice,
     clearFilters,
@@ -96,7 +117,7 @@ export default function ProductCatalog({ initialProducts }) {
         <div className={styles.shopHeader}>
           <div>
             <span className={styles.eyebrow}>Pick your favourite</span>
-            <h2>All the good stuff</h2>
+            <h2>The good stuff</h2>
           </div>
           <p>
             Crunchy, colourful and built for real life, from slow breakfasts to

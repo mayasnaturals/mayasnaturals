@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import MarqueeBanner from "./MarqueeBanner";
+import Link from "next/link";
 
 export default function CTASection() {
   return (
@@ -94,7 +95,7 @@ export default function CTASection() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <span className="relative z-10 flex items-center gap-4">
+          <Link className="relative z-10 flex items-center gap-4" href="/products">
             Shop Now
             <svg
               width="24"
@@ -109,7 +110,7 @@ export default function CTASection() {
             >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
-          </span>
+          </Link>
           <div
             className="absolute inset-0 transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
             style={{ background: "rgba(255,248,240,0.15)" }}

@@ -7,7 +7,8 @@ import { getMrp } from "@/lib/utils";
 
 
 function ProductCard({ product, index, onAdd, isAdded }) {
-    const productHref = `/products/${product.handle}`;
+    const variantQuery = product.variantId ? `?variant=${product.variantId.split('/').pop()}` : "";
+    const productHref = `/products/${product.handle}${variantQuery}`;
     const cardStyle = {
         "--card-dark": product.colors[0],
         "--card-mid": product.colors[1],

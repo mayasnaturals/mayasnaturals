@@ -9,6 +9,8 @@ function FilterPanel({
     setQuery,
     selectedTypes,
     toggleType,
+    selectedWeights,
+    toggleWeight,
     maxPrice,
     setMaxPrice,
     clearFilters,
@@ -64,6 +66,31 @@ function FilterPanel({
                                     {isSelected && <Check size={13} strokeWidth={3} />}
                                 </span>
                                 {type}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>Weight</span>
+                <div className={styles.typeOptions}>
+                    {[
+                        ...(selectedTypes.includes("Makhana") || selectedTypes.length === 0 ? ["90g", "180g"] : []),
+                        ...(selectedTypes.includes("Muesli") || selectedTypes.length === 0 ? ["200g", "450g", "900g"] : [])
+                    ].map((weight) => {
+                        const isSelected = selectedWeights?.includes(weight);
+                        return (
+                            <button
+                                key={weight}
+                                className={`${styles.typeButton} ${isSelected ? styles.typeButtonActive : ""}`}
+                                onClick={() => toggleWeight && toggleWeight(weight)}
+                                aria-pressed={isSelected}
+                            >
+                                <span className={styles.checkbox}>
+                                    {isSelected && <Check size={13} strokeWidth={3} />}
+                                </span>
+                                {weight}
                             </button>
                         );
                     })}

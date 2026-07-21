@@ -86,8 +86,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ProductDetailsPage({ params }) {
+export default async function ProductDetailsPage({ params, searchParams }) {
   const { slug } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const variantParam = resolvedSearchParams?.variant;
   const productRaw = await getProduct(slug);
 
   if (!productRaw) notFound();
@@ -144,7 +146,9 @@ export default async function ProductDetailsPage({ params }) {
   }
 
   let minWeightVariant = variants[0];
-  if (variants.length > 0) {
+  if (variantParam) {
+    minWeightVariant = variants.find(v => v.id.includes(variantParam)) || variants[0];
+  } else if (variants.length > 0) {
     if (productType === 'Muesli') {
       const variant200 = variants.find(v => v.title && v.title.includes('200'));
       minWeightVariant = variant200 || variants.reduce((minVar, currentVar) => {
@@ -300,6 +304,13 @@ export default async function ProductDetailsPage({ params }) {
                 {product.name}
               </h1>
 
+              <VariantSelector
+                options={options}
+                variants={variants}
+                initialVariant={minWeightVariant}
+                productName={product.name}
+              />
+
               <div className={s.heroDesc} data-anim="desc">
                 <p><strong>{copy.headline}</strong></p>
                 {product.description && product.description.includes("*") ? (
@@ -315,13 +326,6 @@ export default async function ProductDetailsPage({ params }) {
                   <p>{product.description}</p>
                 )}
               </div>
-
-              <VariantSelector
-                options={options}
-                variants={variants}
-                initialVariant={minWeightVariant}
-                productName={product.name}
-              />
             </div>
 
             {/* Image */}
