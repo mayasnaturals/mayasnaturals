@@ -21,6 +21,8 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+import MilestoneTrail from "./MilestoneTrail";
+
 /* ──────────────────────────── data ──────────────────────────── */
 
 const values = [
@@ -139,19 +141,7 @@ export default function OurStoryClient() {
         ease: "power2.out",
       });
 
-      /* ── Timeline events stagger ── */
-      gsap.from(".os-timeline-event", {
-        scrollTrigger: {
-          trigger: timelineRef.current,
-          start: "top 75%",
-          end: "bottom 60%",
-          scrub: 1,
-        },
-        x: -60,
-        opacity: 0,
-        stagger: 0.15,
-        ease: "power2.out",
-      });
+
 
       /* ── Reels entrance ── */
       gsap.from(".os-reel-card", {
@@ -255,20 +245,9 @@ export default function OurStoryClient() {
             <p className="os-section-kicker">Our Journey</p>
             <h2 className="os-section-title">Milestones that matter.</h2>
           </div>
-          <div className="os-timeline-track">
-            <div className="os-timeline-line" />
-            {timelineEvents.map((ev, i) => (
-              <div key={ev.year} className="os-timeline-event">
-                <div className="os-timeline-dot">
-                  <span>{ev.year}</span>
-                </div>
-                <div className="os-timeline-card">
-                  <h3>{ev.title}</h3>
-                  <p>{ev.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          
+          <MilestoneTrail events={timelineEvents} />
+          
         </div>
       </section>
       {/* ══════════════ REELS ══════════════ */}

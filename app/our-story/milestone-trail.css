@@ -1,0 +1,238 @@
+/* ============================================
+   MILESTONE TRAIL (New Zigzag Timeline)
+   ============================================ */
+
+.os-trail {
+  position: relative;
+  width: 100%;
+  min-height: 800px;
+  margin: 60px 0 40px;
+}
+
+/* SVG layer */
+.os-trail-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.os-trail-path-desktop {
+  display: block;
+}
+
+.os-trail-path-mobile {
+  display: none;
+}
+
+/* Nodes layer */
+.os-trail-nodes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.os-trail-node-container {
+  position: absolute;
+  left: var(--x-desk);
+  top: var(--y-desk);
+  /* The anchor point is the exact center of the container */
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* The circular badge */
+.os-trail-badge {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid #29180e;
+  box-shadow: 4px 4px 0 #29180e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff9ed;
+  z-index: 3;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.os-trail-badge:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #29180e;
+}
+
+/* Latest node glow */
+.os-trail-badge-active::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid #ffc833;
+  animation: trailPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: -1;
+}
+
+@keyframes trailPulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* The card */
+.os-trail-card {
+  position: absolute;
+  width: 280px;
+  z-index: 2;
+  pointer-events: auto;
+  transition: transform 0.25s ease;
+}
+
+
+
+.os-trail-card-content {
+  padding: 20px 22px;
+  border: 2px solid #29180e;
+  border-radius: 16px;
+  background: #fffdf8;
+  box-shadow: 5px 5px 0 #29180e;
+  text-align: left;
+  transform: rotate(-1deg);
+  position: relative;
+}
+
+/* Content typography */
+.os-trail-card-year {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 2px solid #29180e;
+  border-radius: 999px;
+  background: #ffc833;
+  color: #29180e;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.os-trail-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #29180e;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+
+.os-trail-card p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #715a4b;
+}
+
+/* Desktop positioning */
+/* card-right-desk: node is on the left, card goes right */
+.card-right-desk .os-trail-card {
+  left: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.os-trail-node-container.card-right-desk:hover .os-trail-card {
+  transform: translateY(-50%) scale(1.02);
+}
+
+.card-right-desk .os-trail-card-stem {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  width: 20px;
+  height: 2px;
+  background: #29180e;
+  border-bottom: 2px dashed #29180e;
+}
+
+/* card-left-desk: node is on the right, card goes left */
+.card-left-desk .os-trail-card {
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.os-trail-node-container.card-left-desk:hover .os-trail-card {
+  transform: translateY(-50%) scale(1.02);
+}
+
+.card-left-desk .os-trail-card-content {
+  transform: rotate(1deg); /* Slight opposite tilt for variety */
+}
+
+.card-left-desk .os-trail-card-stem {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  width: 20px;
+  height: 2px;
+  background: #29180e;
+  border-bottom: 2px dashed #29180e;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .os-trail-path-desktop {
+    display: none;
+  }
+  .os-trail-path-mobile {
+    display: block;
+  }
+
+  .os-trail-node-container {
+    left: var(--x-mob);
+    top: var(--y-mob);
+  }
+
+  /* Reset all cards to sit on the right of the node on mobile */
+  .os-trail-card {
+    left: 45px !important;
+    right: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: calc(100vw - 120px); /* Fill remaining space safely */
+    max-width: 280px;
+  }
+  
+  .os-trail-node-container:hover .os-trail-card {
+    transform: translateY(-50%) scale(1.02) !important;
+  }
+
+  .os-trail-card-content {
+    transform: rotate(0) !important;
+    padding: 16px 18px;
+  }
+
+  .os-trail-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .os-trail-card-year {
+    font-size: 0.62rem;
+    padding: 3px 8px;
+    margin-bottom: 8px;
+  }
+
+  /* Hide stems on mobile for cleaner look */
+  .os-trail-card-stem {
+    display: none;
+  }
+}
