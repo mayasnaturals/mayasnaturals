@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
@@ -12,6 +12,8 @@ import {
   Sun,
   Play,
   Mountain,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import "./our-story.css";
 
@@ -58,8 +60,8 @@ const values = [
 
 const reels = [
   { id: 1, label: "Farm to Pack", video: "/videos/video1.mp4" },
-  { id: 2, label: "Morning Rituals" },
-  { id: 3, label: "The Roast" },
+  { id: 2, label: "Morning Rituals", video: "/videos/video2.mp4" },
+  { id: 3, label: "The Roast", video: "/videos/video3.mp4" },
   { id: 4, label: "Community" },
   { id: 5, label: "Behind the Scenes" },
 ];
@@ -293,16 +295,7 @@ export default function OurStoryClient() {
                 <div key={reel.id} className="os-reel-card">
                   <div className="os-reel-placeholder">
                     {reel.video ? (
-                      <video
-                        src={reel.video}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                        className="os-reel-video"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
+                      <ReelVideo src={reel.video} />
                     ) : (
                       <>
                         <div className="os-reel-overlay">
@@ -347,6 +340,58 @@ export default function OurStoryClient() {
           </Link>
         </div>
       </section>
+    </div>
+  );
+}
+
+function ReelVideo({ src }) {
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <video
+        ref={videoRef}
+        src={src}
+        autoPlay
+        muted={true}
+        loop
+        playsInline
+        preload="auto"
+        className="os-reel-video"
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+      <button 
+        onClick={() => setIsMuted(!isMuted)}
+        style={{
+          position: "absolute",
+          bottom: "12px",
+          right: "12px",
+          background: "rgba(0, 0, 0, 0.6)",
+          color: "white",
+          border: "none",
+          borderRadius: "50%",
+          width: "36px",
+          height: "36px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          zIndex: 10,
+          transition: "background 0.2s"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0, 0, 0, 0.8)"}
+        onMouseLeave={(e) => e.currentTarget.style.background = "rgba(0, 0, 0, 0.6)"}
+        aria-label={isMuted ? "Unmute" : "Mute"}
+      >
+        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+      </button>
     </div>
   );
 }

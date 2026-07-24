@@ -27,6 +27,11 @@ const productCopy = {
     headline: "Big breakfast energy with a clean, crunchy finish.",
     texture: "Clustered oats, nuts, seeds and fruit in every spoonful.",
     ingredients: ["Whole oats", "Almonds", "Seeds", "Raisins", "Cocoa notes"],
+    benefits: [
+      { icon: Leaf, label: "No palm oil" },
+      { icon: ShieldCheck, label: "Clean label" },
+      { icon: Truck, label: "Fast dispatch" },
+    ],
     rituals: [
       "Cold milk",
       "Greek yogurt",
@@ -44,10 +49,15 @@ const productCopy = {
     headline: "A light roasted crunch with full-volume flavour.",
     texture: "Airy fox nuts roasted crisp and coated edge-to-edge.",
     ingredients: [
-      "Roasted makhana",
-      "Rice bran oil",
-      "Spice blend",
-      "Pink salt",
+      "Plant protein",
+      "Flavorful",
+      "Roasted Makhana",
+      "Gluten Free",
+    ],
+    benefits: [
+      { icon: Leaf, label: "No palm oil" },
+      { icon: Sparkles, label: "Roasted not fried" },
+      { icon: Truck, label: "Fast dispatch" },
     ],
     rituals: ["Movie snack", "Tea break", "Office drawer", "Trail mix topper"],
     nutrition: [
@@ -58,12 +68,6 @@ const productCopy = {
     ],
   },
 };
-
-const benefits = [
-  { icon: Leaf, label: "No palm oil" },
-  { icon: ShieldCheck, label: "Clean label" },
-  { icon: Truck, label: "Fast dispatch" },
-];
 
 export async function generateStaticParams() {
   const shopifyProducts = await getProducts(50);
@@ -355,7 +359,7 @@ export default async function ProductDetailsPage({ params, searchParams }) {
         {/* ══════ BENEFITS STRIP ══════ */}
         <section className={s.benefits} data-anim="benefits">
           <div className={s.benefitsInner}>
-            {benefits.map(({ icon: Icon, label }) => (
+            {copy.benefits.map(({ icon: Icon, label }) => (
               <span key={label} className={s.benefitTag} data-anim="benefit">
                 <Icon size={16} strokeWidth={3} />
                 {label}
@@ -378,23 +382,7 @@ export default async function ProductDetailsPage({ params, searchParams }) {
           </div>
         </section>
 
-        {/* ══════ NUTRITION FACTS ══════ */}
-        <section className={s.nutrition} data-anim="nutrition">
-          <div className={s.nutritionInner}>
-            <div data-anim="nutrition-text">
-              <p className={s.nutritionKicker}>Serving facts</p>
-              <h2 className={s.nutritionTitle}>Clean, loud, ready.</h2>
-            </div>
-            <div className={s.nutritionGrid}>
-              {copy.nutrition.map(([label, value]) => (
-                <div key={label} className={s.nutritionStat} data-anim="stat">
-                  <p>{label}</p>
-                  <strong>{value}</strong>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+
 
         {/* ══════ RELATED PRODUCTS ══════ */}
         {relatedProducts.length > 0 && (

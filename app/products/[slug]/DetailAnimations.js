@@ -59,7 +59,8 @@ export default function DetailAnimations({ children }) {
       if (featuresBlock && featuresCards.length) {
         gsap.from(featuresCards, {
           scrollTrigger: { trigger: featuresBlock, start: "top 80%" },
-          y: 60, opacity: 0, rotate: 2, stagger: 0.12, duration: 0.65, ease: "power3.out",
+          y: 20, opacity: 0, stagger: 0.1, duration: 0.5, ease: "power2.out",
+          clearProps: "transform"
         });
       }
 

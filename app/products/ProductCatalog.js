@@ -54,6 +54,10 @@ export default function ProductCatalog({ initialProducts }) {
       if (sortBy === "high") return b.price - a.price;
       if (sortBy === "low") return a.price - b.price;
       if (sortBy === "relevance") {
+        const isMuesliA = a.type?.toLowerCase().includes("muesli") ? 0 : 1;
+        const isMuesliB = b.type?.toLowerCase().includes("muesli") ? 0 : 1;
+        if (isMuesliA !== isMuesliB) return isMuesliA - isMuesliB;
+
         const weightA = parseInt(a.weight) || 0;
         const weightB = parseInt(b.weight) || 0;
         if (a.type !== b.type) return a.type.localeCompare(b.type);
@@ -117,7 +121,7 @@ export default function ProductCatalog({ initialProducts }) {
         <div className={styles.shopHeader}>
           <div>
             <span className={styles.eyebrow}>Pick your favourite</span>
-            <h2>The good stuff</h2>
+            <h2>Only the good stuff</h2>
           </div>
           <p>
             Crunchy, colourful and built for real life, from slow breakfasts to

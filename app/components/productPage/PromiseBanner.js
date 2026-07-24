@@ -3,11 +3,13 @@ import styles from "../../products/products.module.css";
 export default function PromiseBanner() {
   return (
     <section className={styles.promiseBanner}>
-      <p>Nothing hidden. Nothing beige.</p>
-      <h2>Real ingredients, made ridiculously snackable.</h2>
+      <h2>
+        Real ingredients, <br className="hidden md:block" />
+        Real nutrition
+      </h2>
       <div>
-        <span>No palm oil</span>
-        <span>Whole grains</span>
+        <span>All Natural</span>
+        <span>Super Tasty</span>
         <span>Made in India</span>
       </div>
     </section>

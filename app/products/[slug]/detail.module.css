@@ -441,7 +441,7 @@
 /* ────────────────── CLEAN CRUNCH (MINIMAL) ────────────────── */
 
 .cleanCrunch {
-  padding: 40px 32px 60px;
+  padding: 60px 32px;
   background: var(--bg-cream);
 }
 
@@ -893,8 +893,25 @@
   }
 
   .relatedGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 24px;
+    margin-bottom: -24px;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .relatedGrid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .relatedCard {
+    flex: 0 0 75vw;
+    max-width: 320px;
+    scroll-snap-align: start;
   }
 
   .benefits {
@@ -930,11 +947,6 @@
 
   .nutritionGrid {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .relatedGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
   }
 
   .relatedCardName {

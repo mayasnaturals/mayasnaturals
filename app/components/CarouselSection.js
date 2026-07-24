@@ -83,15 +83,15 @@ export default function CarouselSection({ products = [] }) {
         </h2>
       </div>
 
-      <div ref={wrapperRef} className="w-full z-10 flex items-center md:h-[55vh]">
+      <div ref={wrapperRef} className="w-full z-10 flex items-center md:h-[55vh] overflow-x-auto md:overflow-visible hide-scrollbar snap-x snap-mandatory">
         <div
           ref={containerRef}
-          className="flex flex-col md:flex-row gap-8 md:gap-10 px-5 md:px-[50vw] items-center w-full md:w-max md:h-full md:will-change-transform mx-auto md:mx-0"
+          className="flex flex-row gap-6 md:gap-10 px-5 md:px-[50vw] items-center w-max md:h-full md:will-change-transform mx-auto md:mx-0"
         >
           {displayProducts.map((item, i) => (
             <div
               key={item.id}
-              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[380px] gap-4 md:gap-5"
+              className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[380px] gap-4 md:gap-5 snap-center"
             >
               <motion.div
                 className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
