@@ -4,7 +4,7 @@ export default function PromiseBanner() {
   return (
     <section className={styles.promiseBanner}>
       <h2>
-        Real ingredients, <br className="hidden md:block" />
+        Real ingredients, <br />
         Real nutrition
       </h2>
       <div>

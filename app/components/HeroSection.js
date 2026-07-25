@@ -94,7 +94,7 @@ export default function HeroSection() {
           </div>
 
           <h1 className={styles.title}>
-            20-in-1 <br />
+            20-in-1
             <span className={styles.titleHighlight}>Super Muesli</span>
           </h1>
 
