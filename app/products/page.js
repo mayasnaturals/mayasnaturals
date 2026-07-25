@@ -55,5 +55,31 @@ export default async function ProductsPage() {
     });
   });
 
-  return <ProductCatalog initialProducts={formattedProducts} />;
+  const groupedProducts = {};
+  formattedProducts.forEach(p => {
+    if (!groupedProducts[p.handle]) groupedProducts[p.handle] = [];
+    groupedProducts[p.handle].push(p);
+  });
+
+  const finalProducts = [];
+  for (const [handle, variants] of Object.entries(groupedProducts)) {
+    variants.sort((a, b) => {
+       const weightA = parseInt(a.weight) || a.price || 0;
+       const weightB = parseInt(b.weight) || b.price || 0;
+       return weightA - weightB;
+    });
+
+    const title = variants[0].name.toLowerCase();
+    const type = variants[0].type.toLowerCase();
+
+    if (title.includes('makhana') || type === 'makhana') {
+      finalProducts.push(variants[0]);
+    } else if (title.includes('super')) {
+      finalProducts.push(variants[0]);
+    } else if (title.includes('choc')) {
+      finalProducts.push(variants.length > 1 ? variants[1] : variants[0]);
+    }
+  }
+
+  return <ProductCatalog initialProducts={finalProducts} />;
 }

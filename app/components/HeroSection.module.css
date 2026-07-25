@@ -178,7 +178,7 @@
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.025em;
@@ -186,10 +186,10 @@
   font-family: var(--font-display);
 }
 @media (min-width: 768px) {
-  .title { font-size: 3.5rem; }
+  .title { font-size: 4.5rem; }
 }
 @media (min-width: 1024px) {
-  .title { font-size: 4rem; }
+  .title { font-size: 5rem; }
 }
 
 .titleHighlight {
