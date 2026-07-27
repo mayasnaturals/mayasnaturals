@@ -36,13 +36,14 @@ export async function POST(req) {
 
     // Calculate shipping logic again (to be safe)
     const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
+    const discountedSubtotal = cart.cost.totalAmount?.amount ? parseFloat(cart.cost.totalAmount.amount) : subtotal;
+    
     const shipping = subtotal > 0 && subtotal < 500 ? 49 : 0;
-    const total = subtotal + shipping;
+    const total = discountedSubtotal + shipping;
 
     // 3. Construct Shopify Order Payload
     const line_items = cart.lines.edges.map((edge) => {
       const item = edge.node;
-      // Extract numeric ID from Global ID (e.g. gid://shopify/ProductVariant/12345?v=1)
       const rawId = item.merchandise.id.split("/").pop();
       const variantId = parseInt(rawId.split("?")[0], 10);
       
@@ -83,6 +84,26 @@ export async function POST(req) {
       },
     };
 
+    // Attach discount codes if present
+    const cartLevelDiscount = subtotal - discountedSubtotal;
+    const appliedDiscountCodes = [];
+    if (cart.discountCodes && cart.discountCodes.length > 0) {
+      const applicableCodes = cart.discountCodes.filter(dc => dc.applicable);
+      if (applicableCodes.length > 0) {
+        shopifyOrderPayload.order.discount_codes = applicableCodes.map(dc => ({
+          code: dc.code,
+          amount: cartLevelDiscount > 0 ? cartLevelDiscount.toFixed(2) : "0.00",
+          type: "fixed_amount"
+        }));
+        
+        if (cartLevelDiscount > 0) {
+          shopifyOrderPayload.order.total_discounts = cartLevelDiscount.toFixed(2);
+        }
+
+        applicableCodes.forEach(dc => appliedDiscountCodes.push(dc.code));
+      }
+    }
+
     if (shipping > 0) {
       shopifyOrderPayload.order.shipping_lines = [
         {
@@ -101,6 +122,9 @@ export async function POST(req) {
     } catch (err) {
       console.warn("Could not get Shopify Admin Token. Cannot create order in Shopify.", err);
     }
+
+    let shopifyOrderNumber = null;
+    let shopifyOrderId = null;
 
     if (!adminToken) {
       console.warn("SHOPIFY_ADMIN_ACCESS_TOKEN flow failed. Order not logged.");
@@ -123,11 +147,48 @@ export async function POST(req) {
         }, { status: 400 });
       } else {
         const orderData = await shopifyRes.json();
+        shopifyOrderNumber = orderData.order.order_number;
+        shopifyOrderId = orderData.order.id;
         console.log("Shopify order created successfully! ID:", orderData.order.id);
       }
     }
 
-    return NextResponse.json({ success: true });
+    // 5. Build invoice data from cart items
+    const invoiceItems = cart.lines.edges.map((edge) => {
+      const item = edge.node;
+      const unitPrice = parseFloat(item.cost.totalAmount.amount) / item.quantity;
+      return {
+        title: item.merchandise.product.title,
+        variant: item.merchandise.title,
+        quantity: item.quantity,
+        unitPrice: unitPrice,
+        lineTotal: parseFloat(item.cost.totalAmount.amount),
+        imageUrl: item.merchandise.product.images?.edges[0]?.node?.url || null,
+      };
+    });
+
+    return NextResponse.json({
+      success: true,
+      orderData: {
+        orderNumber: shopifyOrderNumber,
+        orderId: shopifyOrderId,
+        date: new Date().toISOString(),
+        razorpayPaymentId: razorpay_payment_id,
+        customer: {
+          name: `${customerData.firstName} ${customerData.lastName}`,
+          email: customerData.email,
+          phone: customerData.phone,
+          address: `${customerData.address}, ${customerData.city}, ${customerData.state} - ${customerData.pincode}`,
+        },
+        items: invoiceItems,
+        subtotal: subtotal,
+        discountAmount: cartLevelDiscount,
+        discountCodes: appliedDiscountCodes,
+        discountPercentage: subtotal > 0 && cartLevelDiscount > 0 ? Math.round((cartLevelDiscount / subtotal) * 100) : 0,
+        shipping: shipping,
+        total: total,
+      }
+    });
   } catch (error) {
     console.error("Error in verification:", error);
     return NextResponse.json(

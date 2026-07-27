@@ -17,14 +17,15 @@ export async function POST(req) {
     }
 
     const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
+    const discountedSubtotal = cart.cost.totalAmount?.amount ? parseFloat(cart.cost.totalAmount.amount) : subtotal;
     
     if (subtotal === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Shipping logic
+    // Shipping logic (using original subtotal for threshold to be consistent)
     const shipping = subtotal > 0 && subtotal < 500 ? 49 : 0;
-    const total = subtotal + shipping;
+    const total = discountedSubtotal + shipping;
 
     // Amount in paise (multiply by 100)
     const amountInPaise = Math.round(total * 100);
