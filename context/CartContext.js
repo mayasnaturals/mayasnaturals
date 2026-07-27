@@ -72,6 +72,14 @@ export function CartProvider({ children }) {
     setIsLoading(false);
   };
 
+  const refreshCart = async () => {
+    if (!cart?.id) return;
+    setIsLoading(true);
+    const updatedCart = await getCart(cart.id);
+    if (updatedCart) setCart(updatedCart);
+    setIsLoading(false);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -82,6 +90,7 @@ export function CartProvider({ children }) {
         addToCart,
         updateQuantity,
         removeLineItem,
+        refreshCart,
         checkoutUrl: cart?.checkoutUrl,
         cartCount: cart?.lines?.edges?.reduce((sum, edge) => sum + edge.node.quantity, 0) || 0,
       }}

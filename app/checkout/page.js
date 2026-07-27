@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Script from "next/script";
+import confetti from "canvas-confetti";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import styles from "./checkout.module.css";
 import { getMrp } from "@/lib/utils";
 
 export default function CheckoutPage() {
-  const { cart, isLoading: cartLoading } = useCart();
+  const { cart, isLoading: cartLoading, refreshCart } = useCart();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -25,6 +26,11 @@ export default function CheckoutPage() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
+  
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountError, setDiscountError] = useState("");
+  const [discountSuccess, setDiscountSuccess] = useState("");
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -89,8 +95,12 @@ export default function CheckoutPage() {
             if (verifyRes.ok) {
               // Clear cart locally
               localStorage.removeItem("shopifyCartId");
-              // Redirect to success page or home
-              window.location.href = "/";
+              // Store order data for invoice page
+              if (verifyData.orderData) {
+                sessionStorage.setItem("invoiceData", JSON.stringify(verifyData.orderData));
+              }
+              // Redirect to order success / invoice page
+              window.location.href = "/order-success";
             } else {
               setError(verifyData.error || "Payment verification failed");
             }
@@ -105,7 +115,7 @@ export default function CheckoutPage() {
           contact: formData.phone,
         },
         theme: {
-          color: "#000000",
+          color: "#f25c2a",
         },
       };
 
@@ -122,11 +132,86 @@ export default function CheckoutPage() {
     }
   };
 
-  if (cartLoading) return <div className={styles.container}>Loading cart...</div>;
+  const handleApplyDiscount = async () => {
+    setDiscountError("");
+    setDiscountSuccess("");
+    if (!discountCode.trim()) {
+      setDiscountError("Please enter a discount code.");
+      return;
+    }
+    if (!formData.email.trim()) {
+      setDiscountError("Please enter your email first to apply a discount.");
+      return;
+    }
+    
+    setIsApplyingDiscount(true);
+    try {
+      const res = await fetch("/api/apply-discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cartId: cart.id,
+          code: discountCode,
+          email: formData.email,
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to apply discount.");
+      }
+      setDiscountSuccess("🎉 Discount applied successfully!");
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#82b94b', '#ffc833', '#f25c2a', '#fff8eb']
+      });
+      setDiscountCode("");
+      await refreshCart();
+    } catch (err) {
+      setDiscountError(err.message);
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  };
+
+  const handleRemoveDiscount = async () => {
+    setDiscountError("");
+    setDiscountSuccess("");
+    setIsApplyingDiscount(true);
+    try {
+      const res = await fetch("/api/remove-discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: cart.id })
+      });
+      if (!res.ok) throw new Error("Failed to remove discount.");
+      setDiscountSuccess("Discount removed.");
+      setDiscountCode("");
+      await refreshCart();
+    } catch (err) {
+      setDiscountError(err.message);
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  };
+
+  if (cartLoading && !cart?.id) return (
+    <div className={styles.page}>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner} />
+        <div className={styles.loadingText}>Loading your cart...</div>
+      </div>
+    </div>
+  );
 
   const subtotal = cart?.cost?.subtotalAmount?.amount ? parseFloat(cart.cost.subtotalAmount.amount) : 0;
+  const discountedSubtotal = cart?.cost?.totalAmount?.amount ? parseFloat(cart.cost.totalAmount.amount) : subtotal;
+  const cartLevelDiscount = subtotal - discountedSubtotal;
+  const discountPercentage = subtotal > 0 && cartLevelDiscount > 0 ? Math.round((cartLevelDiscount / subtotal) * 100) : 0;
+  
   const shipping = subtotal > 0 && subtotal < 499 ? 49 : 0;
-  const total = subtotal + shipping;
+  const total = discountedSubtotal + shipping;
   
   let calculatedTotalSavings = 0;
   let calculatedOriginalSubtotal = 0;
@@ -141,130 +226,217 @@ export default function CheckoutPage() {
     calculatedOriginalSubtotal += (mrp * item.quantity);
   });
 
+  const totalSavings = calculatedTotalSavings + cartLevelDiscount;
+
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
-      <div className={styles.container}>
-        <div>
-          <div className={styles.section}>
-            <h2 className={styles.title}>Contact Information</h2>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Email</label>
-              <input type="email" name="email" required className={styles.input} onChange={handleChange} />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Phone</label>
-              <input type="tel" name="phone" required className={styles.input} onChange={handleChange} />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <h2 className={styles.title}>Shipping Address</h2>
-            <div className={styles.row}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>First Name</label>
-                <input type="text" name="firstName" required className={styles.input} onChange={handleChange} />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Last Name</label>
-                <input type="text" name="lastName" required className={styles.input} onChange={handleChange} />
-              </div>
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Address</label>
-              <input type="text" name="address" required className={styles.input} onChange={handleChange} />
-            </div>
-            <div className={styles.row}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>City</label>
-                <input type="text" name="city" required className={styles.input} onChange={handleChange} />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>State</label>
-                <input type="text" name="state" required className={styles.input} onChange={handleChange} />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>PIN Code</label>
-                <input type="text" name="pincode" required className={styles.input} onChange={handleChange} />
-              </div>
-            </div>
-          </div>
+      <div className={styles.page}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <div className={styles.pageKicker}>🛒 Secure Checkout</div>
+          <h1 className={styles.pageTitle}>
+            Almost <span>There!</span>
+          </h1>
         </div>
 
-        <div>
-          <div className={styles.section}>
-            <h2 className={styles.title}>Order Summary</h2>
-            {cart?.lines?.edges?.map((edge) => {
-              const item = edge.node;
-              const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
-              const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
-              const mrp = baseMrp !== null ? baseMrp : price + 100;
-              const totalMrp = mrp * item.quantity;
-              const savings = Math.max(0, (mrp - price) * item.quantity);
-
-              return (
-                <div key={item.id} className={styles.summaryItem}>
-                  <Image
-                    src={item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png"}
-                    alt={item.merchandise.product.title}
-                    width={60}
-                    height={60}
-                    className={styles.summaryImage}
-                  />
-                  <div className={styles.summaryDetails}>
-                    <div className={styles.summaryTitle}>{item.merchandise.product.title}</div>
-                    <div className={styles.summaryQuantity}>Qty: {item.quantity}</div>
-                    {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(2)}</div>}
-                  </div>
-                  <div className={styles.priceContainer}>
-                    <span className={styles.originalPrice}>
-                      ₹{totalMrp.toFixed(2)}
-                    </span>
-                    <span className={styles.discountedPrice}>
-                      ₹{parseFloat(item.cost.totalAmount.amount).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-
-            <div className={styles.divider} />
-            
-            <div className={styles.summaryItem}>
-              <span>Subtotal</span>
-              <div className={styles.priceContainer}>
-                <span className={styles.originalPrice}>
-                  ₹{calculatedOriginalSubtotal.toFixed(2)}
-                </span>
-                <span className={styles.discountedPrice}>₹{subtotal.toFixed(2)}</span>
+        <div className={styles.container}>
+          {/* Left Column — Forms */}
+          <div>
+            {/* Contact Information */}
+            <div className={styles.section}>
+              <span className={styles.sectionEyebrow}>Step 1</span>
+              <h2 className={styles.title}>
+                <span className={styles.titleIcon}>📧</span>
+                Contact Info
+              </h2>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Email Address</label>
+                <input type="email" name="email" value={formData.email} required className={styles.input} onChange={handleChange} placeholder="your@email.com" />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Phone Number</label>
+                <input type="tel" name="phone" value={formData.phone} required className={styles.input} onChange={handleChange} placeholder="+91 98765 43210" />
               </div>
             </div>
-            <div className={styles.summaryItem}>
-              <span>Shipping {subtotal >= 499 && "(Free above ₹499)"}</span>
-              <span>{shipping === 0 ? "Free" : `₹${shipping.toFixed(2)}`}</span>
-            </div>
-            
-            <div className={styles.divider} />
-            
-            <div className={styles.summaryItem} style={{ marginBottom: '10px' }}>
-              <span style={{ color: '#2b8a3e', fontWeight: '600' }}>Total Savings</span>
-              <span style={{ color: '#2b8a3e', fontWeight: '600' }}>-₹{calculatedTotalSavings.toFixed(2)}</span>
-            </div>
-            
-            <div className={styles.totalRow}>
-              <span>Total</span>
-              <span>₹{total.toFixed(2)}</span>
-            </div>
 
-            {error && <div className={styles.error}>{error}</div>}
+            {/* Shipping Address */}
+            <div className={styles.section}>
+              <span className={styles.sectionEyebrow}>Step 2</span>
+              <h2 className={styles.title}>
+                <span className={styles.titleIcon}>📦</span>
+                Shipping Address
+              </h2>
+              <div className={styles.row}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>First Name</label>
+                  <input type="text" name="firstName" value={formData.firstName} required className={styles.input} onChange={handleChange} placeholder="First name" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Last Name</label>
+                  <input type="text" name="lastName" value={formData.lastName} required className={styles.input} onChange={handleChange} placeholder="Last name" />
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Street Address</label>
+                <input type="text" name="address" value={formData.address} required className={styles.input} onChange={handleChange} placeholder="House no, street, area" />
+              </div>
+              <div className={styles.row}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>City</label>
+                  <input type="text" name="city" value={formData.city} required className={styles.input} onChange={handleChange} placeholder="City" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>State</label>
+                  <input type="text" name="state" value={formData.state} required className={styles.input} onChange={handleChange} placeholder="State" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>PIN Code</label>
+                  <input type="text" name="pincode" value={formData.pincode} required className={styles.input} onChange={handleChange} placeholder="PIN" />
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <button 
-              className={styles.payButton} 
-              onClick={handlePayment}
-              disabled={isProcessing || !cart?.lines?.edges?.length}
-            >
-              {isProcessing ? "Processing..." : `Pay ₹${total.toFixed(2)}`}
-            </button>
+          {/* Right Column — Order Summary */}
+          <div className={styles.orderCard}>
+            <div className={styles.section}>
+              <span className={styles.sectionEyebrow}>Your Order</span>
+              <h2 className={styles.title}>
+                <span className={styles.titleIcon}>🧾</span>
+                Order Summary
+              </h2>
+
+              {/* Product Items */}
+              {cart?.lines?.edges?.map((edge) => {
+                const item = edge.node;
+                const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
+                const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
+                const mrp = baseMrp !== null ? baseMrp : price + 100;
+                const totalMrp = mrp * item.quantity;
+                const savings = Math.max(0, (mrp - price) * item.quantity);
+
+                return (
+                  <div key={item.id} className={styles.productRow}>
+                    <Image
+                      src={item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png"}
+                      alt={item.merchandise.product.title}
+                      width={56}
+                      height={56}
+                      className={styles.summaryImage}
+                    />
+                    <div className={styles.summaryDetails}>
+                      <div className={styles.summaryTitle}>{item.merchandise.product.title}</div>
+                      <div className={styles.summaryQuantity}>Qty: {item.quantity}</div>
+                      {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
+                    </div>
+                    <div className={styles.priceContainer}>
+                      <span className={styles.originalPrice}>₹{totalMrp.toFixed(0)}</span>
+                      <span className={styles.discountedPrice}>₹{parseFloat(item.cost.totalAmount.amount).toFixed(0)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className={styles.divider} />
+
+              {/* Subtotal */}
+              <div className={styles.summaryItem}>
+                <span>Subtotal</span>
+                <div className={styles.priceContainer}>
+                  <span className={styles.originalPrice}>₹{calculatedOriginalSubtotal.toFixed(0)}</span>
+                  <span className={styles.discountedPrice}>₹{subtotal.toFixed(0)}</span>
+                </div>
+              </div>
+
+              {/* Applied Discounts */}
+              {cart?.discountCodes?.map((dc, index) => {
+                if (!dc.applicable) return null;
+                return (
+                  <div key={index} className={styles.appliedDiscount}>
+                    <div className={styles.appliedDiscountLeft}>
+                      <span>🏷️ {dc.code}</span>
+                      {discountPercentage > 0 && (
+                        <span className={styles.discountPercentBadge}>{discountPercentage}% OFF</span>
+                      )}
+                    </div>
+                    <span className={styles.appliedDiscountAmount}>-₹{cartLevelDiscount.toFixed(0)}</span>
+                    <button
+                      onClick={handleRemoveDiscount}
+                      disabled={isApplyingDiscount}
+                      className={styles.removeDiscountBtn}
+                      title="Remove discount"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                );
+              })}
+
+              {/* Shipping */}
+              <div className={styles.summaryItem}>
+                <span>
+                  Shipping
+                  {subtotal >= 499 && <span className={styles.shippingNote}>FREE ✨</span>}
+                </span>
+                <span style={{ fontWeight: 900 }}>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+              </div>
+
+              <div className={styles.divider} />
+
+              {/* Discount Code Input */}
+              <div className={styles.discountSection}>
+                <div className={styles.discountInputRow}>
+                  <input
+                    type="text"
+                    placeholder="Got a coupon code?"
+                    value={discountCode}
+                    onChange={(e) => setDiscountCode(e.target.value)}
+                    className={styles.discountInput}
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyDiscount()}
+                  />
+                  <button
+                    onClick={handleApplyDiscount}
+                    disabled={isApplyingDiscount}
+                    className={styles.applyButton}
+                  >
+                    {isApplyingDiscount ? "..." : "Apply"}
+                  </button>
+                </div>
+                {discountError && <div className={styles.discountError}>⚠️ {discountError}</div>}
+                {discountSuccess && <div className={styles.discountSuccess}>✅ {discountSuccess}</div>}
+              </div>
+
+              <div className={styles.divider} />
+
+              {/* Total Savings */}
+              {totalSavings > 0 && (
+                <div className={styles.savingsRow}>
+                  <span>🎉 Total Savings</span>
+                  <span>-₹{totalSavings.toFixed(0)}</span>
+                </div>
+              )}
+
+              {/* Grand Total */}
+              <div className={styles.totalRow}>
+                <span className={styles.totalLabel}>Total</span>
+                <span className={styles.totalAmount}>₹{total.toFixed(0)}</span>
+              </div>
+
+              {error && <div className={styles.error}>⚠️ {error}</div>}
+
+              <button
+                className={styles.payButton}
+                onClick={handlePayment}
+                disabled={isProcessing || !cart?.lines?.edges?.length}
+              >
+                {isProcessing ? "Processing..." : `Pay ₹${total.toFixed(0)} →`}
+              </button>
+
+              <div className={styles.secureNote}>
+                🔒 Secured by Razorpay
+              </div>
+            </div>
           </div>
         </div>
       </div>
