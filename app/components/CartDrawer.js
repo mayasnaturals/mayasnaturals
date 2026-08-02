@@ -3,11 +3,72 @@
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getComboPrice } from "@/lib/pricing";
+import { getMrp } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import styles from "./CartDrawer.module.css";
 
 export default function CartDrawer() {
   const { isCartOpen, setIsCartOpen, cart, updateQuantity, removeLineItem, removeLines, isLoading } = useCart();
+
+  const groupedLines = [];
+  const combos = {};
+  let calculatedSubtotal = 0;
+
+  if (cart?.lines?.edges) {
+    cart.lines.edges.forEach((edge) => {
+      const item = edge.node;
+      const comboAttr = item.attributes?.find(a => a.key === '_comboId');
+      
+      if (comboAttr) {
+        const comboId = comboAttr.value;
+        if (!combos[comboId]) {
+          combos[comboId] = {
+            isCombo: true,
+            id: comboId,
+            lineIds: [],
+            title: "Makhana Custom Combo",
+            quantity: 1, // Visual quantity
+            totalAmount: 0,
+            originalTotalAmount: 0,
+            items: [],
+            image: "/products/Default Museli.png"
+          };
+          groupedLines.push(combos[comboId]);
+        }
+        combos[comboId].lineIds.push(item.id);
+        const itemAmount = parseFloat(item.cost.totalAmount.amount);
+        const perUnitPrice = itemAmount / item.quantity;
+        const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, perUnitPrice);
+        const mrp = baseMrp !== null ? baseMrp : perUnitPrice + 100;
+        
+        combos[comboId].totalAmount += itemAmount;
+        combos[comboId].originalTotalAmount += (mrp * item.quantity);
+        combos[comboId].items.push(item);
+        if (combos[comboId].items.length === 1) {
+            combos[comboId].image = item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png";
+        }
+      } else {
+        groupedLines.push({
+          isCombo: false,
+          ...item
+        });
+        calculatedSubtotal += parseFloat(item.cost.totalAmount.amount);
+      }
+    });
+
+    Object.values(combos).forEach(combo => {
+      if (combo.items.length > 0) {
+        const sampleVariant = combo.items[0].merchandise.title; // e.g. "90g" or "180g"
+        const size = combo.items.length;
+        const hardcoded = getComboPrice(sampleVariant, size);
+        if (hardcoded) {
+          combo.totalAmount = hardcoded;
+        }
+        calculatedSubtotal += combo.totalAmount;
+      }
+    });
+  }
 
   if (!isCartOpen) return null;
 
@@ -38,45 +99,8 @@ export default function CartDrawer() {
             </div>
           ) : (
             <div className={styles.itemsList}>
-              {(() => {
-                const groupedLines = [];
-                const combos = {};
-
-                cart.lines.edges.forEach((edge) => {
-                  const item = edge.node;
-                  const comboAttr = item.attributes?.find(a => a.key === '_comboId');
-                  
-                  if (comboAttr) {
-                    const comboId = comboAttr.value;
-                    if (!combos[comboId]) {
-                      combos[comboId] = {
-                        isCombo: true,
-                        id: comboId,
-                        lineIds: [],
-                        title: "Makhana Custom Combo",
-                        quantity: 1, // Visual quantity for the combo bundle
-                        totalAmount: 0,
-                        items: [],
-                        image: "/products/Default Museli.png" // We can use the first item's image later
-                      };
-                      groupedLines.push(combos[comboId]);
-                    }
-                    combos[comboId].lineIds.push(item.id);
-                    combos[comboId].totalAmount += parseFloat(item.cost.totalAmount.amount);
-                    combos[comboId].items.push(item);
-                    if (combos[comboId].items.length === 1) {
-                        combos[comboId].image = item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png";
-                    }
-                  } else {
-                    groupedLines.push({
-                      isCombo: false,
-                      ...item
-                    });
-                  }
-                });
-
-                return groupedLines.map((item) => {
-                  if (item.isCombo) {
+              {groupedLines.map((item) => {
+                if (item.isCombo) {
                     return (
                       <div key={item.id} className={styles.card}>
                         {isLoading && <div className={styles.loadingOverlay} />}
@@ -91,7 +115,14 @@ export default function CartDrawer() {
                         <div className={styles.itemInfo}>
                           <div>
                             <h3 className={styles.itemName}>{item.title}</h3>
-                            <p className={styles.itemPrice}>₹{item.totalAmount.toFixed(2)}</p>
+                            <p className={styles.itemPrice}>
+                              {item.originalTotalAmount > item.totalAmount && (
+                                <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px', fontSize: '0.85rem' }}>
+                                  ₹{item.originalTotalAmount.toFixed(2)}
+                                </span>
+                              )}
+                              ₹{item.totalAmount.toFixed(2)}
+                            </p>
                             
                             <div style={{ marginTop: '8px', marginBottom: '8px', background: '#fdf8f4', padding: '6px', borderRadius: '8px', border: '1px solid #f0e6dd' }}>
                               {item.items.map((subItem, idx) => {
@@ -171,8 +202,8 @@ export default function CartDrawer() {
                       </div>
                     </div>
                   );
-                });
-              })()}
+                })
+              }
             </div>
           )}
         </div>
@@ -183,7 +214,7 @@ export default function CartDrawer() {
             <div className={styles.subtotalRow}>
               <span className={styles.subtotalLabel}>Subtotal</span>
               <span className={styles.subtotalAmount}>
-                ₹{cart.cost.subtotalAmount.amount}
+                ₹{calculatedSubtotal.toFixed(2)}
               </span>
             </div>
             <Link

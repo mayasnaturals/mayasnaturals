@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import styles from "./checkout.module.css";
 import { getMrp } from "@/lib/utils";
+import { getComboPrice } from "@/lib/pricing";
 
 export default function CheckoutPage() {
   const { cart, isLoading: cartLoading, refreshCart } = useCart();
@@ -205,28 +206,110 @@ export default function CheckoutPage() {
     </div>
   );
 
-  const subtotal = cart?.cost?.subtotalAmount?.amount ? parseFloat(cart.cost.subtotalAmount.amount) : 0;
-  const discountedSubtotal = cart?.cost?.totalAmount?.amount ? parseFloat(cart.cost.totalAmount.amount) : subtotal;
-  const cartLevelDiscount = subtotal - discountedSubtotal;
-  const discountPercentage = subtotal > 0 && cartLevelDiscount > 0 ? Math.round((cartLevelDiscount / subtotal) * 100) : 0;
-  
-  const shipping = subtotal > 0 && subtotal < 499 ? 49 : 0;
-  const total = discountedSubtotal + shipping;
-  
-  let calculatedTotalSavings = 0;
-  let calculatedOriginalSubtotal = 0;
+  const groupedLines = [];
+  const combos = {};
+  let calculatedSubtotal = 0; // The total we will charge before shipping
+  let calculatedOriginalSubtotal = 0; // Total MRP of everything
+  let effectiveDiscount = 0; // Discount applied only to regular items
 
-  cart?.lines?.edges?.forEach((edge) => {
-    const item = edge.node;
-    const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
-    const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
-    const mrp = baseMrp !== null ? baseMrp : price + 100;
-    const savingsPerUnit = Math.max(0, mrp - price);
-    calculatedTotalSavings += (savingsPerUnit * item.quantity);
-    calculatedOriginalSubtotal += (mrp * item.quantity);
-  });
+  const shopifySubtotal = parseFloat(cart?.cost?.subtotalAmount?.amount || 0);
+  const shopifyTotal = parseFloat(cart?.cost?.totalAmount?.amount || 0);
+  const shopifyDiscount = Math.max(0, shopifySubtotal - shopifyTotal);
+  let discountProportion = 0;
+  if (shopifySubtotal > 0 && shopifyDiscount > 0) {
+    discountProportion = shopifyDiscount / shopifySubtotal;
+  }
 
-  const totalSavings = calculatedTotalSavings + cartLevelDiscount;
+  if (cart?.lines?.edges) {
+    cart.lines.edges.forEach((edge) => {
+      const item = edge.node;
+      const comboAttr = item.attributes?.find(a => a.key === '_comboId');
+      
+      if (comboAttr) {
+        const comboId = comboAttr.value;
+        if (!combos[comboId]) {
+          combos[comboId] = {
+            isCombo: true,
+            id: comboId,
+            lineIds: [],
+            title: "Makhana Custom Combo",
+            quantity: 1, 
+            totalAmount: 0,
+            originalTotalAmount: 0,
+            items: [],
+            image: "/products/Default Museli.png"
+          };
+        }
+        combos[comboId].lineIds.push(item.id);
+        const itemAmount = parseFloat(item.cost.totalAmount.amount);
+        const perUnitPrice = itemAmount / item.quantity;
+        const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, perUnitPrice);
+        const mrp = baseMrp !== null ? baseMrp : perUnitPrice + 100;
+        
+        combos[comboId].originalTotalAmount += (mrp * item.quantity);
+        combos[comboId].items.push(item);
+        if (combos[comboId].items.length === 1) {
+            combos[comboId].image = item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png";
+        }
+      } else {
+        const itemAmount = parseFloat(item.cost.totalAmount.amount);
+        const basePrice = parseFloat(item.merchandise.price?.amount || item.cost.totalAmount.amount) * item.quantity;
+        
+        let discountedPrice = itemAmount;
+        let itemDiscount = 0;
+
+        if (discountProportion > 0) {
+           itemDiscount = discountedPrice * discountProportion;
+           discountedPrice -= itemDiscount;
+        }
+
+        if (basePrice > itemAmount) {
+           itemDiscount += (basePrice - itemAmount);
+        }
+        
+        const perUnitPrice = itemAmount / item.quantity; // Use pre-discount for MRP lookup
+        const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, perUnitPrice);
+        const mrp = baseMrp !== null ? baseMrp : perUnitPrice + 100;
+        const totalMrp = mrp * item.quantity;
+        
+        calculatedOriginalSubtotal += totalMrp;
+        calculatedSubtotal += discountedPrice;
+        
+        effectiveDiscount += itemDiscount;
+
+        groupedLines.push({
+          isCombo: false,
+          ...item,
+          mrp,
+          totalMrp,
+          savings: Math.max(0, totalMrp - discountedPrice)
+        });
+      }
+    });
+
+    Object.values(combos).forEach(combo => {
+      if (combo.items.length > 0) {
+        const sampleVariant = combo.items[0].merchandise.title;
+        const size = combo.items.length;
+        const hardcoded = getComboPrice(sampleVariant, size);
+        
+        if (hardcoded) {
+          combo.totalAmount = hardcoded;
+        } else {
+          combo.totalAmount = combo.originalTotalAmount;
+        }
+        
+        calculatedSubtotal += combo.totalAmount;
+        calculatedOriginalSubtotal += combo.originalTotalAmount;
+        groupedLines.push(combo);
+      }
+    });
+  }
+
+  const shipping = calculatedSubtotal > 0 && calculatedSubtotal < 499 ? 49 : 0;
+  const total = calculatedSubtotal + shipping;
+  const totalSavings = Math.max(0, calculatedOriginalSubtotal - calculatedSubtotal);
+  const discountPercentage = calculatedSubtotal > 0 && effectiveDiscount > 0 ? Math.round((effectiveDiscount / (calculatedSubtotal + effectiveDiscount)) * 100) : 0;
 
   return (
     <>
@@ -308,52 +391,9 @@ export default function CheckoutPage() {
               </h2>
 
               {/* Product Items */}
-              {(() => {
-                const groupedLines = [];
-                const combos = {};
-
-                cart?.lines?.edges?.forEach((edge) => {
-                  const item = edge.node;
-                  const comboAttr = item.attributes?.find(a => a.key === '_comboId');
-                  
-                  if (comboAttr) {
-                    const comboId = comboAttr.value;
-                    if (!combos[comboId]) {
-                      combos[comboId] = {
-                        isCombo: true,
-                        id: comboId,
-                        title: "Makhana Custom Combo",
-                        quantity: 1, // Visual quantity for the combo bundle
-                        totalAmount: 0,
-                        totalOriginalAmount: 0,
-                        items: [],
-                        image: "/products/Default Museli.png"
-                      };
-                      groupedLines.push(combos[comboId]);
-                    }
-                    
-                    const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
-                    const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
-                    const mrp = baseMrp !== null ? baseMrp : price + 100;
-                    
-                    combos[comboId].totalAmount += parseFloat(item.cost.totalAmount.amount);
-                    combos[comboId].totalOriginalAmount += (mrp * item.quantity);
-                    combos[comboId].items.push(item);
-                    
-                    if (combos[comboId].items.length === 1) {
-                        combos[comboId].image = item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png";
-                    }
-                  } else {
-                    groupedLines.push({
-                      isCombo: false,
-                      ...item
-                    });
-                  }
-                });
-
-                return groupedLines.map((item) => {
+              {groupedLines.map((item) => {
                   if (item.isCombo) {
-                    const savings = Math.max(0, item.totalOriginalAmount - item.totalAmount);
+                    const savings = Math.max(0, item.originalTotalAmount - item.totalAmount);
                     return (
                       <div key={item.id} className={styles.productRow}>
                         <Image
@@ -369,18 +409,12 @@ export default function CheckoutPage() {
                           {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
                         </div>
                         <div className={styles.priceContainer}>
-                          <span className={styles.originalPrice}>₹{item.totalOriginalAmount.toFixed(0)}</span>
+                          <span className={styles.originalPrice}>₹{item.originalTotalAmount.toFixed(0)}</span>
                           <span className={styles.discountedPrice}>₹{item.totalAmount.toFixed(0)}</span>
                         </div>
                       </div>
                     );
                   }
-
-                  const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
-                  const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
-                  const mrp = baseMrp !== null ? baseMrp : price + 100;
-                  const totalMrp = mrp * item.quantity;
-                  const savings = Math.max(0, (mrp - price) * item.quantity);
 
                   return (
                     <div key={item.id} className={styles.productRow}>
@@ -394,16 +428,15 @@ export default function CheckoutPage() {
                       <div className={styles.summaryDetails}>
                         <div className={styles.summaryTitle}>{item.merchandise.product.title}</div>
                         <div className={styles.summaryQuantity}>Qty: {item.quantity}</div>
-                        {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
+                        {item.savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{item.savings.toFixed(0)}</div>}
                       </div>
                       <div className={styles.priceContainer}>
-                        <span className={styles.originalPrice}>₹{totalMrp.toFixed(0)}</span>
+                        <span className={styles.originalPrice}>₹{item.totalMrp.toFixed(0)}</span>
                         <span className={styles.discountedPrice}>₹{parseFloat(item.cost.totalAmount.amount).toFixed(0)}</span>
                       </div>
                     </div>
                   );
-                });
-              })()}
+                })}
 
               <div className={styles.divider} />
 
@@ -412,7 +445,7 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <div className={styles.priceContainer}>
                   <span className={styles.originalPrice}>₹{calculatedOriginalSubtotal.toFixed(0)}</span>
-                  <span className={styles.discountedPrice}>₹{subtotal.toFixed(0)}</span>
+                  <span className={styles.discountedPrice}>₹{calculatedSubtotal.toFixed(0)}</span>
                 </div>
               </div>
 
@@ -424,10 +457,10 @@ export default function CheckoutPage() {
                     <div className={styles.appliedDiscountLeft}>
                       <span>🏷️ {dc.code}</span>
                       {discountPercentage > 0 && (
-                        <span className={styles.discountPercentBadge}>{discountPercentage}% OFF</span>
+                        <span className={styles.discountPercentBadge}>{discountPercentage}% OFF REGULAR ITEMS</span>
                       )}
                     </div>
-                    <span className={styles.appliedDiscountAmount}>-₹{cartLevelDiscount.toFixed(0)}</span>
+                    <span className={styles.appliedDiscountAmount}>-₹{effectiveDiscount.toFixed(0)}</span>
                     <button
                       onClick={handleRemoveDiscount}
                       disabled={isApplyingDiscount}
@@ -444,7 +477,7 @@ export default function CheckoutPage() {
               <div className={styles.summaryItem}>
                 <span>
                   Shipping
-                  {subtotal >= 499 && <span className={styles.shippingNote}>FREE ✨</span>}
+                  {calculatedSubtotal >= 499 && <span className={styles.shippingNote}>FREE ✨</span>}
                 </span>
                 <span style={{ fontWeight: 900 }}>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
               </div>

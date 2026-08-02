@@ -4,8 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShoppingBag, Loader2 } from "lucide-react";
+import { X, ShoppingBag, Loader2, RotateCcw, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { getComboPrice } from "@/lib/pricing";
 import styles from "./combo.module.css";
 
 const MYSTERY_FLAVOR = {
@@ -22,8 +23,9 @@ const MYSTERY_FLAVOR = {
 };
 
 export default function ComboBuilderClient({ initialProducts }) {
-  const [comboSize, setComboSize] = useState(4);
+  const [comboSize, setComboSize] = useState(6);
   const [slots, setSlots] = useState([]);
+  const [lockedWeight, setLockedWeight] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   
   const { addLinesToCart } = useCart();
@@ -53,16 +55,22 @@ export default function ComboBuilderClient({ initialProducts }) {
   };
 
   const handleProductSelect = (product) => {
-    // Check if already selected
     if (slots.some(s => s.productId === product.id)) {
       // Remove it
-      setSlots(slots.filter(s => s.productId !== product.id));
+      const newSlots = slots.filter(s => s.productId !== product.id);
+      setSlots(newSlots);
+      if (newSlots.length === 0) setLockedWeight(null);
       return;
     }
 
     if (slots.length >= comboSize) return; // Full
 
     const variant = selectedVariants[product.id];
+    
+    // Set locked weight if first item
+    if (slots.length === 0) {
+      setLockedWeight(variant.weight);
+    }
     setSlots([...slots, {
       productId: product.id,
       variantId: variant.variantId,
@@ -75,10 +83,20 @@ export default function ComboBuilderClient({ initialProducts }) {
   };
 
   const handleRemoveSlot = (index) => {
-    setSlots(slots.filter((_, i) => i !== index));
+    const newSlots = slots.filter((_, i) => i !== index);
+    setSlots(newSlots);
+    if (newSlots.length === 0) setLockedWeight(null);
   };
 
-  const totalPrice = slots.reduce((sum, slot) => sum + slot.price, 0);
+  const handleClearCombo = () => {
+    setSlots([]);
+    setLockedWeight(null);
+  };
+
+  // Calculate prices
+  const totalOriginalPrice = slots.reduce((sum, slot) => sum + slot.price, 0);
+  const hardcodedPrice = lockedWeight ? getComboPrice(lockedWeight, comboSize) : null;
+  const currentComboPrice = hardcodedPrice ? (hardcodedPrice / comboSize) * slots.length : totalOriginalPrice;
 
   const handleAddToCart = async () => {
     if (slots.length !== comboSize) return;
@@ -124,7 +142,7 @@ export default function ComboBuilderClient({ initialProducts }) {
               <h2>Select Size</h2>
             </div>
             <div className={styles.sizeOptions}>
-              {[2, 4, 6, 8].map(size => (
+              {[2, 4, 6].map(size => (
                 <button
                   key={size}
                   className={`${styles.sizeBtn} ${comboSize === size ? styles.active : ''}`}
@@ -159,24 +177,48 @@ export default function ComboBuilderClient({ initialProducts }) {
                     key={product.id} 
                     className={`${styles.productCard} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
                   >
-                    <div className={styles.cardVisual} onClick={() => !isDisabled && handleProductSelect(product)}>
-                      <Image src={product.image} alt={product.name} width={120} height={120} />
+                    <div className={styles.cardVisual} onClick={() => !isDisabled && handleProductSelect(product)} style={{ position: 'relative' }}>
+                      <Image src={product.image} alt={product.name} fill style={{ objectFit: 'cover' }} />
+                      {isSelected && (
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '10px', 
+                          right: '10px', 
+                          background: '#e44a32', 
+                          color: 'white', 
+                          borderRadius: '50%', 
+                          padding: '6px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }}>
+                          <Check size={16} strokeWidth={4} />
+                        </div>
+                      )}
                     </div>
                     <div className={styles.cardInfo}>
                       <h3 onClick={() => !isDisabled && handleProductSelect(product)}>{product.name}</h3>
                       <div className={styles.variantSelectors}>
-                        {product.variants.map(variant => (
-                          <button
-                            key={variant.variantId}
-                            className={`${styles.variantBtn} ${selectedVariants[product.id].variantId === variant.variantId ? styles.active : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleVariantSelect(product.id, variant);
-                            }}
-                          >
-                            {variant.weight} - ₹{variant.price}
-                          </button>
-                        ))}
+                        {product.variants.map(variant => {
+                          const isWeightLockedOut = lockedWeight && lockedWeight !== variant.weight;
+                          return (
+                            <button
+                              key={variant.variantId}
+                              disabled={isWeightLockedOut}
+                              className={`${styles.variantBtn} ${selectedVariants[product.id].variantId === variant.variantId ? styles.active : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!isWeightLockedOut) {
+                                  handleVariantSelect(product.id, variant);
+                                }
+                              }}
+                              style={{ opacity: isWeightLockedOut ? 0.3 : 1, cursor: isWeightLockedOut ? 'not-allowed' : 'pointer' }}
+                            >
+                              {variant.weight} - ₹{variant.price}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -188,7 +230,17 @@ export default function ComboBuilderClient({ initialProducts }) {
 
         {/* Sidebar Summary */}
         <aside className={styles.summarySidebar}>
-          <h2>Your Combo</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>Your Combo</h2>
+            {slots.length > 0 && (
+              <button 
+                onClick={handleClearCombo} 
+                style={{ fontSize: '0.8rem', color: '#f04e24', display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                <RotateCcw size={14} /> Reset
+              </button>
+            )}
+          </div>
           <div className={styles.slotsGrid}>
             {Array.from({ length: comboSize }).map((_, i) => {
               const slot = slots[i];
@@ -224,7 +276,12 @@ export default function ComboBuilderClient({ initialProducts }) {
 
           <div className={styles.summaryTotal} style={{ borderTop: slots.length > 0 ? 'none' : '2px solid #eadbcc', paddingTop: slots.length > 0 ? '0' : '16px' }}>
             <span>Total:</span>
-            <span>₹{totalPrice.toFixed(2)}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              {hardcodedPrice && slots.length === comboSize && totalOriginalPrice > hardcodedPrice && (
+                <span style={{ fontSize: '0.9rem', color: '#888', textDecoration: 'line-through' }}>₹{totalOriginalPrice.toFixed(2)}</span>
+              )}
+              <span>₹{slots.length === comboSize ? hardcodedPrice.toFixed(2) : currentComboPrice.toFixed(2)}</span>
+            </div>
           </div>
 
           <button 

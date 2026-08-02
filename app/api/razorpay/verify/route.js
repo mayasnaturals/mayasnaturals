@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { getCart } from "@/lib/shopify";
 import { getShopifyAdminToken } from "@/lib/shopify/adminAuth";
+import { getComboPrice } from "@/lib/pricing";
 
 export async function POST(req) {
   try {
@@ -34,25 +35,92 @@ export async function POST(req) {
       return NextResponse.json({ error: "Cart not found" }, { status: 404 });
     }
 
-    // Calculate shipping logic again (to be safe)
-    const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
-    const discountedSubtotal = cart.cost.totalAmount?.amount ? parseFloat(cart.cost.totalAmount.amount) : subtotal;
-    
-    const shipping = subtotal > 0 && subtotal < 500 ? 49 : 0;
-    const total = discountedSubtotal + shipping;
+    let calculatedSubtotal = 0; // Pre-discount subtotal
+    let effectiveDiscount = 0;
+    const combos = {};
 
-    // 3. Construct Shopify Order Payload
-    const line_items = cart.lines.edges.map((edge) => {
+    const shopifySubtotal = parseFloat(cart?.cost?.subtotalAmount?.amount || 0);
+    const shopifyTotal = parseFloat(cart?.cost?.totalAmount?.amount || 0);
+    const shopifyDiscount = Math.max(0, shopifySubtotal - shopifyTotal);
+    let discountProportion = 0;
+    if (shopifySubtotal > 0 && shopifyDiscount > 0) {
+      discountProportion = shopifyDiscount / shopifySubtotal;
+    }
+
+    cart.lines.edges.forEach((edge) => {
+      const item = edge.node;
+      const comboAttr = item.attributes?.find(a => a.key === '_comboId');
+      if (comboAttr) {
+        const comboId = comboAttr.value;
+        if (!combos[comboId]) combos[comboId] = { items: [] };
+        combos[comboId].items.push(item);
+      }
+    });
+
+    const line_items = [];
+    const invoiceItems = [];
+
+    cart.lines.edges.forEach((edge) => {
       const item = edge.node;
       const rawId = item.merchandise.id.split("/").pop();
       const variantId = parseInt(rawId.split("?")[0], 10);
-      
-      return {
+      const comboAttr = item.attributes?.find(a => a.key === '_comboId');
+
+      let unitPrice = 0; // Pre-discount unit price
+      let itemDiscount = 0; // Discount applied to this line item
+
+      if (comboAttr) {
+        const comboId = comboAttr.value;
+        const combo = combos[comboId];
+        const sampleVariant = combo.items[0].merchandise.title;
+        const size = combo.items.length;
+        const hardcoded = getComboPrice(sampleVariant, size);
+        
+        if (hardcoded) {
+          unitPrice = hardcoded / size;
+        } else {
+          unitPrice = parseFloat(item.cost.totalAmount.amount) / item.quantity;
+        }
+      } else {
+        unitPrice = parseFloat(item.merchandise.price?.amount || item.cost.totalAmount.amount);
+        
+        let itemAmount = parseFloat(item.cost.totalAmount.amount);
+        let discountedPrice = itemAmount;
+        
+        if (discountProportion > 0) {
+           const proratedDiscount = discountedPrice * discountProportion;
+           itemDiscount += proratedDiscount;
+           discountedPrice -= proratedDiscount;
+        }
+
+        const basePriceTotal = unitPrice * item.quantity;
+        if (basePriceTotal > itemAmount) {
+          itemDiscount += (basePriceTotal - itemAmount);
+        }
+        
+        effectiveDiscount += itemDiscount;
+      }
+
+      calculatedSubtotal += (unitPrice * item.quantity);
+
+      line_items.push({
         variant_id: variantId,
         quantity: item.quantity,
-        price: item.cost.totalAmount.amount,
-      };
+        price: unitPrice.toFixed(2),
+      });
+
+      invoiceItems.push({
+        title: item.merchandise.product.title,
+        variant: item.merchandise.title,
+        quantity: item.quantity,
+        unitPrice: unitPrice,
+        lineTotal: (unitPrice * item.quantity) - itemDiscount,
+        imageUrl: item.merchandise.product.images?.edges[0]?.node?.url || null,
+      });
     });
+
+    const shipping = calculatedSubtotal - effectiveDiscount > 0 && calculatedSubtotal - effectiveDiscount < 499 ? 49 : 0;
+    const total = calculatedSubtotal - effectiveDiscount + shipping;
 
     const address = {
       first_name: customerData.firstName,
@@ -85,21 +153,17 @@ export async function POST(req) {
     };
 
     // Attach discount codes if present
-    const cartLevelDiscount = subtotal - discountedSubtotal;
     const appliedDiscountCodes = [];
-    if (cart.discountCodes && cart.discountCodes.length > 0) {
+    if (cart.discountCodes && cart.discountCodes.length > 0 && effectiveDiscount > 0) {
       const applicableCodes = cart.discountCodes.filter(dc => dc.applicable);
       if (applicableCodes.length > 0) {
         shopifyOrderPayload.order.discount_codes = applicableCodes.map(dc => ({
           code: dc.code,
-          amount: cartLevelDiscount > 0 ? cartLevelDiscount.toFixed(2) : "0.00",
+          amount: effectiveDiscount.toFixed(2),
           type: "fixed_amount"
         }));
         
-        if (cartLevelDiscount > 0) {
-          shopifyOrderPayload.order.total_discounts = cartLevelDiscount.toFixed(2);
-        }
-
+        shopifyOrderPayload.order.total_discounts = effectiveDiscount.toFixed(2);
         applicableCodes.forEach(dc => appliedDiscountCodes.push(dc.code));
       }
     }
@@ -153,19 +217,7 @@ export async function POST(req) {
       }
     }
 
-    // 5. Build invoice data from cart items
-    const invoiceItems = cart.lines.edges.map((edge) => {
-      const item = edge.node;
-      const unitPrice = parseFloat(item.cost.totalAmount.amount) / item.quantity;
-      return {
-        title: item.merchandise.product.title,
-        variant: item.merchandise.title,
-        quantity: item.quantity,
-        unitPrice: unitPrice,
-        lineTotal: parseFloat(item.cost.totalAmount.amount),
-        imageUrl: item.merchandise.product.images?.edges[0]?.node?.url || null,
-      };
-    });
+    // Invoice items already built above
 
     return NextResponse.json({
       success: true,
@@ -181,10 +233,10 @@ export async function POST(req) {
           address: `${customerData.address}, ${customerData.city}, ${customerData.state} - ${customerData.pincode}`,
         },
         items: invoiceItems,
-        subtotal: subtotal,
-        discountAmount: cartLevelDiscount,
+        subtotal: calculatedSubtotal,
+        discountAmount: effectiveDiscount,
         discountCodes: appliedDiscountCodes,
-        discountPercentage: subtotal > 0 && cartLevelDiscount > 0 ? Math.round((cartLevelDiscount / subtotal) * 100) : 0,
+        discountPercentage: calculatedSubtotal > 0 && effectiveDiscount > 0 ? Math.round((effectiveDiscount / calculatedSubtotal) * 100) : 0,
         shipping: shipping,
         total: total,
       }

@@ -26,13 +26,12 @@ function ComboCard({ index }) {
                 className={styles.productVisual}
                 aria-label="Build your own Makhana combo"
             >
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--card-mid)', color: 'var(--card-dark)', padding: '20px', textAlign: 'center' }}>
-                     <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', lineHeight: 1 }}>Make Your Own</h2>
-                     <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '3rem', fontWeight: 900, textTransform: 'uppercase', color: '#fff' }}>Combo</h3>
-                     <div style={{ marginTop: '20px' }}>
-                         <Image src="/products/Makhana - Peri Peri.png" width={100} height={100} alt="Makhana" style={{ filter: 'drop-shadow(4px 4px 0px rgba(0,0,0,0.2))', transform: 'rotate(-10deg) translateX(10px)' }} />
-                     </div>
-                </div>
+                <Image 
+                    src="/combo.png" 
+                    alt="Make Your Own Combo" 
+                    fill
+                    style={{ objectFit: 'cover' }} 
+                />
                 <div className={styles.imageShade} />
                 <span className={styles.productBadge}>Fun</span>
             </Link>
@@ -50,7 +49,7 @@ function ComboCard({ index }) {
                 </h3>
 
                 <p style={{ minHeight: '58px', marginTop: '10px', color: '#776153', fontSize: '0.78rem', lineHeight: 1.55 }}>
-                    Mix and match your favorite flavors in packs of 2, 4, 6 or 8. Get exactly what you crave!
+                    Mix and match your favorite flavors in packs of 2, 4, or 6. Get exactly what you crave!
                 </p>
 
                 <div className={styles.productBottom}>
