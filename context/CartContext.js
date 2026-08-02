@@ -29,7 +29,11 @@ export function CartProvider({ children }) {
     initializeCart();
   }, []);
 
-  const addToCart = async (variantId, quantity = 1) => {
+  const addToCart = async (variantId, quantity = 1, attributes = []) => {
+    await addLinesToCart([{ merchandiseId: variantId, quantity, attributes }]);
+  };
+
+  const addLinesToCart = async (lines) => {
     setIsLoading(true);
     let currentCartId = cart?.id || localStorage.getItem("shopifyCartId");
 
@@ -42,9 +46,7 @@ export function CartProvider({ children }) {
     }
 
     if (currentCartId) {
-      const updatedCart = await shopifyAddToCart(currentCartId, [
-        { merchandiseId: variantId, quantity },
-      ]);
+      const updatedCart = await shopifyAddToCart(currentCartId, lines);
       setCart(updatedCart);
       setIsCartOpen(true); // Auto-open cart
     }
@@ -65,9 +67,13 @@ export function CartProvider({ children }) {
   };
 
   const removeLineItem = async (lineId) => {
+    await removeLines([lineId]);
+  };
+
+  const removeLines = async (lineIds) => {
     if (!cart?.id) return;
     setIsLoading(true);
-    const updatedCart = await removeFromCart(cart.id, [lineId]);
+    const updatedCart = await removeFromCart(cart.id, lineIds);
     setCart(updatedCart);
     setIsLoading(false);
   };
@@ -88,8 +94,10 @@ export function CartProvider({ children }) {
         isCartOpen,
         setIsCartOpen,
         addToCart,
+        addLinesToCart,
         updateQuantity,
         removeLineItem,
+        removeLines,
         refreshCart,
         checkoutUrl: cart?.checkoutUrl,
         cartCount: cart?.lines?.edges?.reduce((sum, edge) => sum + edge.node.quantity, 0) || 0,

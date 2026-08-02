@@ -308,35 +308,102 @@ export default function CheckoutPage() {
               </h2>
 
               {/* Product Items */}
-              {cart?.lines?.edges?.map((edge) => {
-                const item = edge.node;
-                const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
-                const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
-                const mrp = baseMrp !== null ? baseMrp : price + 100;
-                const totalMrp = mrp * item.quantity;
-                const savings = Math.max(0, (mrp - price) * item.quantity);
+              {(() => {
+                const groupedLines = [];
+                const combos = {};
 
-                return (
-                  <div key={item.id} className={styles.productRow}>
-                    <Image
-                      src={item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png"}
-                      alt={item.merchandise.product.title}
-                      width={56}
-                      height={56}
-                      className={styles.summaryImage}
-                    />
-                    <div className={styles.summaryDetails}>
-                      <div className={styles.summaryTitle}>{item.merchandise.product.title}</div>
-                      <div className={styles.summaryQuantity}>Qty: {item.quantity}</div>
-                      {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
+                cart?.lines?.edges?.forEach((edge) => {
+                  const item = edge.node;
+                  const comboAttr = item.attributes?.find(a => a.key === '_comboId');
+                  
+                  if (comboAttr) {
+                    const comboId = comboAttr.value;
+                    if (!combos[comboId]) {
+                      combos[comboId] = {
+                        isCombo: true,
+                        id: comboId,
+                        title: "Makhana Custom Combo",
+                        quantity: 1, // Visual quantity for the combo bundle
+                        totalAmount: 0,
+                        totalOriginalAmount: 0,
+                        items: [],
+                        image: "/products/Default Museli.png"
+                      };
+                      groupedLines.push(combos[comboId]);
+                    }
+                    
+                    const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
+                    const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
+                    const mrp = baseMrp !== null ? baseMrp : price + 100;
+                    
+                    combos[comboId].totalAmount += parseFloat(item.cost.totalAmount.amount);
+                    combos[comboId].totalOriginalAmount += (mrp * item.quantity);
+                    combos[comboId].items.push(item);
+                    
+                    if (combos[comboId].items.length === 1) {
+                        combos[comboId].image = item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png";
+                    }
+                  } else {
+                    groupedLines.push({
+                      isCombo: false,
+                      ...item
+                    });
+                  }
+                });
+
+                return groupedLines.map((item) => {
+                  if (item.isCombo) {
+                    const savings = Math.max(0, item.totalOriginalAmount - item.totalAmount);
+                    return (
+                      <div key={item.id} className={styles.productRow}>
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          width={56}
+                          height={56}
+                          className={styles.summaryImage}
+                        />
+                        <div className={styles.summaryDetails}>
+                          <div className={styles.summaryTitle}>{item.title}</div>
+                          <div className={styles.summaryQuantity}>{item.items.length} items (Qty: 1)</div>
+                          {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
+                        </div>
+                        <div className={styles.priceContainer}>
+                          <span className={styles.originalPrice}>₹{item.totalOriginalAmount.toFixed(0)}</span>
+                          <span className={styles.discountedPrice}>₹{item.totalAmount.toFixed(0)}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  const price = parseFloat(item.cost.totalAmount.amount) / item.quantity;
+                  const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, price);
+                  const mrp = baseMrp !== null ? baseMrp : price + 100;
+                  const totalMrp = mrp * item.quantity;
+                  const savings = Math.max(0, (mrp - price) * item.quantity);
+
+                  return (
+                    <div key={item.id} className={styles.productRow}>
+                      <Image
+                        src={item.merchandise.product.images?.edges[0]?.node?.url || "/products/Default Museli.png"}
+                        alt={item.merchandise.product.title}
+                        width={56}
+                        height={56}
+                        className={styles.summaryImage}
+                      />
+                      <div className={styles.summaryDetails}>
+                        <div className={styles.summaryTitle}>{item.merchandise.product.title}</div>
+                        <div className={styles.summaryQuantity}>Qty: {item.quantity}</div>
+                        {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
+                      </div>
+                      <div className={styles.priceContainer}>
+                        <span className={styles.originalPrice}>₹{totalMrp.toFixed(0)}</span>
+                        <span className={styles.discountedPrice}>₹{parseFloat(item.cost.totalAmount.amount).toFixed(0)}</span>
+                      </div>
                     </div>
-                    <div className={styles.priceContainer}>
-                      <span className={styles.originalPrice}>₹{totalMrp.toFixed(0)}</span>
-                      <span className={styles.discountedPrice}>₹{parseFloat(item.cost.totalAmount.amount).toFixed(0)}</span>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
 
               <div className={styles.divider} />
 
