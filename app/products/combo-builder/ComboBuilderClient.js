@@ -9,18 +9,6 @@ import { useCart } from "@/context/CartContext";
 import { getComboPrice } from "@/lib/pricing";
 import styles from "./combo.module.css";
 
-const MYSTERY_FLAVOR = {
-  id: "mystery-makhana",
-  name: "Mystery Flavor",
-  description: "A surprise flavor coming soon!",
-  type: "Makhana",
-  isMystery: true,
-  image: "/products/Default Museli.png",
-  variants: [
-    { variantId: "mystery-var-1", weight: "400g", price: 400 },
-    { variantId: "mystery-var-2", weight: "800g", price: 750 }
-  ]
-};
 
 export default function ComboBuilderClient({ initialProducts }) {
   const [comboSize, setComboSize] = useState(6);
@@ -31,8 +19,7 @@ export default function ComboBuilderClient({ initialProducts }) {
   const { addLinesToCart } = useCart();
   const router = useRouter();
 
-  // Combine real products with the mystery dummy product
-  const availableProducts = [...initialProducts, MYSTERY_FLAVOR];
+  const availableProducts = initialProducts;
 
   // For each product, we also need to manage which variant (weight) is currently selected in the UI before they add it to a slot
   const [selectedVariants, setSelectedVariants] = useState(
@@ -65,7 +52,10 @@ export default function ComboBuilderClient({ initialProducts }) {
 
     if (slots.length >= comboSize) return; // Full
 
-    const variant = selectedVariants[product.id];
+    let variant = selectedVariants[product.id];
+    if (lockedWeight) {
+      variant = product.variants.find(v => v.weight === lockedWeight) || variant;
+    }
     
     // Set locked weight if first item
     if (slots.length === 0) {
@@ -202,11 +192,12 @@ export default function ComboBuilderClient({ initialProducts }) {
                       <div className={styles.variantSelectors}>
                         {product.variants.map(variant => {
                           const isWeightLockedOut = lockedWeight && lockedWeight !== variant.weight;
+                          const isActive = lockedWeight ? lockedWeight === variant.weight : selectedVariants[product.id].variantId === variant.variantId;
                           return (
                             <button
                               key={variant.variantId}
                               disabled={isWeightLockedOut}
-                              className={`${styles.variantBtn} ${selectedVariants[product.id].variantId === variant.variantId ? styles.active : ''}`}
+                              className={`${styles.variantBtn} ${isActive ? styles.active : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (!isWeightLockedOut) {
