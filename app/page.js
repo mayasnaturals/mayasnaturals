@@ -8,6 +8,8 @@ import StorytellingSection from "./components/StorytellingSection";
 import CTASection from "./components/CTASection";
 import { getProducts } from "../lib/shopify";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Fetch mueslis and makhanas from Shopify
   const mueslis = await getProducts(3, "Muesli");

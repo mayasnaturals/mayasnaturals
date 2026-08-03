@@ -132,7 +132,7 @@ export default function ComboBuilderClient({ initialProducts }) {
               <h2>Select Size</h2>
             </div>
             <div className={styles.sizeOptions}>
-              {[2, 4, 6].map(size => (
+              {[2, 4, 6, 8].map(size => (
                 <button
                   key={size}
                   className={`${styles.sizeBtn} ${comboSize === size ? styles.active : ''}`}

@@ -78,7 +78,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{color: '#000', backgroundColor: '#ffc833', padding: '2px 8px', borderRadius: '4px', margin: '0 4px'}}>FIRST5</span> FOR 5% OFF ENTIRE ORDER
+                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{color: '#fad205', backgroundColor: '#b0165e', padding: '2px 8px', borderRadius: '4px', margin: '0 4px'}}>FIRST5</span> FOR 5% OFF ENTIRE ORDER
               </h2>
             ))}
           </div>
@@ -95,7 +95,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{color: '#000', backgroundColor: '#ffc833', padding: '2px 8px', borderRadius: '4px', margin: '0 4px'}}>FIRST5</span> FOR 5% OFF ENTIRE ORDER
+                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{color: '#fad205', backgroundColor: '#b0165e', padding: '2px 8px', borderRadius: '4px', margin: '0 4px'}}>FIRST5</span> FOR 5% OFF ENTIRE ORDER
               </h2>
             ))}
           </div>

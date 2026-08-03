@@ -6,6 +6,8 @@ export const metadata = {
   description: "Customize your own pack of our crunchy, flavorful makhanas.",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ComboBuilderPage() {
   const shopifyProducts = await getProducts(50);
   

@@ -26,11 +26,11 @@ function ComboCard({ index }) {
                 className={styles.productVisual}
                 aria-label="Build your own Makhana combo"
             >
-                <Image 
-                    src="/combo.png" 
-                    alt="Make Your Own Combo" 
+                <Image
+                    src="/combo.png"
+                    alt="Make Your Own Combo"
                     fill
-                    style={{ objectFit: 'cover' }} 
+                    style={{ objectFit: 'cover' }}
                 />
                 <div className={styles.imageShade} />
                 <span className={styles.productBadge}>Fun</span>
@@ -44,7 +44,7 @@ function ComboCard({ index }) {
                 </div>
                 <h3>
                     <Link href="/products/combo-builder" style={{ textTransform: "capitalize" }}>
-                        Pick your favorites
+                        Make your own combo
                     </Link>
                 </h3>
 

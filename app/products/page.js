@@ -7,6 +7,8 @@ export const metadata = {
     "Shop colorful craft muesli and crunchy makhana from Maya. Filter by type, price, and newest drops.",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsPage() {
   const shopifyProducts = await getProducts(50);
   

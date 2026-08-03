@@ -21,6 +21,7 @@ import VariantSelector from "./VariantSelector";
 import ImageGallery from "./ImageGallery";
 
 export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 const productCopy = {
   Muesli: {
