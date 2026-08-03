@@ -56,10 +56,12 @@ export async function POST(req) {
 
     // Simple, clear math:
     // 1. Our subtotal (sum of our prices)
-    // 2. Shopify's exact discount amount
+    // 2. Derive discount PERCENTAGE from Shopify, apply to OUR subtotal
     // 3. Shipping on the after-discount amount
     calculatedSubtotal = Math.round(calculatedSubtotal);
-    const discountedSubtotal = calculatedSubtotal - shopifyDiscount;
+    const discountPercentage = shopifySubtotal > 0 && shopifyDiscount > 0 ? Math.round((shopifyDiscount / shopifySubtotal) * 100) : 0;
+    const effectiveDiscount = discountPercentage > 0 ? Math.round(calculatedSubtotal * discountPercentage / 100) : 0;
+    const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
     const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
     const total = discountedSubtotal + shipping;
 

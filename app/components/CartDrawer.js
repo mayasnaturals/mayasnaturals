@@ -82,6 +82,21 @@ export default function CartDrawer() {
         {/* Header */}
         <div className={styles.header}>
           <h2 className={styles.title}>Your Cart</h2>
+          {cart?.lines?.edges?.length > 0 && (
+            <button 
+              onClick={async () => {
+                const lineIds = cart.lines.edges.map(edge => edge.node.id);
+                if (lineIds.length > 0) {
+                  await removeLines(lineIds);
+                }
+              }}
+              className={styles.clearCartBtn}
+              style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#fff', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginLeft: 'auto', marginRight: '1rem', transition: 'background 0.2s' }}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Clearing...' : 'Clear Cart'}
+            </button>
+          )}
           <button 
             onClick={() => setIsCartOpen(false)}
             className={styles.closeButton}
