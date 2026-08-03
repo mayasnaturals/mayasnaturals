@@ -20,13 +20,10 @@ export async function POST(req) {
     let calculatedSubtotal = 0;
     const combos = {};
 
+    // Get Shopify's exact discount amount
     const shopifySubtotal = parseFloat(cart?.cost?.subtotalAmount?.amount || 0);
     const shopifyTotal = parseFloat(cart?.cost?.totalAmount?.amount || 0);
-    const shopifyDiscount = Math.max(0, shopifySubtotal - shopifyTotal);
-    let discountProportion = 0;
-    if (shopifySubtotal > 0 && shopifyDiscount > 0) {
-      discountProportion = shopifyDiscount / shopifySubtotal;
-    }
+    const shopifyDiscount = Math.round(Math.max(0, shopifySubtotal - shopifyTotal));
 
     cart.lines.edges.forEach((edge) => {
       const item = edge.node;
@@ -36,12 +33,7 @@ export async function POST(req) {
         if (!combos[comboId]) combos[comboId] = { items: [] };
         combos[comboId].items.push(item);
       } else {
-        const itemAmount = parseFloat(item.cost.totalAmount.amount);
-        let discountedPrice = itemAmount;
-        if (discountProportion > 0) {
-          discountedPrice -= (discountedPrice * discountProportion);
-        }
-        calculatedSubtotal += discountedPrice;
+        calculatedSubtotal += parseFloat(item.cost.totalAmount.amount);
       }
     });
 
@@ -62,9 +54,14 @@ export async function POST(req) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Shipping logic
-    const shipping = calculatedSubtotal > 0 && calculatedSubtotal < 499 ? 49 : 0;
-    const total = calculatedSubtotal + shipping;
+    // Simple, clear math:
+    // 1. Our subtotal (sum of our prices)
+    // 2. Shopify's exact discount amount
+    // 3. Shipping on the after-discount amount
+    calculatedSubtotal = Math.round(calculatedSubtotal);
+    const discountedSubtotal = calculatedSubtotal - shopifyDiscount;
+    const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
+    const total = discountedSubtotal + shipping;
 
     // Amount in paise (multiply by 100)
     const amountInPaise = Math.round(total * 100);

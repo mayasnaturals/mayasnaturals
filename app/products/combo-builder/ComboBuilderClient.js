@@ -211,6 +211,33 @@ export default function ComboBuilderClient({ initialProducts }) {
                           );
                         })}
                       </div>
+                      <div style={{ 
+                        marginTop: '8px', 
+                        width: '100%', 
+                        display: 'flex',
+                        justifyContent: 'center',
+                        visibility: isSelected ? 'visible' : 'hidden', 
+                        opacity: isSelected ? 1 : 0, 
+                        transition: 'opacity 0.2s ease' 
+                      }}>
+                        <div style={{
+                          padding: '4px 12px',
+                          backgroundColor: '#6a462f',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontWeight: '800',
+                          fontSize: '0.75rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          <Check size={14} strokeWidth={4} /> Selected
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );

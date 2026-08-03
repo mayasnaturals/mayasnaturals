@@ -145,6 +145,7 @@ export default function CheckoutPage() {
       return;
     }
     
+
     setIsApplyingDiscount(true);
     try {
       const res = await fetch("/api/apply-discount", {
@@ -210,15 +211,11 @@ export default function CheckoutPage() {
   const combos = {};
   let calculatedSubtotal = 0; // The total we will charge before shipping
   let calculatedOriginalSubtotal = 0; // Total MRP of everything
-  let effectiveDiscount = 0; // Discount applied only to regular items
 
+  // Get the exact discount amount Shopify calculated
   const shopifySubtotal = parseFloat(cart?.cost?.subtotalAmount?.amount || 0);
   const shopifyTotal = parseFloat(cart?.cost?.totalAmount?.amount || 0);
-  const shopifyDiscount = Math.max(0, shopifySubtotal - shopifyTotal);
-  let discountProportion = 0;
-  if (shopifySubtotal > 0 && shopifyDiscount > 0) {
-    discountProportion = shopifyDiscount / shopifySubtotal;
-  }
+  const shopifyDiscount = Math.round(Math.max(0, shopifySubtotal - shopifyTotal));
 
   if (cart?.lines?.edges) {
     cart.lines.edges.forEach((edge) => {
@@ -253,36 +250,21 @@ export default function CheckoutPage() {
         }
       } else {
         const itemAmount = parseFloat(item.cost.totalAmount.amount);
-        const basePrice = parseFloat(item.merchandise.price?.amount || item.cost.totalAmount.amount) * item.quantity;
         
-        let discountedPrice = itemAmount;
-        let itemDiscount = 0;
-
-        if (discountProportion > 0) {
-           itemDiscount = discountedPrice * discountProportion;
-           discountedPrice -= itemDiscount;
-        }
-
-        if (basePrice > itemAmount) {
-           itemDiscount += (basePrice - itemAmount);
-        }
-        
-        const perUnitPrice = itemAmount / item.quantity; // Use pre-discount for MRP lookup
+        const perUnitPrice = itemAmount / item.quantity; 
         const baseMrp = getMrp(item.merchandise.product.title, item.merchandise.title, perUnitPrice);
         const mrp = baseMrp !== null ? baseMrp : perUnitPrice + 100;
         const totalMrp = mrp * item.quantity;
         
         calculatedOriginalSubtotal += totalMrp;
-        calculatedSubtotal += discountedPrice;
-        
-        effectiveDiscount += itemDiscount;
+        calculatedSubtotal += itemAmount;
 
         groupedLines.push({
           isCombo: false,
           ...item,
           mrp,
           totalMrp,
-          savings: Math.max(0, totalMrp - discountedPrice)
+          savings: Math.max(0, totalMrp - itemAmount)
         });
       }
     });
@@ -306,10 +288,17 @@ export default function CheckoutPage() {
     });
   }
 
-  const shipping = calculatedSubtotal > 0 && calculatedSubtotal < 499 ? 49 : 0;
-  const total = calculatedSubtotal + shipping;
-  const totalSavings = Math.max(0, calculatedOriginalSubtotal - calculatedSubtotal);
-  const discountPercentage = calculatedSubtotal > 0 && effectiveDiscount > 0 ? Math.round((effectiveDiscount / (calculatedSubtotal + effectiveDiscount)) * 100) : 0;
+  // Simple, clear math:
+  // 1. Our subtotal (sum of our prices)
+  // 2. Shopify's exact discount amount
+  // 3. Shipping on the after-discount amount
+  calculatedSubtotal = Math.round(calculatedSubtotal);
+  const effectiveDiscount = shopifyDiscount;
+  const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
+  const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
+  const total = discountedSubtotal + shipping;
+  const totalSavings = Math.max(0, calculatedOriginalSubtotal - discountedSubtotal);
+  const discountPercentage = calculatedSubtotal > 0 && effectiveDiscount > 0 ? Math.round((effectiveDiscount / calculatedSubtotal) * 100) : 0;
 
   return (
     <>
@@ -445,7 +434,7 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <div className={styles.priceContainer}>
                   <span className={styles.originalPrice}>₹{calculatedOriginalSubtotal.toFixed(0)}</span>
-                  <span className={styles.discountedPrice}>₹{calculatedSubtotal.toFixed(0)}</span>
+                  <span className={styles.discountedPrice}>₹{calculatedSubtotal}</span>
                 </div>
               </div>
 
@@ -457,10 +446,10 @@ export default function CheckoutPage() {
                     <div className={styles.appliedDiscountLeft}>
                       <span>🏷️ {dc.code}</span>
                       {discountPercentage > 0 && (
-                        <span className={styles.discountPercentBadge}>{discountPercentage}% OFF REGULAR ITEMS</span>
+                        <span className={styles.discountPercentBadge}>{discountPercentage}% OFF</span>
                       )}
                     </div>
-                    <span className={styles.appliedDiscountAmount}>-₹{effectiveDiscount.toFixed(0)}</span>
+                    <span className={styles.appliedDiscountAmount}>-₹{effectiveDiscount}</span>
                     <button
                       onClick={handleRemoveDiscount}
                       disabled={isApplyingDiscount}
@@ -477,7 +466,7 @@ export default function CheckoutPage() {
               <div className={styles.summaryItem}>
                 <span>
                   Shipping
-                  {calculatedSubtotal >= 499 && <span className={styles.shippingNote}>FREE ✨</span>}
+                  {discountedSubtotal >= 499 && <span className={styles.shippingNote}>FREE ✨</span>}
                 </span>
                 <span style={{ fontWeight: 900 }}>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
               </div>

@@ -35,18 +35,15 @@ export async function POST(req) {
       return NextResponse.json({ error: "Cart not found" }, { status: 404 });
     }
 
-    let calculatedSubtotal = 0; // Pre-discount subtotal
-    let effectiveDiscount = 0;
+    let calculatedSubtotal = 0;
     const combos = {};
 
+    // Get Shopify's exact discount amount
     const shopifySubtotal = parseFloat(cart?.cost?.subtotalAmount?.amount || 0);
     const shopifyTotal = parseFloat(cart?.cost?.totalAmount?.amount || 0);
-    const shopifyDiscount = Math.max(0, shopifySubtotal - shopifyTotal);
-    let discountProportion = 0;
-    if (shopifySubtotal > 0 && shopifyDiscount > 0) {
-      discountProportion = shopifyDiscount / shopifySubtotal;
-    }
+    const shopifyDiscount = Math.round(Math.max(0, shopifySubtotal - shopifyTotal));
 
+    // First pass: group combo items
     cart.lines.edges.forEach((edge) => {
       const item = edge.node;
       const comboAttr = item.attributes?.find(a => a.key === '_comboId');
@@ -60,14 +57,14 @@ export async function POST(req) {
     const line_items = [];
     const invoiceItems = [];
 
+    // Second pass: build line items with correct pricing
     cart.lines.edges.forEach((edge) => {
       const item = edge.node;
       const rawId = item.merchandise.id.split("/").pop();
       const variantId = parseInt(rawId.split("?")[0], 10);
       const comboAttr = item.attributes?.find(a => a.key === '_comboId');
 
-      let unitPrice = 0; // Pre-discount unit price
-      let itemDiscount = 0; // Discount applied to this line item
+      let unitPrice = 0;
 
       if (comboAttr) {
         const comboId = comboAttr.value;
@@ -82,23 +79,7 @@ export async function POST(req) {
           unitPrice = parseFloat(item.cost.totalAmount.amount) / item.quantity;
         }
       } else {
-        unitPrice = parseFloat(item.merchandise.price?.amount || item.cost.totalAmount.amount);
-        
-        let itemAmount = parseFloat(item.cost.totalAmount.amount);
-        let discountedPrice = itemAmount;
-        
-        if (discountProportion > 0) {
-           const proratedDiscount = discountedPrice * discountProportion;
-           itemDiscount += proratedDiscount;
-           discountedPrice -= proratedDiscount;
-        }
-
-        const basePriceTotal = unitPrice * item.quantity;
-        if (basePriceTotal > itemAmount) {
-          itemDiscount += (basePriceTotal - itemAmount);
-        }
-        
-        effectiveDiscount += itemDiscount;
+        unitPrice = parseFloat(item.cost.totalAmount.amount) / item.quantity;
       }
 
       calculatedSubtotal += (unitPrice * item.quantity);
@@ -114,13 +95,20 @@ export async function POST(req) {
         variant: item.merchandise.title,
         quantity: item.quantity,
         unitPrice: unitPrice,
-        lineTotal: (unitPrice * item.quantity) - itemDiscount,
+        lineTotal: unitPrice * item.quantity,
         imageUrl: item.merchandise.product.images?.edges[0]?.node?.url || null,
       });
     });
 
-    const shipping = calculatedSubtotal - effectiveDiscount > 0 && calculatedSubtotal - effectiveDiscount < 499 ? 49 : 0;
-    const total = calculatedSubtotal - effectiveDiscount + shipping;
+    // Simple, clear math:
+    // 1. Our subtotal (sum of our prices)
+    // 2. Shopify's exact discount amount
+    // 3. Shipping on the after-discount amount
+    calculatedSubtotal = Math.round(calculatedSubtotal);
+    const effectiveDiscount = shopifyDiscount;
+    const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
+    const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
+    const total = discountedSubtotal + shipping;
 
     const address = {
       first_name: customerData.firstName,
@@ -216,8 +204,6 @@ export async function POST(req) {
         console.log("Shopify order created successfully! ID:", orderData.order.id);
       }
     }
-
-    // Invoice items already built above
 
     return NextResponse.json({
       success: true,
