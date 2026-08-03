@@ -90,23 +90,68 @@ export async function POST(req) {
         price: unitPrice.toFixed(2),
       });
 
-      invoiceItems.push({
-        title: item.merchandise.product.title,
-        variant: item.merchandise.title,
-        quantity: item.quantity,
-        unitPrice: unitPrice,
-        lineTotal: unitPrice * item.quantity,
-        imageUrl: item.merchandise.product.images?.edges[0]?.node?.url || null,
-      });
+      if (!comboAttr) {
+        invoiceItems.push({
+          title: item.merchandise.product.title,
+          variant: item.merchandise.title,
+          quantity: item.quantity,
+          unitPrice: unitPrice,
+          lineTotal: unitPrice * item.quantity,
+          imageUrl: item.merchandise.product.images?.edges[0]?.node?.url || null,
+        });
+      }
+    });
+
+    // Add combos to invoiceItems as single entries
+    Object.values(combos).forEach(combo => {
+      if (combo.items.length > 0) {
+        const sampleVariant = combo.items[0].merchandise.title;
+        const size = combo.items.length;
+        const hardcoded = getComboPrice(sampleVariant, size);
+        
+        let comboTotal = 0;
+        if (hardcoded) {
+          comboTotal = hardcoded;
+        } else {
+          combo.items.forEach(i => comboTotal += parseFloat(i.cost.totalAmount.amount));
+        }
+
+        invoiceItems.push({
+          title: "Makhana Custom Combo",
+          variant: `${size} items (Qty: 1)`,
+          quantity: 1,
+          unitPrice: comboTotal,
+          lineTotal: comboTotal,
+          imageUrl: combo.items[0].merchandise.product.images?.edges[0]?.node?.url || null,
+        });
+      }
     });
 
     // Simple, clear math:
-    // 1. Our subtotal (sum of our prices)
-    // 2. Derive discount PERCENTAGE from Shopify, apply to OUR subtotal
+    // 2. Sequential discount math (e.g. 5% then 5% applied step-by-step)
     // 3. Shipping on the after-discount amount
     calculatedSubtotal = Math.round(calculatedSubtotal);
-    const discountPercentage = shopifySubtotal > 0 && shopifyDiscount > 0 ? Math.round((shopifyDiscount / shopifySubtotal) * 100) : 0;
-    const effectiveDiscount = discountPercentage > 0 ? Math.round(calculatedSubtotal * discountPercentage / 100) : 0;
+    
+    let effectiveDiscount = 0;
+    let discountPercentage = 0;
+    const applicableCodes = (cart?.discountCodes || []).filter(dc => dc.applicable);
+    const numCodes = applicableCodes.length;
+
+    if (shopifySubtotal > 0 && shopifyDiscount > 0 && numCodes > 0) {
+      // Shopify natively adds percentages (e.g. 5% + 5% = 10% total additive).
+      const additiveTotalPercentage = shopifyDiscount / shopifySubtotal; 
+      
+      // Average per-coupon percentage
+      const perCouponPercentage = additiveTotalPercentage / numCodes;
+      
+      // Calculate sequential discount mathematically: 1 - (1 - P)^n
+      const sequentialMultiplier = Math.pow(1 - perCouponPercentage, numCodes);
+      const sequentialTotalPercentage = 1 - sequentialMultiplier;
+      
+      effectiveDiscount = Math.round(calculatedSubtotal * sequentialTotalPercentage);
+      discountPercentage = Math.round(sequentialTotalPercentage * 100);
+    }
+
     const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
     const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
     const total = discountedSubtotal + shipping;
@@ -146,11 +191,20 @@ export async function POST(req) {
     if (cart.discountCodes && cart.discountCodes.length > 0 && effectiveDiscount > 0) {
       const applicableCodes = cart.discountCodes.filter(dc => dc.applicable);
       if (applicableCodes.length > 0) {
-        shopifyOrderPayload.order.discount_codes = applicableCodes.map(dc => ({
-          code: dc.code,
-          amount: effectiveDiscount.toFixed(2),
-          type: "fixed_amount"
-        }));
+        
+        // Shopify Admin API has a hard limitation: it only accepts ONE discount code per order.
+        // If we send an array of multiple codes, Shopify silently drops all but the first one,
+        // causing the Order Total to mismatch the Razorpay Paid Amount.
+        // Workaround: We combine the code names into a single string and apply the total amount.
+        const combinedCodeNames = applicableCodes.map(dc => dc.code).join(" + ");
+        
+        shopifyOrderPayload.order.discount_codes = [
+          {
+            code: combinedCodeNames,
+            amount: effectiveDiscount.toFixed(2),
+            type: "fixed_amount"
+          }
+        ];
         
         shopifyOrderPayload.order.total_discounts = effectiveDiscount.toFixed(2);
         applicableCodes.forEach(dc => appliedDiscountCodes.push(dc.code));

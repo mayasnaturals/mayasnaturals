@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { applyDiscountToCart } from "@/lib/shopify";
-import { getShopifyAdminToken } from "@/lib/shopify/adminAuth";
+import { applyDiscountToCart, getCart } from "@/lib/shopify";
 
 export async function POST(req) {
   try {
@@ -13,67 +12,45 @@ export async function POST(req) {
       );
     }
 
-    // 1. Fetch Admin Token to check order history
-    const adminToken = await getShopifyAdminToken();
-    if (!adminToken) {
-      return NextResponse.json(
-        { error: "Internal server error. Cannot verify discount code usage." },
-        { status: 500 }
-      );
+    // 1. Fetch existing cart to get currently applied codes
+    const cart = await getCart(cartId);
+    if (!cart) {
+      return NextResponse.json({ error: "Cart not found." }, { status: 404 });
     }
 
-    // 2. Check past orders for this email
-    const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-    const ordersRes = await fetch(
-      `https://${domain}/admin/api/2024-01/orders.json?email=${encodeURIComponent(
-        email
-      )}&status=any`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Shopify-Access-Token": adminToken,
-        },
-      }
-    );
+    // Check if this code is already applied
+    const existingCodes = (cart.discountCodes || [])
+      .filter(dc => dc.applicable)
+      .map(dc => dc.code);
 
-    if (!ordersRes.ok) {
-      console.error("Failed to fetch past orders from Shopify Admin");
+    if (existingCodes.some(c => c.toLowerCase() === code.toLowerCase())) {
       return NextResponse.json(
-        { error: "Failed to verify discount history." },
-        { status: 500 }
-      );
-    }
-
-    const ordersData = await ordersRes.json();
-    
-    // Check if the discount code was used in any of these orders
-    const codeUsed = ordersData.orders?.some((order) => {
-      return order.discount_codes?.some(
-        (dc) => dc.code.toLowerCase() === code.toLowerCase()
-      );
-    });
-
-    if (codeUsed) {
-      return NextResponse.json(
-        { error: "You have already used this discount code on a previous order." },
+        { error: "This discount code is already applied." },
         { status: 400 }
       );
     }
 
-    // 3. Apply the discount code to the cart via Storefront API
-    const updatedCart = await applyDiscountToCart(cartId, [code]);
+    if (existingCodes.length >= 2) {
+      return NextResponse.json(
+        { error: "You can only apply a maximum of 2 discount codes." },
+        { status: 400 }
+      );
+    }
 
-    // Check if Storefront API marked the code as not applicable
+    // 2. Apply ALL existing codes + the new one
+    const allCodes = [...existingCodes, code];
+    const updatedCart = await applyDiscountToCart(cartId, allCodes);
+
+    // Check if Storefront API marked the NEW code as not applicable
     const appliedCode = updatedCart.discountCodes?.find(
       (dc) => dc.code.toLowerCase() === code.toLowerCase()
     );
 
     if (appliedCode && !appliedCode.applicable) {
-      // Remove it from the cart so it doesn't stay there as an invalid code
-      await applyDiscountToCart(cartId, []);
+      // Revert: re-apply only the previously valid codes
+      await applyDiscountToCart(cartId, existingCodes);
       return NextResponse.json(
-        { error: "This discount code is not applicable to your cart." },
+        { error: "This discount code is not valid or not applicable to your cart." },
         { status: 400 }
       );
     }

@@ -177,7 +177,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleRemoveDiscount = async () => {
+  const handleRemoveDiscount = async (codeToRemove) => {
     setDiscountError("");
     setDiscountSuccess("");
     setIsApplyingDiscount(true);
@@ -185,7 +185,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/remove-discount", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cartId: cart.id })
+        body: JSON.stringify({ cartId: cart.id, code: codeToRemove })
       });
       if (!res.ok) throw new Error("Failed to remove discount.");
       setDiscountSuccess("Discount removed.");
@@ -290,11 +290,28 @@ export default function CheckoutPage() {
 
   // Simple, clear math:
   // 1. Our subtotal (sum of our prices)
-  // 2. Derive discount PERCENTAGE from Shopify, apply to OUR subtotal
+  // 2. Sequential discount math (e.g. 5% then 5% applied step-by-step)
   // 3. Shipping on the after-discount amount
   calculatedSubtotal = Math.round(calculatedSubtotal);
-  const discountPercentage = shopifySubtotal > 0 && shopifyDiscount > 0 ? Math.round((shopifyDiscount / shopifySubtotal) * 100) : 0;
-  const effectiveDiscount = discountPercentage > 0 ? Math.round(calculatedSubtotal * discountPercentage / 100) : 0;
+  
+  let effectiveDiscount = 0;
+  const applicableCodes = (cart?.discountCodes || []).filter(dc => dc.applicable);
+  const numCodes = applicableCodes.length;
+
+  if (shopifySubtotal > 0 && shopifyDiscount > 0 && numCodes > 0) {
+    // Shopify natively adds percentages (e.g. 5% + 5% = 10% total additive).
+    const additiveTotalPercentage = shopifyDiscount / shopifySubtotal; 
+    
+    // Average per-coupon percentage
+    const perCouponPercentage = additiveTotalPercentage / numCodes;
+    
+    // Calculate sequential discount mathematically: 1 - (1 - P)^n
+    const sequentialMultiplier = Math.pow(1 - perCouponPercentage, numCodes);
+    const sequentialTotalPercentage = 1 - sequentialMultiplier;
+    
+    effectiveDiscount = Math.round(calculatedSubtotal * sequentialTotalPercentage);
+  }
+
   const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
   const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
   const total = discountedSubtotal + shipping;
@@ -439,28 +456,50 @@ export default function CheckoutPage() {
               </div>
 
               {/* Applied Discounts */}
-              {cart?.discountCodes?.map((dc, index) => {
-                if (!dc.applicable) return null;
-                return (
-                  <div key={index} className={styles.appliedDiscount}>
-                    <div className={styles.appliedDiscountLeft}>
-                      <span>🏷️ {dc.code}</span>
-                      {discountPercentage > 0 && (
-                        <span className={styles.discountPercentBadge}>{discountPercentage}% OFF</span>
-                      )}
+              {(() => {
+                if (numCodes === 0) return null;
+                
+                const additiveTotalPercentage = shopifySubtotal > 0 ? (shopifyDiscount / shopifySubtotal) : 0;
+                const perCouponPercentage = additiveTotalPercentage / numCodes;
+                const displayPercent = Math.round(perCouponPercentage * 100);
+                
+                let currentSubtotal = calculatedSubtotal;
+                
+                return applicableCodes.map((dc, index) => {
+                  // Apply sequentially for display
+                  let stepDiscount = Math.round(currentSubtotal * perCouponPercentage);
+                  
+                  // Make sure the sum of step discounts perfectly matches effectiveDiscount due to rounding
+                  if (index === numCodes - 1) {
+                    const previousDiscounts = Math.round(calculatedSubtotal - currentSubtotal);
+                    stepDiscount = effectiveDiscount - previousDiscounts;
+                  }
+                  
+                  currentSubtotal -= stepDiscount;
+
+                  return (
+                    <div key={index} className={styles.appliedDiscount}>
+                      <div className={styles.appliedDiscountLeft}>
+                        <span>🏷️ {dc.code}</span>
+                        {displayPercent > 0 && (
+                          <span className={styles.discountPercentBadge}>{displayPercent}% OFF</span>
+                        )}
+                      </div>
+                      <span className={styles.appliedDiscountAmount}>
+                        -₹{stepDiscount}
+                      </span>
+                      <button
+                        onClick={() => handleRemoveDiscount(dc.code)}
+                        disabled={isApplyingDiscount}
+                        className={styles.removeDiscountBtn}
+                        title={`Remove ${dc.code}`}
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <span className={styles.appliedDiscountAmount}>-₹{effectiveDiscount}</span>
-                    <button
-                      onClick={handleRemoveDiscount}
-                      disabled={isApplyingDiscount}
-                      className={styles.removeDiscountBtn}
-                      title="Remove discount"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
 
               {/* Shipping */}
               <div className={styles.summaryItem}>
