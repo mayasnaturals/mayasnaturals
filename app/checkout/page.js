@@ -25,13 +25,7 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('checkoutShipping');
-      if (saved) {
-        try { return JSON.parse(saved); } catch { /* ignore */ }
-      }
-    }
-    return {
+    let initialData = {
       email: "",
       phone: "",
       firstName: "",
@@ -41,6 +35,24 @@ export default function CheckoutPage() {
       state: "",
       pincode: "",
     };
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('checkoutShipping');
+      if (saved) {
+        try { 
+          const parsed = JSON.parse(saved);
+          initialData = {
+            ...initialData,
+            firstName: parsed.firstName || "",
+            lastName: parsed.lastName || "",
+            address: parsed.address || "",
+            city: parsed.city || "",
+            state: parsed.state || "",
+            pincode: parsed.pincode || ""
+          };
+        } catch { /* ignore */ }
+      }
+    }
+    return initialData;
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -52,6 +64,7 @@ export default function CheckoutPage() {
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const [autoApplyMessage, setAutoApplyMessage] = useState("");
   const [isAutoApplying, setIsAutoApplying] = useState(false);
+  const [isCartCleaned, setIsCartCleaned] = useState(false); // tracks if stale coupons are stripped
   const autoApplyCheckedRef = useRef(""); // tracks email+cartId combo we already checked
   const couponsStrippedRef = useRef(false);
   const emailInputRef = useRef(null);
@@ -66,7 +79,8 @@ export default function CheckoutPage() {
         if (domValue && domValue !== formDataRef.current.email) {
           const updated = { ...formDataRef.current, email: domValue };
           setFormData(updated);
-          sessionStorage.setItem('checkoutShipping', JSON.stringify(updated));
+          const { email, phone, ...shippingOnly } = updated;
+          sessionStorage.setItem('checkoutShipping', JSON.stringify(shippingOnly));
         }
       }
     }, 500);
@@ -85,12 +99,22 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cartId: cart.id }),
-      }).then(() => refreshCart()).catch(console.error);
+      })
+      .then(() => refreshCart())
+      .then(() => setIsCartCleaned(true))
+      .catch((err) => {
+        console.error(err);
+        setIsCartCleaned(true);
+      });
+    } else {
+      setIsCartCleaned(true);
     }
   }, [cart?.id]);
 
   // Debounced auto-apply coupon check
   useEffect(() => {
+    if (!isCartCleaned) return; // Wait until stale coupons are stripped
+
     const email = formData.email?.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
@@ -144,12 +168,13 @@ export default function CheckoutPage() {
       clearTimeout(timer);
       // Don't reset isAutoApplying here — the next effect run will handle it
     };
-  }, [formData.email, cart?.id]);
+  }, [formData.email, cart?.id, isCartCleaned]);
 
   const handleChange = (e) => {
     const updated = { ...formData, [e.target.name]: e.target.value };
     setFormData(updated);
-    sessionStorage.setItem('checkoutShipping', JSON.stringify(updated));
+    const { email, phone, ...shippingOnly } = updated;
+    sessionStorage.setItem('checkoutShipping', JSON.stringify(shippingOnly));
   };
 
   const handlePayment = async (e) => {
@@ -430,7 +455,7 @@ export default function CheckoutPage() {
   }
 
   const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
-  const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
+  const shipping = calculatedSubtotal > 0 && calculatedSubtotal < 499 ? 49 : 0;
   const total = discountedSubtotal + shipping;
   const totalSavings = Math.max(0, calculatedOriginalSubtotal - discountedSubtotal);
 
