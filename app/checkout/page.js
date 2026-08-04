@@ -10,6 +10,16 @@ import styles from "./checkout.module.css";
 import { getMrp } from "@/lib/utils";
 import { getComboPrice } from "@/lib/pricing";
 
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", 
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
+  "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", 
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+  "Delhi", "Lakshadweep", "Puducherry", "Ladakh", "Jammu and Kashmir"
+];
+
 export default function CheckoutPage() {
   const { cart, isLoading: cartLoading, refreshCart } = useCart();
   const router = useRouter();
@@ -422,7 +432,18 @@ export default function CheckoutPage() {
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>State</label>
-                  <input type="text" name="state" value={formData.state} required className={styles.input} onChange={handleChange} placeholder="State" />
+                  <select 
+                    name="state" 
+                    value={formData.state} 
+                    required 
+                    className={styles.input} 
+                    onChange={handleChange}
+                  >
+                    <option value="" disabled>Select state</option>
+                    {INDIAN_STATES.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>PIN Code</label>
