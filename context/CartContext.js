@@ -86,6 +86,11 @@ export function CartProvider({ children }) {
     setIsLoading(false);
   };
 
+  const clearCart = () => {
+    localStorage.removeItem("shopifyCartId");
+    setCart(null);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -99,6 +104,7 @@ export function CartProvider({ children }) {
         removeLineItem,
         removeLines,
         refreshCart,
+        clearCart,
         checkoutUrl: cart?.checkoutUrl,
         cartCount: cart?.lines?.edges?.reduce((sum, edge) => sum + edge.node.quantity, 0) || 0,
       }}

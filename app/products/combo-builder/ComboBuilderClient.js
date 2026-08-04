@@ -266,7 +266,7 @@ export default function ComboBuilderClient({ initialProducts }) {
                 <div key={i} className={`${styles.slot} ${slot ? styles.filled : ''}`}>
                   {slot ? (
                     <>
-                      <Image src={slot.image} alt={slot.name} width={80} height={80} style={{ objectFit: 'contain' }} />
+                      <Image src={slot.image} alt={slot.name} fill style={{ objectFit: 'cover' }} />
                       <button className={styles.slotRemoveBtn} onClick={() => handleRemoveSlot(i)}>
                         <X size={14} />
                       </button>
@@ -292,7 +292,7 @@ export default function ComboBuilderClient({ initialProducts }) {
             </div>
           )}
 
-          <div className={styles.summaryTotal} style={{ borderTop: slots.length > 0 ? 'none' : '2px solid #eadbcc', paddingTop: slots.length > 0 ? '0' : '16px' }}>
+          <div className={styles.summaryTotal} style={{ borderTop: slots.length > 0 ? 'none' : '2px solid #eadbcc', paddingTop: slots.length > 0 ? '0' : '16px', marginBottom: (hardcodedPrice && slots.length === comboSize && totalOriginalPrice > hardcodedPrice) ? '4px' : '20px' }}>
             <span>Total:</span>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
               {hardcodedPrice && slots.length === comboSize && totalOriginalPrice > hardcodedPrice && (
@@ -301,6 +301,18 @@ export default function ComboBuilderClient({ initialProducts }) {
               <span>₹{slots.length === comboSize ? hardcodedPrice.toFixed(2) : currentComboPrice.toFixed(2)}</span>
             </div>
           </div>
+
+          {hardcodedPrice && slots.length === comboSize && totalOriginalPrice > hardcodedPrice && (
+            <div style={{ 
+              color: '#34a853', 
+              fontSize: '0.9rem', 
+              fontWeight: '800', 
+              textAlign: 'right',
+              marginBottom: '20px'
+            }}>
+              You save {Math.round((1 - (hardcodedPrice / totalOriginalPrice)) * 100)}% with this combo!
+            </div>
+          )}
 
           <button 
             className={styles.addBtn}

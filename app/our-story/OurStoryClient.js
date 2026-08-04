@@ -64,8 +64,8 @@ const reels = [
   { id: 1, label: "Farm to Pack", video: "/videos/video1.mp4" },
   { id: 2, label: "Morning Rituals", video: "/videos/video2.mp4" },
   { id: 3, label: "The Roast", video: "/videos/video3.mp4" },
-  { id: 4, label: "Community" },
-  { id: 5, label: "Behind the Scenes" },
+  { id: 4, label: "Community", video: "/videos/video4.mp4" },
+  { id: 5, label: "Behind the Scenes", video: "/videos/video5.mp4" },
 ];
 
 const timelineEvents = [
@@ -79,6 +79,7 @@ const timelineEvents = [
 /* ──────────────────────────── component ──────────────────────────── */
 
 export default function OurStoryClient() {
+  const [playingVideoId, setPlayingVideoId] = useState(null);
   const heroRef = useRef(null);
   const originRef = useRef(null);
   const originTextRef = useRef(null);
@@ -245,9 +246,9 @@ export default function OurStoryClient() {
             <p className="os-section-kicker">Our Journey</p>
             <h2 className="os-section-title">Milestones that matter.</h2>
           </div>
-          
+
           <MilestoneTrail events={timelineEvents} />
-          
+
         </div>
       </section>
       {/* ══════════════ REELS ══════════════ */}
@@ -274,7 +275,12 @@ export default function OurStoryClient() {
                 <div key={reel.id} className="os-reel-card">
                   <div className="os-reel-placeholder">
                     {reel.video ? (
-                      <ReelVideo src={reel.video} />
+                      <ReelVideo 
+                        id={reel.id} 
+                        src={reel.video}
+                        playingVideoId={playingVideoId}
+                        setPlayingVideoId={setPlayingVideoId}
+                      />
                     ) : (
                       <>
                         <div className="os-reel-overlay">
@@ -287,7 +293,6 @@ export default function OurStoryClient() {
                       </>
                     )}
                   </div>
-                  <p className="os-reel-label">{reel.label}</p>
                 </div>
               ))}
             </div>
@@ -323,54 +328,120 @@ export default function OurStoryClient() {
   );
 }
 
-function ReelVideo({ src }) {
+function ReelVideo({ id, src, playingVideoId, setPlayingVideoId }) {
   const [isMuted, setIsMuted] = useState(true);
+  const [volume, setVolume] = useState(1);
   const videoRef = useRef(null);
+
+  const isPlaying = playingVideoId === id;
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.play().catch(e => console.log("Playback failed:", e));
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
+      videoRef.current.volume = volume;
     }
-  }, [isMuted]);
+  }, [isMuted, volume]);
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      setPlayingVideoId(null);
+    } else {
+      setPlayingVideoId(id);
+    }
+  };
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div style={{ position: "relative", width: "100%", height: "100%", cursor: "pointer" }} onClick={togglePlay}>
       <video
         ref={videoRef}
         src={src}
-        autoPlay
-        muted={true}
         loop
         playsInline
         preload="auto"
         className="os-reel-video"
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
-      <button 
-        onClick={() => setIsMuted(!isMuted)}
+      {!isPlaying && (
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(0, 0, 0, 0.6)",
+          borderRadius: "50%",
+          width: "60px",
+          height: "60px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pointerEvents: "none",
+          zIndex: 5,
+        }}>
+          <Play size={32} fill="white" color="white" style={{ marginLeft: "4px" }} />
+        </div>
+      )}
+      <div
+        onClick={(e) => e.stopPropagation()}
         style={{
           position: "absolute",
           bottom: "12px",
           right: "12px",
           background: "rgba(0, 0, 0, 0.6)",
-          color: "white",
-          border: "none",
-          borderRadius: "50%",
-          width: "36px",
-          height: "36px",
+          borderRadius: "24px",
+          padding: "8px 12px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
+          gap: "8px",
           zIndex: 10,
           transition: "background 0.2s"
         }}
         onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0, 0, 0, 0.8)"}
         onMouseLeave={(e) => e.currentTarget.style.background = "rgba(0, 0, 0, 0.6)"}
-        aria-label={isMuted ? "Unmute" : "Mute"}
       >
-        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-      </button>
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          style={{
+            background: "none",
+            color: "white",
+            border: "none",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+          aria-label={isMuted ? "Unmute" : "Mute"}
+        >
+          {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={isMuted ? 0 : volume}
+          onChange={(e) => {
+            setIsMuted(false);
+            setVolume(parseFloat(e.target.value));
+          }}
+          style={{
+            width: "60px",
+            cursor: "pointer",
+            accentColor: "#ffc833"
+          }}
+          aria-label="Volume"
+        />
+      </div>
     </div>
   );
 }

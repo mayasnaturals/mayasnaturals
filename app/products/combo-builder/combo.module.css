@@ -241,6 +241,7 @@
   justify-content: center;
   position: relative;
   background: #fbf5ee;
+  overflow: hidden;
 }
 
 .slot.filled {

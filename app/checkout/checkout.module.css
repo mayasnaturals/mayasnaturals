@@ -562,6 +562,17 @@
   animation: spin 0.8s linear infinite;
 }
 
+.autoApplySpinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--orange);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

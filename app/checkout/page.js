@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Script from "next/script";
 import confetti from "canvas-confetti";
@@ -21,18 +21,26 @@ const INDIAN_STATES = [
 ];
 
 export default function CheckoutPage() {
-  const { cart, isLoading: cartLoading, refreshCart } = useCart();
+  const { cart, isLoading: cartLoading, refreshCart, clearCart } = useCart();
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    phone: "",
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
+  const [formData, setFormData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('checkoutShipping');
+      if (saved) {
+        try { return JSON.parse(saved); } catch { /* ignore */ }
+      }
+    }
+    return {
+      email: "",
+      phone: "",
+      firstName: "",
+      lastName: "",
+      address: "",
+      city: "",
+      state: "",
+      pincode: "",
+    };
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -43,6 +51,25 @@ export default function CheckoutPage() {
   const [discountSuccess, setDiscountSuccess] = useState("");
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const [autoApplyMessage, setAutoApplyMessage] = useState("");
+  const [isAutoApplying, setIsAutoApplying] = useState(false);
+  const autoApplyCheckedRef = useRef(""); // tracks which email we already checked
+  const couponsStrippedRef = useRef(false);
+
+  // Strip stale discount codes from previous sessions on checkout mount
+  useEffect(() => {
+    if (!cart?.id || couponsStrippedRef.current) return;
+    couponsStrippedRef.current = true;
+    
+    const existingCodes = (cart.discountCodes || []).filter(dc => dc.applicable);
+    if (existingCodes.length > 0) {
+      // Clear all stale discount codes from a rehydrated cart
+      fetch("/api/remove-discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: cart.id }),
+      }).then(() => refreshCart()).catch(console.error);
+    }
+  }, [cart?.id]);
 
   // Debounced auto-apply coupon check
   useEffect(() => {
@@ -50,11 +77,22 @@ export default function CheckoutPage() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     if (!email || !emailRegex.test(email) || !cart?.id) {
+      setIsAutoApplying(false);
       return;
     }
 
+    // Don't re-check the same email
+    if (autoApplyCheckedRef.current === email.toLowerCase()) {
+      return;
+    }
+
+    setIsAutoApplying(true);
+    setAutoApplyMessage("");
+
     const timer = setTimeout(async () => {
       try {
+        autoApplyCheckedRef.current = email.toLowerCase();
+        
         const res = await fetch("/api/auto-apply-coupon", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -62,21 +100,23 @@ export default function CheckoutPage() {
         });
         
         if (res.status === 429) {
-          setAutoApplyMessage("Rate limit exceeded for auto-coupons. Please try again later.");
+          setAutoApplyMessage("Too many attempts. Please wait a moment.");
+          setIsAutoApplying(false);
           return;
         }
 
         if (res.ok) {
           const data = await res.json();
           if (data.applied) {
-            refreshCart();
+            await refreshCart();
             setAutoApplyMessage("🎉 Welcome! Your first-time discount has been automatically applied.");
-            // clear success message after 7 seconds
             setTimeout(() => setAutoApplyMessage(""), 7000);
           }
         }
       } catch (err) {
         console.error("Auto apply error:", err);
+      } finally {
+        setIsAutoApplying(false);
       }
     }, 1500); // 1.5s debounce
 
@@ -84,7 +124,9 @@ export default function CheckoutPage() {
   }, [formData.email, cart?.id]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const updated = { ...formData, [e.target.name]: e.target.value };
+    setFormData(updated);
+    sessionStorage.setItem('checkoutShipping', JSON.stringify(updated));
   };
 
   const handlePayment = async (e) => {
@@ -144,8 +186,10 @@ export default function CheckoutPage() {
 
             const verifyData = await verifyRes.json();
             if (verifyRes.ok) {
-              // Clear cart locally
-              localStorage.removeItem("shopifyCartId");
+              // Clear cart properly (both localStorage and React state)
+              clearCart();
+              // Clear saved shipping details
+              sessionStorage.removeItem('checkoutShipping');
               // Store order data for invoice page
               if (verifyData.orderData) {
                 sessionStorage.setItem("invoiceData", JSON.stringify(verifyData.orderData));
@@ -392,8 +436,14 @@ export default function CheckoutPage() {
               <div className={styles.formGroup}>
                 <label className={styles.label}>Email Address</label>
                 <input type="email" name="email" value={formData.email} required className={styles.input} onChange={handleChange} placeholder="your@email.com" />
-                {autoApplyMessage && (
-                  <div style={{ color: autoApplyMessage.includes('Rate limit') ? '#dc2626' : '#16a34a', fontSize: '0.875rem', marginTop: '6px', fontWeight: '500' }}>
+                {isAutoApplying && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f25c2a', fontSize: '0.85rem', marginTop: '8px', fontWeight: '600' }}>
+                    <span className={styles.autoApplySpinner} />
+                    Checking for first-time discount...
+                  </div>
+                )}
+                {!isAutoApplying && autoApplyMessage && (
+                  <div style={{ color: autoApplyMessage.includes('Too many') ? '#dc2626' : '#16a34a', fontSize: '0.85rem', marginTop: '8px', fontWeight: '600' }}>
                     {autoApplyMessage}
                   </div>
                 )}
