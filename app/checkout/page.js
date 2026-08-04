@@ -52,8 +52,26 @@ export default function CheckoutPage() {
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const [autoApplyMessage, setAutoApplyMessage] = useState("");
   const [isAutoApplying, setIsAutoApplying] = useState(false);
-  const autoApplyCheckedRef = useRef(""); // tracks which email we already checked
+  const autoApplyCheckedRef = useRef(""); // tracks email+cartId combo we already checked
   const couponsStrippedRef = useRef(false);
+  const emailInputRef = useRef(null);
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
+
+  // Detect browser autofill by polling the email input's actual DOM value
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (emailInputRef.current) {
+        const domValue = emailInputRef.current.value;
+        if (domValue && domValue !== formDataRef.current.email) {
+          const updated = { ...formDataRef.current, email: domValue };
+          setFormData(updated);
+          sessionStorage.setItem('checkoutShipping', JSON.stringify(updated));
+        }
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   // Strip stale discount codes from previous sessions on checkout mount
   useEffect(() => {
@@ -81,8 +99,10 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Don't re-check the same email
-    if (autoApplyCheckedRef.current === email.toLowerCase()) {
+    // Track email+cartId combo so a new cart re-triggers the check
+    const checkKey = `${email.toLowerCase()}__${cart.id}`;
+    if (autoApplyCheckedRef.current === checkKey) {
+      setIsAutoApplying(false);
       return;
     }
 
@@ -91,7 +111,7 @@ export default function CheckoutPage() {
 
     const timer = setTimeout(async () => {
       try {
-        autoApplyCheckedRef.current = email.toLowerCase();
+        autoApplyCheckedRef.current = checkKey;
         
         const res = await fetch("/api/auto-apply-coupon", {
           method: "POST",
@@ -101,7 +121,6 @@ export default function CheckoutPage() {
         
         if (res.status === 429) {
           setAutoApplyMessage("Too many attempts. Please wait a moment.");
-          setIsAutoApplying(false);
           return;
         }
 
@@ -118,9 +137,13 @@ export default function CheckoutPage() {
       } finally {
         setIsAutoApplying(false);
       }
-    }, 1500); // 1.5s debounce
+    }, 1500);
 
-    return () => clearTimeout(timer);
+    // When cleanup runs (email changed mid-debounce), reset spinner
+    return () => {
+      clearTimeout(timer);
+      // Don't reset isAutoApplying here — the next effect run will handle it
+    };
   }, [formData.email, cart?.id]);
 
   const handleChange = (e) => {
@@ -435,7 +458,7 @@ export default function CheckoutPage() {
               </h2>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Email Address</label>
-                <input type="email" name="email" value={formData.email} required className={styles.input} onChange={handleChange} placeholder="your@email.com" />
+                <input ref={emailInputRef} type="email" name="email" value={formData.email} required className={styles.input} onChange={handleChange} placeholder="your@email.com" />
                 {isAutoApplying && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f25c2a', fontSize: '0.85rem', marginTop: '8px', fontWeight: '600' }}>
                     <span className={styles.autoApplySpinner} />
