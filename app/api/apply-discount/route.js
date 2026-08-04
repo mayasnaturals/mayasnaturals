@@ -37,7 +37,49 @@ export async function POST(req) {
       );
     }
 
-    // 2. Apply ALL existing codes + the new one
+    // 2. Check Shopify Admin API for previous usage (to enforce 1-per-customer for manual entries)
+    const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+    let adminToken;
+    try {
+      const { getShopifyAdminToken } = await import("@/lib/shopify/adminAuth");
+      adminToken = await getShopifyAdminToken();
+    } catch (e) {
+      console.warn("Could not load admin token:", e);
+    }
+
+    if (adminToken) {
+      const shopifyRes = await fetch(
+        `https://${domain}/admin/api/2024-01/orders.json?email=${encodeURIComponent(email)}&status=any&fields=discount_codes`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+        }
+      );
+
+      if (shopifyRes.ok) {
+        const data = await shopifyRes.json();
+        const orders = data.orders || [];
+        
+        // Check if any previous order used this exact coupon (handling custom + strings)
+        const hasUsedBefore = orders.some(order => 
+          order.discount_codes?.some(dc => 
+            dc.code.toLowerCase().includes(code.toLowerCase())
+          )
+        );
+
+        if (hasUsedBefore) {
+          return NextResponse.json(
+            { error: `You have already used the discount code "${code}" on a previous order.` },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    // 3. Apply ALL existing codes + the new one
     const allCodes = [...existingCodes, code];
     const updatedCart = await applyDiscountToCart(cartId, allCodes);
 

@@ -32,6 +32,46 @@ export default function CheckoutPage() {
   const [discountError, setDiscountError] = useState("");
   const [discountSuccess, setDiscountSuccess] = useState("");
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [autoApplyMessage, setAutoApplyMessage] = useState("");
+
+  // Debounced auto-apply coupon check
+  useEffect(() => {
+    const email = formData.email?.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!email || !emailRegex.test(email) || !cart?.id) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/auto-apply-coupon", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, cartId: cart.id }),
+        });
+        
+        if (res.status === 429) {
+          setAutoApplyMessage("Rate limit exceeded for auto-coupons. Please try again later.");
+          return;
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.applied) {
+            refreshCart();
+            setAutoApplyMessage("🎉 Welcome! Your first-time discount has been automatically applied.");
+            // clear success message after 7 seconds
+            setTimeout(() => setAutoApplyMessage(""), 7000);
+          }
+        }
+      } catch (err) {
+        console.error("Auto apply error:", err);
+      }
+    }, 1500); // 1.5s debounce
+
+    return () => clearTimeout(timer);
+  }, [formData.email, cart?.id]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -342,6 +382,11 @@ export default function CheckoutPage() {
               <div className={styles.formGroup}>
                 <label className={styles.label}>Email Address</label>
                 <input type="email" name="email" value={formData.email} required className={styles.input} onChange={handleChange} placeholder="your@email.com" />
+                {autoApplyMessage && (
+                  <div style={{ color: autoApplyMessage.includes('Rate limit') ? '#dc2626' : '#16a34a', fontSize: '0.875rem', marginTop: '6px', fontWeight: '500' }}>
+                    {autoApplyMessage}
+                  </div>
+                )}
               </div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Phone Number</label>
