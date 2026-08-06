@@ -77,13 +77,14 @@ export default function Footer() {
               <Link href="/#contact">Contact Us</Link>
             </nav>
           </div>
+
           <div className="footer-col">
-            <h4 className="footer-heading">Help</h4>
+            <h4 className="footer-heading">Legal</h4>
             <nav className="footer-col-links">
-              <Link href="#">FAQ</Link>
-              <Link href="#">Shipping</Link>
-              <Link href="#">Returns</Link>
-              <Link href="#">Track Order</Link>
+              <Link href="/privacy-policy">Privacy Policy</Link>
+              <Link href="/terms-conditions">Terms & Conditions</Link>
+              <Link href="/shipping-policy">Shipping Policy</Link>
+              <Link href="/refund-policy">Refund Policy</Link>
             </nav>
           </div>
           <div className="footer-col items-center lg:items-end justify-center w-full mt-4 lg:mt-0">
@@ -97,8 +98,8 @@ export default function Footer() {
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} Maya Muesli. All rights reserved.</p>
           <div className="footer-bottom-links">
-            <Link href="#">Privacy Policy</Link>
-            <Link href="#">Terms of Service</Link>
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/terms-conditions">Terms</Link>
           </div>
         </div>
       </div>
