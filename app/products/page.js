@@ -43,6 +43,7 @@ export default async function ProductsPage() {
         name: p.title,
         type: productType,
         price: price,
+        availableForSale: variant?.availableForSale !== undefined ? variant.availableForSale : true,
         description: p.description,
         badge: p.badge?.value || null,
         newness: parseInt(p.newness?.value) || 5,

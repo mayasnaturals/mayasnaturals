@@ -43,6 +43,7 @@ export default async function ComboBuilderPage() {
         name: p.title,
         type: productType,
         price: price,
+        availableForSale: variant?.availableForSale !== undefined ? variant.availableForSale : true,
         description: p.description,
         badge: p.badge?.value || null,
         image: p.images?.edges[0]?.node?.url || "/products/Default Museli.png",
@@ -62,7 +63,8 @@ export default async function ComboBuilderPage() {
     groupedProducts[p.id].variants.push({
       variantId: p.variantId,
       weight: p.weight,
-      price: p.price
+      price: p.price,
+      availableForSale: p.availableForSale
     });
   });
 

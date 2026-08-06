@@ -77,7 +77,7 @@ export default function VariantSelector({ options, variants, initialVariant, pro
           <span className={s.qtySelectorNum}>{quantity}</span>
           <button className={s.qtySelectorBtn} onClick={() => setQuantity(quantity + 1)}>+</button>
         </div>
-        <div className={s.priceBox} data-anim="action">
+        <div className={s.priceBox} data-anim="action" style={{ opacity: currentVariant?.availableForSale ? 1 : 0.5 }}>
           <p className={s.priceLabel}>Price</p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
             {totalMrp && (
@@ -89,7 +89,7 @@ export default function VariantSelector({ options, variants, initialVariant, pro
               Rs.&nbsp;{totalPrice.toFixed(2).replace(/\.00$/, '')}
             </strong>
           </div>
-          {totalMrp && discountAmount > 0 && (
+          {totalMrp && discountAmount > 0 && currentVariant?.availableForSale && (
             <div className={s.discountTag}>
               Save Rs. {discountAmount.toFixed(2).replace(/\.00$/, '')} ({discountPercent}%)
             </div>
@@ -98,7 +98,7 @@ export default function VariantSelector({ options, variants, initialVariant, pro
 
 
 
-        <AddToCartButton productId={currentVariant?.id} quantity={quantity} />
+        <AddToCartButton productId={currentVariant?.id} quantity={quantity} availableForSale={currentVariant?.availableForSale} />
       </div>
     </>
   );

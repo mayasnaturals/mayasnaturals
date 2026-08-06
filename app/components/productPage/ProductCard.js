@@ -58,25 +58,27 @@ function ProductCard({ product, index, onAdd, isAdded }) {
 
                 <div className={styles.productBottom}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', opacity: product.availableForSale ? 1 : 0.5 }}>
                             {mrp && <del className={styles.productMrp}>₹{mrp}</del>}
                             <strong>₹{product.price}</strong>
                         </div>
-                        {mrp && discountAmount > 0 && (
+                        {mrp && discountAmount > 0 && product.availableForSale && (
                             <div className={styles.discountTag}>
                                 Save ₹{discountAmount} ({discountPercent}%)
                             </div>
                         )}
-                        <span>incl. taxes</span>
+                        <span style={{ opacity: product.availableForSale ? 1 : 0.5 }}>incl. taxes</span>
                     </div>
                     <button
                         className={`${styles.addButton} ${isAdded ? styles.addButtonDone : ""
                             }`}
-                        onClick={() => onAdd(product.id)}
+                        onClick={() => product.availableForSale && onAdd(product.id)}
                         aria-label={`Add ${product.name} to bag`}
+                        disabled={!product.availableForSale}
+                        style={!product.availableForSale ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#e0e0e0', color: '#666' } : {}}
                     >
-                        {isAdded ? <Check size={19} /> : <ShoppingBag size={19} />}
-                        <span>{isAdded ? "Added" : "Quick add"}</span>
+                        {isAdded ? <Check size={19} /> : (product.availableForSale && <ShoppingBag size={19} />)}
+                        <span>{!product.availableForSale ? "Out of stock" : (isAdded ? "Added" : "Quick add")}</span>
                     </button>
                 </div>
             </div>

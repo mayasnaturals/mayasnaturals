@@ -57,6 +57,9 @@ export default function ComboBuilderClient({ initialProducts }) {
       variant = product.variants.find(v => v.weight === lockedWeight) || variant;
     }
     
+    // Prevent adding if out of stock
+    if (variant.availableForSale === false) return;
+    
     // Set locked weight if first item
     if (slots.length === 0) {
       setLockedWeight(variant.weight);
@@ -191,22 +194,25 @@ export default function ComboBuilderClient({ initialProducts }) {
                       <h3 onClick={() => !isDisabled && handleProductSelect(product)}>{product.name}</h3>
                       <div className={styles.variantSelectors}>
                         {product.variants.map(variant => {
+                          const isOutOfStock = variant.availableForSale === false;
                           const isWeightLockedOut = lockedWeight && lockedWeight !== variant.weight;
-                          const isActive = lockedWeight ? lockedWeight === variant.weight : selectedVariants[product.id].variantId === variant.variantId;
+                          const isDisabledVariant = isWeightLockedOut || isOutOfStock;
+                          const isActive = lockedWeight ? lockedWeight === variant.weight && !isOutOfStock : selectedVariants[product.id].variantId === variant.variantId && !isOutOfStock;
+                          
                           return (
                             <button
                               key={variant.variantId}
-                              disabled={isWeightLockedOut}
+                              disabled={isDisabledVariant}
                               className={`${styles.variantBtn} ${isActive ? styles.active : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (!isWeightLockedOut) {
+                                if (!isDisabledVariant) {
                                   handleVariantSelect(product.id, variant);
                                 }
                               }}
-                              style={{ opacity: isWeightLockedOut ? 0.3 : 1, cursor: isWeightLockedOut ? 'not-allowed' : 'pointer' }}
+                              style={{ opacity: isDisabledVariant ? 0.4 : 1, cursor: isDisabledVariant ? 'not-allowed' : 'pointer', textDecoration: isOutOfStock ? 'line-through' : 'none' }}
                             >
-                              {variant.weight} - ₹{variant.price}
+                              {variant.weight} - {isOutOfStock ? "Out of stock" : `₹${variant.price}`}
                             </button>
                           );
                         })}
