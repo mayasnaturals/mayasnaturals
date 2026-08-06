@@ -72,15 +72,22 @@ export default async function ProductsPage() {
        return weightA - weightB;
     });
 
-    const title = variants[0].name.toLowerCase();
-    const type = variants[0].type.toLowerCase();
+    const anyAvailable = variants.some(v => v.availableForSale);
+
+    const processedVariants = variants.map(v => ({
+       ...v,
+       hasOtherAvailableVariants: anyAvailable && !v.availableForSale
+    }));
+
+    const title = processedVariants[0].name.toLowerCase();
+    const type = processedVariants[0].type.toLowerCase();
 
     if (title.includes('makhana') || type === 'makhana') {
-      finalProducts.push(variants[0]);
+      finalProducts.push(processedVariants[0]);
     } else if (title.includes('super')) {
-      finalProducts.push(variants[0]);
+      finalProducts.push(processedVariants[0]);
     } else if (title.includes('choc')) {
-      finalProducts.push(variants.length > 1 ? variants[1] : variants[0]);
+      finalProducts.push(processedVariants.length > 1 ? processedVariants[1] : processedVariants[0]);
     }
   }
 

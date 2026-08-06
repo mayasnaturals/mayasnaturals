@@ -57,15 +57,30 @@ export default function VariantSelector({ options, variants, initialVariant, pro
           <div key={option.name} className={s.optionsGroup} data-anim="action">
             <p className={s.optionsLabel}>{option.name}</p>
             <div className={s.optionsList}>
-              {sortedValues.map(val => (
-                <button
-                  key={val}
-                  className={`${s.optionBtn} ${selectedOptions[option.name] === val ? s.optionBtnActive : ''}`}
-                  onClick={() => handleOptionChange(option.name, val)}
-                >
-                  {val}
-                </button>
-              ))}
+              {sortedValues.map(val => {
+                // Find the variant that would be selected if this option value was clicked
+                const variantForOption = variants.find(v => 
+                  v.selectedOptions.every(opt => 
+                    opt.name === option.name ? opt.value === val : selectedOptions[opt.name] === opt.value
+                  )
+                ) || variants.find(v => v.selectedOptions.some(opt => opt.name === option.name && opt.value === val));
+
+                const isOutOfStock = variantForOption ? variantForOption.availableForSale === false : false;
+
+                return (
+                  <button
+                    key={val}
+                    className={`${s.optionBtn} ${selectedOptions[option.name] === val ? s.optionBtnActive : ''}`}
+                    onClick={() => handleOptionChange(option.name, val)}
+                    style={{ 
+                      opacity: isOutOfStock ? 0.4 : 1, 
+                      textDecoration: isOutOfStock ? 'line-through' : 'none' 
+                    }}
+                  >
+                    {val}
+                  </button>
+                );
+              })}
             </div>
           </div>
         );

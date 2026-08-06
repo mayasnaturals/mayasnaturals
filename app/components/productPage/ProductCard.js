@@ -69,17 +69,34 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                         )}
                         <span style={{ opacity: product.availableForSale ? 1 : 0.5 }}>incl. taxes</span>
                     </div>
-                    <button
-                        className={`${styles.addButton} ${isAdded ? styles.addButtonDone : ""
-                            }`}
-                        onClick={() => product.availableForSale && onAdd(product.id)}
-                        aria-label={`Add ${product.name} to bag`}
-                        disabled={!product.availableForSale}
-                        style={!product.availableForSale ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#e0e0e0', color: '#666' } : {}}
-                    >
-                        {isAdded ? <Check size={19} /> : (product.availableForSale && <ShoppingBag size={19} />)}
-                        <span>{!product.availableForSale ? "Out of stock" : (isAdded ? "Added" : "Quick add")}</span>
-                    </button>
+                    {product.availableForSale ? (
+                        <button
+                            className={`${styles.addButton} ${isAdded ? styles.addButtonDone : ""
+                                }`}
+                            onClick={() => onAdd(product.id)}
+                            aria-label={`Add ${product.name} to bag`}
+                        >
+                            {isAdded ? <Check size={19} /> : <ShoppingBag size={19} />}
+                            <span>{isAdded ? "Added" : "Quick add"}</span>
+                        </button>
+                    ) : product.hasOtherAvailableVariants ? (
+                        <Link
+                            href={productHref}
+                            className={styles.addButton}
+                            style={{ textDecoration: 'none' }}
+                            aria-label={`View other sizes for ${product.name}`}
+                        >
+                            <span>Other sizes available</span>
+                        </Link>
+                    ) : (
+                        <button
+                            className={styles.addButton}
+                            disabled
+                            style={{ opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#e0e0e0', color: '#666' }}
+                        >
+                            <span>Out of stock</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </motion.article>
