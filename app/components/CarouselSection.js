@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -17,6 +18,7 @@ export default function CarouselSection({ products = [] }) {
 
   const displayProducts = products?.length > 0 ? products.map(p => ({
     id: p.id,
+    handle: p.handle,
     title: p.title,
     price: p.priceRange?.minVariantPrice ? `Rs. ${parseInt(p.priceRange.minVariantPrice.amount)}` : "",
     color: p.colorDark?.value || "#604032",
@@ -89,7 +91,8 @@ export default function CarouselSection({ products = [] }) {
           className="flex flex-row gap-6 md:gap-10 px-5 md:px-[50vw] items-center w-max md:h-full md:will-change-transform mx-auto md:mx-0"
         >
           {displayProducts.map((item, i) => (
-            <div
+            <Link
+              href={`/products/${item.handle}`}
               key={item.id}
               className="carousel-item relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[380px] gap-4 md:gap-5 snap-center"
             >
@@ -111,7 +114,7 @@ export default function CarouselSection({ products = [] }) {
                   {item.title}
                 </h3>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

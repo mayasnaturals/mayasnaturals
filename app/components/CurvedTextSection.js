@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 const PRODUCTS = [
   { name: "Peri Peri Makhana", color: "#dc3421", price: "Rs. 299", desc: "Spicy, tangy and aromatic", image: "/products/Peri Peri Makhana.png" },
@@ -17,6 +18,7 @@ export default function CurvedTextSection({ products = [] }) {
 
   // Map Shopify products or fallback to local static data
   const displayProducts = products?.length > 0 ? products.map(p => ({
+    handle: p.handle,
     name: p.title,
     color: p.colorDark?.value || "#E8752A",
     price: p.priceRange?.minVariantPrice ? `Rs. ${parseInt(p.priceRange.minVariantPrice.amount)}` : "",
@@ -88,26 +90,28 @@ export default function CurvedTextSection({ products = [] }) {
               variants={cardVariants}
               initial="hidden"
               animate={controls}
-              className={`relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[320px] mx-auto gap-4 md:gap-5 ${i === 1 ? 'md:mb-[40px]' : ''}`}
+              className={`relative flex-shrink-0 flex flex-col items-center justify-center w-[260px] md:w-[320px] mx-auto ${i === 1 ? 'md:mb-[40px]' : ''}`}
             >
-              <motion.div
-                className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
-                style={{
-                  backgroundColor: product.color,
-                  boxShadow: "0 12px 40px rgba(42,26,16,0.1)",
-                }}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <div className="relative w-[calc(100%-12px)] h-[calc(100%-12px)] rounded-[26px] overflow-hidden group-hover:scale-[1.03] transition-transform duration-500">
-                  <Image src={product.image} alt={product.name} fill priority style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
+              <Link href={product.handle ? `/products/${product.handle}` : '#'} className="w-full flex flex-col items-center justify-center gap-4 md:gap-5">
+                <motion.div
+                  className="w-full aspect-square rounded-[32px] shadow-xl relative overflow-hidden flex flex-col items-center justify-center group"
+                  style={{
+                    backgroundColor: product.color,
+                    boxShadow: "0 12px 40px rgba(42,26,16,0.1)",
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <div className="relative w-[calc(100%-12px)] h-[calc(100%-12px)] rounded-[26px] overflow-hidden group-hover:scale-[1.03] transition-transform duration-500">
+                    <Image src={product.image} alt={product.name} fill priority style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
+                  </div>
+                </motion.div>
+                <div className="text-center w-full px-4 flex items-start justify-center min-h-[60px] md:min-h-[72px]">
+                  <h3 className="text-lg md:text-2xl font-display font-black mb-1 line-clamp-2 leading-tight tracking-wide text-gray-900">
+                    {product.name}
+                  </h3>
                 </div>
-              </motion.div>
-              <div className="text-center w-full px-4 flex items-start justify-center min-h-[60px] md:min-h-[72px]">
-                <h3 className="text-lg md:text-2xl font-display font-black mb-1 line-clamp-2 leading-tight tracking-wide text-gray-900">
-                  {product.name}
-                </h3>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
