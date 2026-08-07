@@ -15,7 +15,7 @@ export default function ComboBuilderClient({ initialProducts }) {
   const [slots, setSlots] = useState([]);
   const [lockedWeight, setLockedWeight] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
-  
+
   const { addLinesToCart } = useCart();
   const router = useRouter();
 
@@ -31,10 +31,10 @@ export default function ComboBuilderClient({ initialProducts }) {
 
   const handleVariantSelect = (productId, variant) => {
     setSelectedVariants(prev => ({ ...prev, [productId]: variant }));
-    
+
     if (slots.some(s => s.productId === productId)) {
-      setSlots(slots.map(s => 
-        s.productId === productId 
+      setSlots(slots.map(s =>
+        s.productId === productId
           ? { ...s, variantId: variant.variantId, weight: variant.weight, price: variant.price }
           : s
       ));
@@ -42,37 +42,13 @@ export default function ComboBuilderClient({ initialProducts }) {
   };
 
   const handleProductSelect = (product) => {
-    if (slots.some(s => s.productId === product.id)) {
-      // Remove it
-      const newSlots = slots.filter(s => s.productId !== product.id);
-      setSlots(newSlots);
-      if (newSlots.length === 0) setLockedWeight(null);
-      return;
-    }
+    const currentCount = slots.filter(s => s.productId === product.id).length;
+    const nextCount = currentCount + 1;
 
-    if (slots.length >= comboSize) return; // Full
+    // Ensure we have enough space to add 1 more item
+    if (slots.length + 1 > comboSize) return;
 
-    let variant = selectedVariants[product.id];
-    if (lockedWeight) {
-      variant = product.variants.find(v => v.weight === lockedWeight) || variant;
-    }
-    
-    // Prevent adding if out of stock
-    if (variant.availableForSale === false) return;
-    
-    // Set locked weight if first item
-    if (slots.length === 0) {
-      setLockedWeight(variant.weight);
-    }
-    setSlots([...slots, {
-      productId: product.id,
-      variantId: variant.variantId,
-      name: product.name,
-      weight: variant.weight,
-      price: variant.price,
-      image: product.image,
-      isMystery: product.isMystery
-    }]);
+    handleQuantityChange(product, nextCount);
   };
 
   const handleRemoveSlot = (index) => {
@@ -86,6 +62,49 @@ export default function ComboBuilderClient({ initialProducts }) {
     setLockedWeight(null);
   };
 
+  const handleQuantityChange = (product, newQuantity) => {
+    const currentCount = slots.filter(s => s.productId === product.id).length;
+    const diff = newQuantity - currentCount;
+
+    if (diff > 0) {
+      let variant = selectedVariants[product.id];
+      if (lockedWeight) {
+        variant = product.variants.find(v => v.weight === lockedWeight) || variant;
+      }
+      if (variant.availableForSale === false) return;
+
+      const variantsToAdd = [];
+      for (let i = 0; i < diff; i++) {
+        variantsToAdd.push({
+          productId: product.id,
+          variantId: variant.variantId,
+          name: product.name,
+          weight: variant.weight,
+          price: variant.price,
+          image: product.image,
+          isMystery: product.isMystery
+        });
+      }
+
+      let newSlots = [...slots, ...variantsToAdd];
+      if (slots.length === 0 && variantsToAdd.length > 0) {
+        setLockedWeight(variant.weight);
+      }
+      setSlots(newSlots);
+    } else if (diff < 0) {
+      let removed = 0;
+      const newSlots = slots.filter(s => {
+        if (s.productId === product.id && removed < Math.abs(diff)) {
+          removed++;
+          return false;
+        }
+        return true;
+      });
+      setSlots(newSlots);
+      if (newSlots.length === 0) setLockedWeight(null);
+    }
+  };
+
   // Calculate prices
   const totalOriginalPrice = slots.reduce((sum, slot) => sum + slot.price, 0);
   const hardcodedPrice = lockedWeight ? getComboPrice(lockedWeight, comboSize) : null;
@@ -96,24 +115,32 @@ export default function ComboBuilderClient({ initialProducts }) {
     setIsAdding(true);
 
     const comboId = `combo_${Date.now()}`;
-    const linesToAdd = slots.map(slot => {
-        // If it's mystery flavor, we use a hack for now: add the first real product's variant but tag it
-        let actualVariantId = slot.variantId;
-        if (slot.isMystery) {
-            // Find a real product's variant that matches the weight, or just use the first available real variant
-            const realProduct = initialProducts[0];
-            actualVariantId = realProduct.variants[0].variantId;
-        }
+    const aggregated = {};
 
-        return {
-            merchandiseId: actualVariantId,
-            quantity: 1,
-            attributes: [
-                { key: "_comboId", value: comboId },
-                { key: "_isMystery", value: slot.isMystery ? "true" : "false" }
-            ]
+    slots.forEach(slot => {
+      // If it's mystery flavor, we use a hack for now: add the first real product's variant but tag it
+      let actualVariantId = slot.variantId;
+      if (slot.isMystery) {
+        // Find a real product's variant that matches the weight, or just use the first available real variant
+        const realProduct = initialProducts[0];
+        actualVariantId = realProduct.variants[0].variantId;
+      }
+
+      if (aggregated[actualVariantId]) {
+        aggregated[actualVariantId].quantity += 1;
+      } else {
+        aggregated[actualVariantId] = {
+          merchandiseId: actualVariantId,
+          quantity: 1,
+          attributes: [
+            { key: "_comboId", value: comboId },
+            { key: "_isMystery", value: slot.isMystery ? "true" : "false" }
+          ]
         };
+      }
     });
+
+    const linesToAdd = Object.values(aggregated);
 
     await addLinesToCart(linesToAdd);
     setIsAdding(false);
@@ -158,35 +185,39 @@ export default function ComboBuilderClient({ initialProducts }) {
               <div className={styles.stepNumber}>2</div>
               <h2>Pick Flavors & Weights</h2>
             </div>
-            
+
             <div className={styles.productGrid}>
               {availableProducts.map(product => {
-                const isSelected = slots.some(s => s.productId === product.id);
+                const selectedCount = slots.filter(s => s.productId === product.id).length;
+                const isSelected = selectedCount > 0;
                 const isMaxReached = slots.length >= comboSize;
                 const isDisabled = !isSelected && isMaxReached;
 
                 return (
-                  <div 
-                    key={product.id} 
+                  <div
+                    key={product.id}
                     className={`${styles.productCard} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
                   >
                     <div className={styles.cardVisual} onClick={() => !isDisabled && handleProductSelect(product)} style={{ position: 'relative' }}>
                       <Image src={product.image} alt={product.name} fill style={{ objectFit: 'cover' }} />
                       {isSelected && (
-                        <div style={{ 
-                          position: 'absolute', 
-                          top: '10px', 
-                          right: '10px', 
-                          background: '#e44a32', 
-                          color: 'white', 
-                          borderRadius: '50%', 
-                          padding: '6px', 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        <div style={{
+                          position: 'absolute',
+                          top: '10px',
+                          right: '10px',
+                          background: '#e44a32',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: '24px',
+                          height: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
                           justifyContent: 'center',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          fontWeight: 'bold',
+                          fontSize: '0.85rem'
                         }}>
-                          <Check size={16} strokeWidth={4} />
+                          {selectedCount}
                         </div>
                       )}
                     </div>
@@ -198,7 +229,7 @@ export default function ComboBuilderClient({ initialProducts }) {
                           const isWeightLockedOut = lockedWeight && lockedWeight !== variant.weight;
                           const isDisabledVariant = isWeightLockedOut || isOutOfStock;
                           const isActive = lockedWeight ? lockedWeight === variant.weight && !isOutOfStock : selectedVariants[product.id].variantId === variant.variantId && !isOutOfStock;
-                          
+
                           return (
                             <button
                               key={variant.variantId}
@@ -217,32 +248,43 @@ export default function ComboBuilderClient({ initialProducts }) {
                           );
                         })}
                       </div>
-                      <div style={{ 
-                        marginTop: '8px', 
-                        width: '100%', 
+                      <div style={{
+                        marginTop: '8px',
+                        width: '100%',
                         display: 'flex',
-                        justifyContent: 'center',
-                        visibility: isSelected ? 'visible' : 'hidden', 
-                        opacity: isSelected ? 1 : 0, 
-                        transition: 'opacity 0.2s ease' 
+                        justifyContent: 'center'
                       }}>
-                        <div style={{
-                          padding: '4px 12px',
-                          backgroundColor: '#6a462f',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontWeight: '800',
-                          fontSize: '0.75rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
-                        }}>
-                          <Check size={14} strokeWidth={4} /> Selected
-                        </div>
+                        <select
+                          value={selectedCount === 0 ? "" : selectedCount}
+                          onChange={(e) => handleQuantityChange(product, parseInt(e.target.value))}
+                          disabled={isDisabled && selectedCount === 0}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: selectedCount > 0 ? '#6a462f' : '#f0f0f0',
+                            color: selectedCount > 0 ? 'white' : '#555',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            fontWeight: 'bold',
+                            fontSize: '0.8rem',
+                            cursor: (isDisabled && selectedCount === 0) ? 'not-allowed' : 'pointer',
+                            outline: 'none',
+                            width: '100%',
+                            textAlign: 'center'
+                          }}
+                        >
+                          {selectedCount === 0 && (
+                            <option value="" disabled hidden>Add to Combo</option>
+                          )}
+                          {[...new Set([2, 4, 6, 8, selectedCount])]
+                            .sort((a, b) => a - b)
+                            .filter(num => num > 0 && (num === selectedCount || num <= selectedCount + (comboSize - slots.length)))
+                            .map(num => (
+                              <option key={num} value={num}>
+                                {num} Selected
+                              </option>
+                            ))
+                          }
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -257,8 +299,8 @@ export default function ComboBuilderClient({ initialProducts }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Your Combo</h2>
             {slots.length > 0 && (
-              <button 
-                onClick={handleClearCombo} 
+              <button
+                onClick={handleClearCombo}
                 style={{ fontSize: '0.8rem', color: '#f04e24', display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 <RotateCcw size={14} /> Reset
@@ -309,10 +351,10 @@ export default function ComboBuilderClient({ initialProducts }) {
           </div>
 
           {hardcodedPrice && slots.length === comboSize && totalOriginalPrice > hardcodedPrice && (
-            <div style={{ 
-              color: '#34a853', 
-              fontSize: '0.9rem', 
-              fontWeight: '800', 
+            <div style={{
+              color: '#34a853',
+              fontSize: '0.9rem',
+              fontWeight: '800',
               textAlign: 'right',
               marginBottom: '20px'
             }}>
@@ -320,12 +362,12 @@ export default function ComboBuilderClient({ initialProducts }) {
             </div>
           )}
 
-          <button 
+          <button
             className={styles.addBtn}
             disabled={slots.length !== comboSize || isAdding}
             onClick={handleAddToCart}
           >
-            {isAdding ? <Loader2 className="animate-spin" /> : <><ShoppingBag size={20} style={{marginRight: '8px'}} /> Add to Cart</>}
+            {isAdding ? <Loader2 className="animate-spin" /> : <><ShoppingBag size={20} style={{ marginRight: '8px' }} /> Add to Cart</>}
           </button>
         </aside>
       </div>

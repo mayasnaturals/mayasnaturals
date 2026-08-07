@@ -252,25 +252,27 @@
 
 .slotRemoveBtn {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: 6px;
+  right: 6px;
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--ink);
+  background-color: #e44a32;
   color: #fff;
-  border: none;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 2;
-  opacity: 0;
-  transition: opacity 0.2s;
+  opacity: 1;
+  transition: all 0.2s ease;
 }
 
-.slot:hover .slotRemoveBtn {
-  opacity: 1;
+.slotRemoveBtn:hover {
+  background-color: var(--ink);
+  transform: scale(1.1);
 }
 
 .summaryTotal {
