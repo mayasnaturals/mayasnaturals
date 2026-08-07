@@ -414,7 +414,7 @@ export default function CheckoutPage() {
     Object.values(combos).forEach(combo => {
       if (combo.items.length > 0) {
         const sampleVariant = combo.items[0].merchandise.title;
-        const size = combo.items.length;
+        const size = combo.items.reduce((sum, it) => sum + it.quantity, 0);
         const hardcoded = getComboPrice(sampleVariant, size);
         
         if (hardcoded) {
@@ -575,7 +575,7 @@ export default function CheckoutPage() {
                         />
                         <div className={styles.summaryDetails}>
                           <div className={styles.summaryTitle}>{item.title}</div>
-                          <div className={styles.summaryQuantity}>{item.items.length} items (Qty: 1)</div>
+                          <div className={styles.summaryQuantity}>{item.items.reduce((sum, it) => sum + it.quantity, 0)} items (Qty: 1)</div>
                           {savings > 0 && <div className={styles.discountBadge}>🔥 You save ₹{savings.toFixed(0)}</div>}
                         </div>
                         <div className={styles.priceContainer}>

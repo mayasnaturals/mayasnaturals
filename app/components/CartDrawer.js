@@ -60,7 +60,7 @@ export default function CartDrawer() {
     Object.values(combos).forEach(combo => {
       if (combo.items.length > 0) {
         const sampleVariant = combo.items[0].merchandise.title; // e.g. "90g" or "180g"
-        const size = combo.items.length;
+        const size = combo.items.reduce((sum, it) => sum + it.quantity, 0);
         const hardcoded = getComboPrice(sampleVariant, size);
         if (hardcoded) {
           combo.totalAmount = hardcoded;

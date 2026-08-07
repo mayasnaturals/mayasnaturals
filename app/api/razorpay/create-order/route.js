@@ -40,7 +40,7 @@ export async function POST(req) {
     Object.values(combos).forEach(combo => {
       if (combo.items.length > 0) {
         const sampleVariant = combo.items[0].merchandise.title;
-        const size = combo.items.length;
+        const size = combo.items.reduce((sum, it) => sum + it.quantity, 0);
         const hardcoded = getComboPrice(sampleVariant, size);
         if (hardcoded) {
           calculatedSubtotal += hardcoded;
@@ -78,7 +78,7 @@ export async function POST(req) {
     }
 
     const discountedSubtotal = calculatedSubtotal - effectiveDiscount;
-    const shipping = discountedSubtotal > 0 && discountedSubtotal < 499 ? 49 : 0;
+    const shipping = calculatedSubtotal > 0 && calculatedSubtotal < 499 ? 49 : 0;
     const total = discountedSubtotal + shipping;
 
     // Amount in paise (multiply by 100)
