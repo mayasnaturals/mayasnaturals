@@ -9,6 +9,7 @@ import { useCart } from "@/context/CartContext";
 import styles from "./checkout.module.css";
 import { getMrp } from "@/lib/utils";
 import { getComboPrice } from "@/lib/pricing";
+import { AUTO_APPLY_COUPON } from "@/config/coupons";
 
 const INDIAN_STATES = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
@@ -120,6 +121,20 @@ export default function CheckoutPage() {
     
     if (!email || !emailRegex.test(email) || !cart?.id) {
       setIsAutoApplying(false);
+      
+      // If the email is erased or invalid, remove the auto-applied coupon if it exists
+      if (cart?.discountCodes) {
+        const autoCouponApplied = cart.discountCodes.some(
+          dc => dc.applicable && dc.code.toUpperCase() === AUTO_APPLY_COUPON.toUpperCase()
+        );
+        if (autoCouponApplied) {
+          fetch("/api/remove-discount", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cartId: cart.id, code: AUTO_APPLY_COUPON })
+          }).then(() => refreshCart()).catch(console.error);
+        }
+      }
       return;
     }
 
