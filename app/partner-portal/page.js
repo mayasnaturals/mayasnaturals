@@ -104,7 +104,7 @@ export default function PartnerPortal() {
                   <div key={order._id || idx} className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                     
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-50 gap-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center flex-wrap gap-2">
                         <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-md uppercase tracking-wider">
                           Success
                         </span>
@@ -115,6 +115,14 @@ export default function PartnerPortal() {
                             day: 'numeric'
                           })}
                         </span>
+                        {order.customerData && (
+                          <>
+                            <span className="text-gray-300 mx-1">•</span>
+                            <span className="text-sm font-medium text-gray-700">
+                              {order.customerData.firstName} {order.customerData.lastName}
+                            </span>
+                          </>
+                        )}
                       </div>
                       <div className="text-right">
                         <span className="text-lg font-medium text-gray-900">₹{order.orderDetails?.total}</span>

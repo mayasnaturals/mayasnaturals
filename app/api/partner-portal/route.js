@@ -24,7 +24,8 @@ export async function GET(req) {
     // Projection: Explicitly EXCLUDE sensitive data.
     // We only include what is absolutely necessary for transparency.
     const projection = {
-      customerData: 0,
+      "customerData.email": 0,
+      "customerData.phone": 0,
       shippingDetails: 0,
       razorpayDetails: 0,
       "orderDetails.shopifyOrderNumber": 0,
