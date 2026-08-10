@@ -57,6 +57,7 @@ export async function POST(req) {
     const total = discountedSubtotal + shipping;
 
     try {
+      const isTestEnv = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test");
       await dbConnect();
       await Order.create({
         customerData: {
@@ -85,6 +86,7 @@ export async function POST(req) {
         status: "Failed",
         couponsUsed: appliedDiscountCodes,
         errorReason: razorpay_error?.description || razorpay_error?.reason || "Unknown Payment Failure",
+        isTestOrder: isTestEnv || false,
       });
       console.log("Successfully saved failed order to MongoDB.");
     } catch (dbErr) {

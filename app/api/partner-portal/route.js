@@ -14,11 +14,16 @@ export async function GET(req) {
     // Connect to the database
     await dbConnect();
 
+    // Determine if the current environment is using test keys
+    const isTestEnv = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test") || false;
+
     // Query for orders that successfully used this exact coupon (case-insensitive)
     // We only care about Successful orders for influencer metrics.
+    // Also, strictly isolate test orders from production orders.
     const query = {
       couponsUsed: { $regex: new RegExp(`^${coupon.trim()}$`, "i") },
       status: "Success",
+      isTestOrder: isTestEnv,
     };
 
     // Projection: Explicitly EXCLUDE sensitive data.

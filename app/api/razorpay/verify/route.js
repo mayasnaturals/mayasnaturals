@@ -263,6 +263,7 @@ export async function POST(req) {
     }
 
     try {
+      const isTestEnv = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test");
       await dbConnect();
       await Order.create({
         customerData: {
@@ -293,6 +294,7 @@ export async function POST(req) {
         },
         status: "Success",
         couponsUsed: appliedDiscountCodes,
+        isTestOrder: isTestEnv || false,
       });
       console.log("Successfully saved successful order to MongoDB.");
     } catch (dbErr) {

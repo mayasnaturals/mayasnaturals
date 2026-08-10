@@ -49,6 +49,10 @@ const OrderSchema = new mongoose.Schema(
     errorReason: {
       type: String,
     },
+    isTestOrder: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
