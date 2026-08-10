@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { getCart } from "@/lib/shopify";
 import { getShopifyAdminToken } from "@/lib/shopify/adminAuth";
 import { getComboPrice } from "@/lib/pricing";
+import dbConnect from "@/lib/mongodb";
+import Order from "@/models/Order";
 
 export async function POST(req) {
   try {
@@ -258,6 +260,43 @@ export async function POST(req) {
         shopifyOrderId = orderData.order.id;
         console.log("Shopify order created successfully! ID:", orderData.order.id);
       }
+    }
+
+    try {
+      await dbConnect();
+      await Order.create({
+        customerData: {
+          firstName: customerData.firstName,
+          lastName: customerData.lastName,
+          email: customerData.email,
+          phone: customerData.phone,
+        },
+        shippingDetails: {
+          address: customerData.address,
+          city: customerData.city,
+          state: customerData.state,
+          pincode: customerData.pincode,
+        },
+        orderDetails: {
+          items: invoiceItems,
+          subtotal: calculatedSubtotal,
+          discountAmount: effectiveDiscount,
+          shipping: shipping,
+          total: total,
+          shopifyOrderNumber: shopifyOrderNumber,
+          shopifyOrderId: shopifyOrderId,
+        },
+        razorpayDetails: {
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id,
+          signature: razorpay_signature,
+        },
+        status: "Success",
+        couponsUsed: appliedDiscountCodes,
+      });
+      console.log("Successfully saved successful order to MongoDB.");
+    } catch (dbErr) {
+      console.error("Failed to save order to MongoDB:", dbErr);
     }
 
     return NextResponse.json({

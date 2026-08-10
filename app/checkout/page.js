@@ -263,8 +263,21 @@ export default function CheckoutPage() {
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response) {
+      rzp.on("payment.failed", async function (response) {
         setError(response.error.description);
+        try {
+          await fetch("/api/razorpay/failure", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_error: response.error,
+              cartId: cart.id,
+              customerData: formData,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to log payment failure", err);
+        }
       });
       rzp.open();
     } catch (err) {
