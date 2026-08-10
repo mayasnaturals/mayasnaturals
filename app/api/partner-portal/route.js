@@ -19,12 +19,22 @@ export async function GET(req) {
 
     // Query for orders that successfully used this exact coupon (case-insensitive)
     // We only care about Successful orders for influencer metrics.
-    // Also, strictly isolate test orders from production orders.
     const query = {
       couponsUsed: { $regex: new RegExp(`^${coupon.trim()}$`, "i") },
       status: "Success",
-      isTestOrder: isTestEnv,
     };
+
+    if (isTestEnv) {
+      // If we are in test mode, show explicit test orders AND older orders 
+      // that were created before the isTestOrder flag was added (which were all tests).
+      query.$or = [
+        { isTestOrder: true },
+        { isTestOrder: { $exists: false } }
+      ];
+    } else {
+      // In production, strictly ONLY show explicit production orders.
+      query.isTestOrder = false;
+    }
 
     // Projection: Explicitly EXCLUDE sensitive data.
     // We only include what is absolutely necessary for transparency.
