@@ -1,2 +1,2 @@
 // Configuration for auto-applied coupons during checkout
-export const AUTO_APPLY_COUPON = "FREEDOM";
+export const AUTO_APPLY_COUPON = "RAKSHA";

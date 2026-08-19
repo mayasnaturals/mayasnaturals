@@ -78,7 +78,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{background: 'linear-gradient(135deg, #FF9933 10%, #FFFFFF 50%, #138808 90%)', color: '#000080', padding: '2px 12px', borderRadius: '12px', margin: '0 4px', fontWeight: '900', boxShadow: '0 2px 5px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', textShadow: '0 1px 0 rgba(255,255,255,0.7)'}}>FREEDOM</span> FOR 5% OFF ENTIRE ORDER
+                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{background: 'linear-gradient(135deg, #D4145A 0%, #FBB03B 100%)', color: '#FFFFFF', padding: '2px 12px', borderRadius: '12px', margin: '0 4px', fontWeight: '900', boxShadow: '0 2px 5px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', textShadow: '0 1px 2px rgba(0,0,0,0.2)'}}>RAKSHA</span> FOR 5% OFF ENTIRE ORDER
               </h2>
             ))}
           </div>
@@ -95,7 +95,7 @@ export default function Navbar() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{background: 'linear-gradient(135deg, #FF9933 10%, #FFFFFF 50%, #138808 90%)', color: '#000080', padding: '2px 12px', borderRadius: '12px', margin: '0 4px', fontWeight: '900', boxShadow: '0 2px 5px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', textShadow: '0 1px 0 rgba(255,255,255,0.7)'}}>FREEDOM</span> FOR 5% OFF ENTIRE ORDER
+                FREE DELIVERY ON ORDERS ABOVE ₹499 &nbsp;&nbsp;•&nbsp;&nbsp; USE CODE <span style={{background: 'linear-gradient(135deg, #D4145A 0%, #FBB03B 100%)', color: '#FFFFFF', padding: '2px 12px', borderRadius: '12px', margin: '0 4px', fontWeight: '900', boxShadow: '0 2px 5px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)', textShadow: '0 1px 2px rgba(0,0,0,0.2)'}}>RAKSHA</span> FOR 5% OFF ENTIRE ORDER
               </h2>
             ))}
           </div>
