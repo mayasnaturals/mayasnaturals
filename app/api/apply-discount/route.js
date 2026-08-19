@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { applyDiscountToCart, getCart } from "@/lib/shopify";
-
+import dbConnect from "@/lib/mongodb";
+import ReusableCoupon from "@/models/ReusableCoupon";
 export async function POST(req) {
   try {
     const { cartId, code, email } = await req.json();
@@ -70,7 +71,13 @@ export async function POST(req) {
           )
         );
 
-        if (hasUsedBefore) {
+        // Fetch reusable coupons from DB
+        await dbConnect();
+        const reusableCoupons = await ReusableCoupon.find({}, { code: 1, _id: 0 });
+        const reusableCodes = reusableCoupons.map(rc => rc.code.toLowerCase());
+
+        const isReusable = reusableCodes.includes(code.toLowerCase());
+        if (hasUsedBefore && !isReusable) {
           return NextResponse.json(
             { error: `You have already used the discount code "${code}" on a previous order.` },
             { status: 400 }

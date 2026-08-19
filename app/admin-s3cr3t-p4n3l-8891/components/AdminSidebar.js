@@ -10,6 +10,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }) {
     { id: "orders", label: "Orders", icon: ShoppingCart },
     { id: "users", label: "Users", icon: Users },
     { id: "coupons", label: "Coupons", icon: Tag },
+    { id: "reusable-coupons", label: "Reusable Coupons", icon: Tag },
   ];
 
   const handleLogout = async () => {

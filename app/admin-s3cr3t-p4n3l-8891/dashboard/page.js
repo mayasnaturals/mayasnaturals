@@ -5,6 +5,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import UsersTable from "../components/UsersTable";
 import OrdersTable from "../components/OrdersTable";
 import CouponsTable from "../components/CouponsTable";
+import ReusableCouponsTable from "../components/ReusableCouponsTable";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("orders");
@@ -23,9 +24,9 @@ export default function AdminDashboard() {
           <header className="mb-8 flex justify-between items-end">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 capitalize tracking-tight">
-                {activeTab} Overview
+                {activeTab.replace('-', ' ')} Overview
               </h1>
-              <p className="text-gray-500 mt-1">Manage your store {activeTab} data efficiently.</p>
+              <p className="text-gray-500 mt-1">Manage your store {activeTab.replace('-', ' ')} data efficiently.</p>
             </div>
           </header>
 
@@ -33,6 +34,7 @@ export default function AdminDashboard() {
             {activeTab === "users" && <UsersTable />}
             {activeTab === "orders" && <OrdersTable />}
             {activeTab === "coupons" && <CouponsTable />}
+            {activeTab === "reusable-coupons" && <ReusableCouponsTable />}
           </div>
         </div>
       </main>
