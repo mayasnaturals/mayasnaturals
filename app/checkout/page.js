@@ -59,6 +59,9 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   
+  const [addressLookupLoading, setAddressLookupLoading] = useState(false);
+  const [addressFound, setAddressFound] = useState(null);
+  
   const [discountCode, setDiscountCode] = useState("");
   const [discountError, setDiscountError] = useState("");
   const [discountSuccess, setDiscountSuccess] = useState("");
@@ -190,6 +193,42 @@ export default function CheckoutPage() {
     setFormData(updated);
     const { email, phone, ...shippingOnly } = updated;
     sessionStorage.setItem('checkoutShipping', JSON.stringify(shippingOnly));
+  };
+
+  const handleAddressLookup = async () => {
+    setAddressLookupLoading(true);
+    setAddressFound(null);
+    try {
+      const res = await fetch(`/api/address-lookup?phone=${encodeURIComponent(formData.phone)}`);
+      const data = await res.json();
+      if (data.found && data.data) {
+        setFormData(prev => {
+          const updated = {
+            ...prev,
+            firstName: data.data.firstName || prev.firstName,
+            lastName: data.data.lastName || prev.lastName,
+            address: data.data.address || prev.address,
+            city: data.data.city || prev.city,
+            state: data.data.state || prev.state,
+            pincode: data.data.pincode || prev.pincode,
+          };
+          const { email, phone, ...shippingOnly } = updated;
+          sessionStorage.setItem('checkoutShipping', JSON.stringify(shippingOnly));
+          return updated;
+        });
+        setAddressFound(true);
+        setTimeout(() => setAddressFound(null), 3000);
+      } else {
+        setAddressFound(false);
+        setTimeout(() => setAddressFound(null), 3000);
+      }
+    } catch (err) {
+      console.error(err);
+      setAddressFound(false);
+      setTimeout(() => setAddressFound(null), 3000);
+    } finally {
+      setAddressLookupLoading(false);
+    }
   };
 
   const handlePayment = async (e) => {
@@ -527,6 +566,30 @@ export default function CheckoutPage() {
               <div className={styles.formGroup}>
                 <label className={styles.label}>Phone Number</label>
                 <input type="tel" name="phone" value={formData.phone} required className={styles.input} onChange={handleChange} placeholder="+91 98765 43210" />
+                {formData.phone.replace(/\D/g, '').length >= 10 && (
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={handleAddressLookup} 
+                      disabled={addressLookupLoading}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#f25c2a',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        cursor: addressLookupLoading ? 'not-allowed' : 'pointer',
+                        opacity: addressLookupLoading ? 0.7 : 1
+                      }}
+                    >
+                      {addressLookupLoading ? 'Looking up...' : '✨ Auto-fill Address'}
+                    </button>
+                    {addressFound === true && <span style={{ color: '#16a34a', fontSize: '0.85rem', fontWeight: '600' }}>Address filled!</span>}
+                    {addressFound === false && <span style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: '600' }}>No previous address found.</span>}
+                  </div>
+                )}
               </div>
             </div>
 
