@@ -39,7 +39,7 @@ const OrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Success", "Failed"],
+      enum: ["Processing", "Success", "Failed"],
       required: true,
     },
     couponsUsed: {

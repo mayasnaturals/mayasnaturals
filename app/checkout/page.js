@@ -215,7 +215,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cartId: cart.id }),
+        body: JSON.stringify({ cartId: cart.id, customerData: formData }),
       });
 
       const data = await res.json();

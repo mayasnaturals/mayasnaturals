@@ -5,10 +5,14 @@ import { getComboPrice } from "@/lib/pricing";
 
 export async function POST(req) {
   try {
-    const { cartId } = await req.json();
+    const { cartId, customerData } = await req.json();
 
     if (!cartId) {
       return NextResponse.json({ error: "Cart ID is required" }, { status: 400 });
+    }
+    
+    if (!customerData) {
+      return NextResponse.json({ error: "Customer data is required" }, { status: 400 });
     }
 
     const cart = await getCart(cartId);
@@ -95,6 +99,14 @@ export async function POST(req) {
       receipt: `rcpt_${Date.now()}`,
       notes: {
         cartId: cartId,
+        firstName: customerData.firstName || "",
+        lastName: customerData.lastName || "",
+        email: customerData.email || "",
+        phone: customerData.phone || "",
+        address: customerData.address || "",
+        city: customerData.city || "",
+        state: customerData.state || "",
+        pincode: customerData.pincode || "",
       },
     };
 
