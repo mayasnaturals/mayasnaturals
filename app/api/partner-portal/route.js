@@ -6,9 +6,11 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const coupon = searchParams.get("coupon");
+    const page = parseInt(searchParams.get("page")) || 1;
+    const limit = parseInt(searchParams.get("limit")) || 5;
 
     if (!coupon || coupon.trim() === "") {
-      return NextResponse.json({ orders: [], count: 0 });
+      return NextResponse.json({ orders: [], count: 0, totalPages: 0, currentPage: 1 });
     }
 
     // Connect to the database
@@ -51,11 +53,19 @@ export async function GET(req) {
     };
 
     // Fetch the filtered orders, sorted by newest first
-    const orders = await Order.find(query, projection).sort({ createdAt: -1 });
+    const skip = (page - 1) * limit;
+    const orders = await Order.find(query, projection)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await Order.countDocuments(query);
 
     return NextResponse.json({
       success: true,
-      count: orders.length,
+      count: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
       orders: orders,
     });
   } catch (error) {
