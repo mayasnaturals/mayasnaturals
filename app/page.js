@@ -35,7 +35,7 @@ export default async function Home() {
             text="🚨 LIMITED TIME OFFER: ₹100 OFF CHOCO MUESLI! USE CODE GANESH AT CHECKOUT - CLICK HERE TO SHOP 🚨"
             bgColor="#FBB03B"
             textColor="#000000"
-            speed={25}
+            speed={55}
             fontSize="0.9rem"
             direction="reverse"
           />

@@ -24,8 +24,9 @@ const SLIDES = [
   {
     image: "/hero3.png",
     badge: "New Arrival",
-    titleStart: "Roasted",
-    titleHighlight: "Makhana",
+    titleStart: "Makhana",
+    titleHighlight: "Roasted",
+    highlightFirst: true,
     description: "Airy fox nuts roasted crisp and coated edge-to-edge.<br />A light roasted crunch with full-volume flavour.<br />The ultimate healthy snack."
   }
 ];
@@ -37,7 +38,7 @@ export default function HeroSection() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
-    }, 5000);
+    }, 7000);
     return () => clearInterval(interval);
   }, []);
 
@@ -106,9 +107,20 @@ export default function HeroSection() {
             </div>
 
             <h1 className={styles.title}>
-              {slide.titleStart}
-              <br />
-              <span className={styles.titleHighlight}>{slide.titleHighlight}</span>
+              {slide.highlightFirst ? (
+                <>
+                  <span className={styles.titleHighlight} style={{ marginTop: 0, marginBottom: '-0.1em' }}>
+                    {slide.titleHighlight}
+                  </span>
+                  {slide.titleStart}
+                </>
+              ) : (
+                <>
+                  {slide.titleStart}
+                  <br />
+                  <span className={styles.titleHighlight}>{slide.titleHighlight}</span>
+                </>
+              )}
             </h1>
 
             <p className={styles.description} dangerouslySetInnerHTML={{ __html: slide.description }} />

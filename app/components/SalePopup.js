@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { ENABLE_SALE_POPUP } from "@/config/features";
 
@@ -10,10 +10,13 @@ export default function SalePopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isSpecialPage = pathname?.startsWith('/partner-portal') || pathname?.startsWith('/admin-s3cr3t-p4n3l-8891');
 
   useEffect(() => {
     setMounted(true);
-    if (!ENABLE_SALE_POPUP) return;
+    if (!ENABLE_SALE_POPUP || isSpecialPage) return;
 
     const hasSeen = sessionStorage.getItem("hasSeenSalePopup");
     if (!hasSeen) {
@@ -23,9 +26,9 @@ export default function SalePopup() {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isSpecialPage]);
 
-  if (!mounted || !isOpen) return null;
+  if (!mounted || !isOpen || isSpecialPage) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -53,7 +56,7 @@ export default function SalePopup() {
           {/* Text Overlay */}
           <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 pt-12 text-center text-white">
             <h2 className="text-4xl sm:text-5xl font-black mb-2 text-yellow-300 drop-shadow-md" style={{ fontFamily: 'var(--font-display)' }}>
-              100 ₹ OFF
+              ₹ 100  OFF
             </h2>
             <p className="text-lg font-bold tracking-wider uppercase drop-shadow mb-4">Limited Time Offer</p>
             <button

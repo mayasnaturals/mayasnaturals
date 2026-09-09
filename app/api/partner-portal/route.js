@@ -19,11 +19,17 @@ export async function GET(req) {
     // Determine if the current environment is using test keys
     const isTestEnv = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith("rzp_test") || false;
 
+    // Get current month boundaries
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
     // Query for orders that successfully used this exact coupon (case-insensitive)
     // We only care about Successful orders for influencer metrics.
     const query = {
       couponsUsed: { $regex: new RegExp(`^${coupon.trim()}$`, "i") },
       status: "Success",
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth }
     };
 
     if (isTestEnv) {

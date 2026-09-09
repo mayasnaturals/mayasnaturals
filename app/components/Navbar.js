@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShoppingBag, User, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCustomer } from "@/context/CustomerContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -14,6 +14,9 @@ export default function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
   const { customer } = useCustomer();
   const router = useRouter();
+  const pathname = usePathname();
+  
+  const isSpecialPage = pathname?.startsWith('/partner-portal') || pathname?.startsWith('/admin-s3cr3t-p4n3l-8891');
 
   const handleAccountClick = () => {
     if (customer) {
@@ -57,8 +60,9 @@ export default function Navbar() {
         }
       `}</style>
       {/* Coming Soon Banner */}
-      <div
-        className="absolute top-0 left-0 w-full overflow-hidden z-[101] flex items-center bg-white"
+      {!isSpecialPage && (
+        <div
+          className="absolute top-0 left-0 w-full overflow-hidden z-[101] flex items-center bg-white"
         style={{
           height: '36px',
           borderBottom: '1px solid rgba(227, 6, 19, 0.1)'
@@ -101,11 +105,12 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      )}
 
       <header
         className={`navbar-header ${isScrolled ? "navbar-scrolled" : ""}`}
         style={{
-          top: isScrolled ? "0" : "36px",
+          top: isScrolled || isSpecialPage ? "0" : "36px",
           padding: isScrolled ? "1.5rem 0" : "2rem 0",
           transition: "top 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease",
           background: isScrolled ? "rgba(227, 6, 19, 0.95)" : "var(--brand-red)",
