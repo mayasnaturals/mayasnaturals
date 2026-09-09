@@ -82,12 +82,13 @@ export default async function ProductsPage() {
     const title = processedVariants[0].name.toLowerCase();
     const type = processedVariants[0].type.toLowerCase();
 
+    const variant900 = processedVariants.find(v => v.weight && v.weight.includes('900'));
+
     if (title.includes('makhana') || type === 'makhana') {
       finalProducts.push(processedVariants[0]);
-    } else if (title.includes('super')) {
-      finalProducts.push(processedVariants[0]);
-    } else if (title.includes('choc')) {
-      finalProducts.push(processedVariants.length > 1 ? processedVariants[1] : processedVariants[0]);
+    } else {
+      // For all muesli (chocolate, super, etc.), default to 900g if available
+      finalProducts.push(variant900 || processedVariants[0]);
     }
   }
 

@@ -155,8 +155,8 @@ export default async function ProductDetailsPage({ params, searchParams }) {
     minWeightVariant = variants.find(v => v.id.includes(variantParam)) || variants[0];
   } else if (variants.length > 0) {
     if (productType === 'Muesli') {
-      const variant200 = variants.find(v => v.title && v.title.includes('200'));
-      minWeightVariant = variant200 || variants.reduce((minVar, currentVar) => {
+      const variant900 = variants.find(v => v.title && v.title.includes('900'));
+      minWeightVariant = variant900 || variants.reduce((minVar, currentVar) => {
         const minVal = parseFloat(minVar.weight || 0);
         const currentVal = parseFloat(currentVar.weight || 0);
         if (minVal === 0 && currentVal > 0) return currentVar;
@@ -225,8 +225,8 @@ export default async function ProductDetailsPage({ params, searchParams }) {
       let minPVariant = pVariants[0];
       if (pVariants.length > 0) {
         if (pType === 'Muesli') {
-          const variant200 = pVariants.find(v => v.title && v.title.includes('200'));
-          minPVariant = variant200 || pVariants.reduce((minVar, currentVar) => {
+          const variant900 = pVariants.find(v => v.title && v.title.includes('900'));
+          minPVariant = variant900 || pVariants.reduce((minVar, currentVar) => {
             const minVal = parseFloat(minVar.weight || 0);
             const currentVal = parseFloat(currentVar.weight || 0);
             if (minVal === 0 && currentVal > 0) return currentVar;

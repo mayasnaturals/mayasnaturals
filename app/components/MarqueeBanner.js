@@ -7,6 +7,7 @@ export default function MarqueeBanner({
   speed = 25,
   tilt = 0,
   fontSize = "1rem",
+  direction = "normal",
 }) {
   const repeatedText = Array(8).fill(text);
 
@@ -24,7 +25,10 @@ export default function MarqueeBanner({
     >
       <div
         className="marquee-track"
-        style={{ "--marquee-speed": `${speed}s` }}
+        style={{ 
+          "--marquee-speed": `${speed}s`,
+          animationDirection: direction === "reverse" ? "reverse" : "normal" 
+        }}
       >
         {repeatedText.map((t, i) => (
           <span key={i} className="marquee-text">

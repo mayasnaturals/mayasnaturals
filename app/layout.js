@@ -2,6 +2,7 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import SalePopup from "./components/SalePopup";
 import { Providers } from "./providers";
 
 const inter = Inter({
@@ -38,6 +39,7 @@ export default function RootLayout({ children }) {
     >
       <body className="antialiased">
         <Providers>
+          <SalePopup />
           <Navbar />
           <main style={{ paddingTop: '150px' }}>{children}</main>
           <Footer />

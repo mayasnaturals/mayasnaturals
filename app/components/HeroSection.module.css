@@ -1,18 +1,18 @@
 .heroSection {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 85vh;
+  min-height: 85dvh;
   display: flex;
   align-items: center;
   background-color: var(--cream);
   overflow: hidden;
-  padding: 6rem 1.25rem 3rem;
+  padding: 5rem 1.25rem 2rem;
 }
 @media (min-width: 1024px) {
   .heroSection {
-    min-height: 90vh;
-    padding: 7rem 3rem;
+    min-height: 80vh;
+    padding: 6rem 3rem 2rem;
   }
 }
 
@@ -141,7 +141,7 @@
   .container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 3rem;
-    padding-top: 5rem;
+    padding-top: 2rem;
   }
 }
 
@@ -149,7 +149,7 @@
   color: var(--text-dark);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   max-width: 36rem;
   z-index: 20;
 }
@@ -178,7 +178,7 @@
 }
 
 .title {
-  font-size: 4.5rem;
+  font-size: 3.5rem;
   font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.025em;
@@ -186,10 +186,10 @@
   font-family: var(--font-display);
 }
 @media (min-width: 768px) {
-  .title { font-size: 5.5rem; }
+  .title { font-size: 4.5rem; }
 }
 @media (min-width: 1024px) {
-  .title { font-size: 6.5rem; }
+  .title { font-size: 5rem; }
 }
 
 .titleHighlight {

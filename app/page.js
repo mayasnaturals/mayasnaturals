@@ -1,6 +1,7 @@
 import SmoothScroller from "./components/SmoothScroller";
 import HeroSection from "./components/HeroSection";
 import MarqueeBanner from "./components/MarqueeBanner";
+import Link from "next/link";
 import CurvedTextSection from "./components/CurvedTextSection";
 import CarouselSection from "./components/CarouselSection";
 import MarqueeSection from "./components/MarqueeSection";
@@ -28,6 +29,17 @@ export default async function Home() {
           speed={30}
           fontSize="0.85rem"
         />
+
+        <Link href="/products/chocolate-protein-muesli?variant=46084069949638" className="block cursor-pointer hover:opacity-90 transition-opacity">
+          <MarqueeBanner
+            text="🚨 LIMITED TIME OFFER: ₹100 OFF CHOCO MUESLI! USE CODE GANESH AT CHECKOUT - CLICK HERE TO SHOP 🚨"
+            bgColor="#FBB03B"
+            textColor="#000000"
+            speed={25}
+            fontSize="0.9rem"
+            direction="reverse"
+          />
+        </Link>
 
         {/* SECTION 2 — Product Showcase */}
         <CurvedTextSection products={mueslis} />

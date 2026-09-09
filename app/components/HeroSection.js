@@ -1,53 +1,47 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./HeroSection.module.css";
 
+const SLIDES = [
+  {
+    image: "/hero.png",
+    badge: "Premium Craft Muesli",
+    titleStart: "20-in-1",
+    titleHighlight: "Super Muesli",
+    description: "Packed with 20 real ingredients and rich in Omega 3.<br />Absolutely no added sugar or preservatives.<br />Fully customizable to make your perfect bowl."
+  },
+  {
+    image: "/hero2.png",
+    badge: "Limited Time Offer",
+    titleStart: "High Protein",
+    titleHighlight: "Chocolate Muesli",
+    description: "Decadent dark chocolate paired with crunchy oats.<br />High protein, zero guilt.<br />A perfect start to your day."
+  },
+  {
+    image: "/hero3.png",
+    badge: "New Arrival",
+    titleStart: "Roasted",
+    titleHighlight: "Makhana",
+    description: "Airy fox nuts roasted crisp and coated edge-to-edge.<br />A light roasted crunch with full-volume flavour.<br />The ultimate healthy snack."
+  }
+];
+
 export default function HeroSection() {
   const containerRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Subtle entrance animation for left content
-      gsap.from(`.${styles.leftContent} > *`, {
-        y: 30,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: "power3.out"
-      });
-
-      /*
-      // Cards staggered animation
-      gsap.from(`.${styles.card}`, {
-        x: 100,
-        opacity: 0,
-        rotation: 15,
-        stagger: 0.15,
-        duration: 1,
-        ease: "back.out(1.2)",
-        delay: 0.3
-      });
-      
-      // Floating animation for cards
-      gsap.to(`.${styles.card}`, {
-        y: "-=15",
-        duration: 2,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-        stagger: 0.2,
-        delay: 1.5
-      });
-      */
-
-    }, containerRef);
-
-    return () => ctx.revert();
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
+
+  const slide = SLIDES[currentIndex];
 
   return (
     <section ref={containerRef} className={styles.heroSection}>
@@ -56,14 +50,25 @@ export default function HeroSection() {
 
       {/* Right side cream background for split look */}
       <div className={styles.bgRight}>
-        <Image
-          src="/hero.png"
-          alt="Hero Background"
-          fill
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-          priority
-          sizes="(max-width: 1024px) 80vw, 50vw"
-        />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slide.image}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.8 }}
+            style={{ position: "absolute", inset: 0 }}
+          >
+            <Image
+              src={slide.image}
+              alt="Hero Background"
+              fill
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              priority
+              sizes="(max-width: 1024px) 80vw, 50vw"
+            />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Horizontal Divider for Mobile */}
@@ -85,70 +90,68 @@ export default function HeroSection() {
       <div className={styles.bgBlob2}></div>
 
       <div className={styles.container}>
-
         {/* Left Content */}
-        <div className={styles.leftContent}>
-          <div className={styles.badge}>
-            <span className={styles.badgeDot}></span>
-            Premium Craft Muesli
-          </div>
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={currentIndex}
+            className={styles.leftContent}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 30 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <div className={styles.badge}>
+              <span className={styles.badgeDot}></span>
+              {slide.badge}
+            </div>
 
-          <h1 className={styles.title}>
-            20-in-1
-            <span className={styles.titleHighlight}>Super Muesli</span>
-          </h1>
+            <h1 className={styles.title}>
+              {slide.titleStart}
+              <br />
+              <span className={styles.titleHighlight}>{slide.titleHighlight}</span>
+            </h1>
 
-          <p className={styles.description}>
-            Packed with 20 real ingredients and rich in Omega 3.<br />
-            Absolutely no added sugar or preservatives.<br />
-            Fully customizable to make your perfect bowl.
-          </p>
+            <p className={styles.description} dangerouslySetInnerHTML={{ __html: slide.description }} />
 
-          <div className={styles.actions}>
-            <Link href="/products" className={styles.btnPrimary}>
-              Discover Now
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </Link>
-            <Link href="/our-story" className={styles.btnSecondary}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
-              Watch Our Story
-            </Link>
-          </div>
-        </div>
+            <div className={styles.actions}>
+              <Link href="/products" className={styles.btnPrimary}>
+                Discover Now
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </Link>
+              <Link href="/our-story" className={styles.btnSecondary}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Watch Our Story
+              </Link>
+            </div>
+            
+            {/* Slider Dots */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '2rem' }}>
+              {SLIDES.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    backgroundColor: currentIndex === idx ? 'var(--brand-red)' : 'rgba(0,0,0,0.1)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Right Content - Staggered Cards */}
+        {/* Right Content - Empty as requested */}
         <div className={styles.rightContent}>
-          {/* 
-          <div className={`${styles.card} ${styles.card1}`}>
-            <div className={`${styles.cardImage} ${styles.card1Image}`}>
-              <Image src="/products/Cocoa Almond Museli.png" alt="Cocoa & Almond" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
-            </div>
-            <div className={styles.cardTitle}>Cocoa & Almond</div>
-            <div className={styles.cardPrice}>Rs. 499</div>
-          </div>
-
-          <div className={`${styles.card} ${styles.card2}`}>
-            <div className={`${styles.cardImage} ${styles.card2Image}`}>
-              <Image src="/products/Default Museli.png" alt="Classic Super Muesli" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
-            </div>
-            <div className={styles.cardTitle}>Classic Super Muesli</div>
-            <div className={styles.cardPrice}>Rs. 449</div>
-          </div>
-
-          <div className={`${styles.card} ${styles.card3}`}>
-            <div className={`${styles.cardImage} ${styles.card3Image}`}>
-              <Image src="/products/Chocolate Museli.png" alt="Chocolate Delight" fill style={{ objectFit: 'contain', padding: '10px' }} sizes="(max-width: 768px) 100vw, 33vw" />
-            </div>
-            <div className={styles.cardTitle}>Chocolate Delight</div>
-            <div className={styles.cardPrice}>Rs. 525</div>
-          </div>
-          */}
-
-          {/* Static background image is placed in bgRight to span the whole right part */}
         </div>
       </div>
 
