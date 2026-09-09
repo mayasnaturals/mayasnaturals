@@ -55,10 +55,11 @@ export default function SalePopup() {
 
           {/* Text Overlay */}
           <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 pt-12 text-center text-white">
-            <h2 className="text-4xl sm:text-5xl font-black mb-2 text-yellow-300 drop-shadow-md" style={{ fontFamily: 'var(--font-display)' }}>
-              ₹ 100  OFF
-            </h2>
-            <p className="text-lg font-bold tracking-wider uppercase drop-shadow mb-4">Limited Time Offer</p>
+            <div className="inline-block bg-gradient-to-r from-red-700 via-red-600 to-red-700 px-4 py-2 rounded-xl shadow-[0_4px_15px_rgba(200,0,0,0.4)] transform -rotate-2 border border-red-500/50 mb-2 mt-4">
+              <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFFFFF] via-[#FFD700] to-[#F59E0B] filter drop-shadow-[0_2px_2px_rgba(0,0,0,1)]" style={{ fontFamily: 'var(--font-display)', padding: '0 2px', lineHeight: 1 }}>
+                EXTRA ₹ 100  OFF
+              </h2>
+            </div>
             <button
               onClick={() => {
                 setIsOpen(false);
