@@ -34,6 +34,38 @@ const SLIDES = [
 export default function HeroSection() {
   const containerRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  // Minimum swipe distance (in px) to trigger slide change
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      // Swiped left, go to next slide
+      setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+    }
+    
+    if (isRightSwipe) {
+      // Swiped right, go to previous slide
+      setCurrentIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -45,7 +77,13 @@ export default function HeroSection() {
   const slide = SLIDES[currentIndex];
 
   return (
-    <section ref={containerRef} className={styles.heroSection}>
+    <section 
+      ref={containerRef} 
+      className={styles.heroSection}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Left side cream background to prevent image bleed */}
       <div className={styles.bgLeft}></div>
 

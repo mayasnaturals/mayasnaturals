@@ -341,17 +341,6 @@ export default async function ProductDetailsPage({ params, searchParams }) {
                   productName={product.name}
                   productType={product.type}
                 />
-
-                <div className={s.colorStrip}>
-                  {[dark, mid, light].map((c) => (
-                    <div
-                      key={c}
-                      className={s.colorSwatch}
-                      style={{ backgroundColor: c }}
-                      data-anim="swatch"
-                    />
-                  ))}
-                </div>
               </div>
             </div>
           </div>
