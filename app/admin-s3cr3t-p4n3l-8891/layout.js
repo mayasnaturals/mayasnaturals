@@ -5,8 +5,13 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-indigo-500 selection:text-white">
-      {children}
-    </div>
+    <>
+      <style>{`
+        main { padding-top: 0 !important; }
+      `}</style>
+      <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-indigo-500 selection:text-white">
+        {children}
+      </div>
+    </>
   );
 }

@@ -18,6 +18,10 @@ export default function Navbar() {
   
   const isSpecialPage = pathname?.startsWith('/partner-portal') || pathname?.startsWith('/admin-s3cr3t-p4n3l-8891');
 
+  if (pathname?.startsWith('/admin-s3cr3t-p4n3l-8891')) {
+    return null;
+  }
+
   const handleAccountClick = () => {
     if (customer) {
       router.push("/account");

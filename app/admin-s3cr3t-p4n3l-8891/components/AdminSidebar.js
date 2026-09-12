@@ -1,5 +1,5 @@
 "use client";
-import { Users, ShoppingCart, Tag, LogOut } from "lucide-react";
+import { Users, ShoppingCart, Tag, LogOut, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -8,6 +8,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }) {
 
   const navItems = [
     { id: "orders", label: "Orders", icon: ShoppingCart },
+    { id: "products", label: "Products", icon: Package },
     { id: "users", label: "Users", icon: Users },
     { id: "coupons", label: "Coupons", icon: Tag },
     { id: "reusable-coupons", label: "Reusable Coupons", icon: Tag },

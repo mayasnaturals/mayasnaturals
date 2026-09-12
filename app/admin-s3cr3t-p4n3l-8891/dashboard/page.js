@@ -6,6 +6,7 @@ import UsersTable from "../components/UsersTable";
 import OrdersTable from "../components/OrdersTable";
 import CouponsTable from "../components/CouponsTable";
 import ReusableCouponsTable from "../components/ReusableCouponsTable";
+import ProductsTable from "../components/ProductsTable";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("orders");
@@ -33,6 +34,7 @@ export default function AdminDashboard() {
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm min-h-[500px]">
             {activeTab === "users" && <UsersTable />}
             {activeTab === "orders" && <OrdersTable />}
+            {activeTab === "products" && <ProductsTable />}
             {activeTab === "coupons" && <CouponsTable />}
             {activeTab === "reusable-coupons" && <ReusableCouponsTable />}
           </div>
