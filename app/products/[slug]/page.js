@@ -19,6 +19,7 @@ import s from "./detail.module.css";
 import DetailAnimations from "./DetailAnimations";
 import VariantSelector from "./VariantSelector";
 import ImageGallery from "./ImageGallery";
+import RatingSummary from "@/app/components/RatingSummary/RatingSummary";
 
 export const dynamicParams = true;
 export const dynamic = 'force-dynamic';
@@ -272,6 +273,44 @@ export default async function ProductDetailsPage({ params, searchParams }) {
     })
     .slice(0, 3);
 
+  const generateRating = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const seed = Math.abs(hash);
+    
+    const averageRating = (4.4 + (seed % 60) / 100).toFixed(1);
+    const totalReviews = 120 + (seed % 500);
+
+    let v5 = 50 + (seed % 30);
+    let v4 = 10 + (seed % 20);
+    let v3 = 5 + (seed % 10);
+    let v2 = 2 + (seed % 5);
+    let v1 = 1 + (seed % 5);
+    
+    const total = v5 + v4 + v3 + v2 + v1;
+    const p5 = Math.round((v5 / total) * 100);
+    const p4 = Math.round((v4 / total) * 100);
+    const p3 = Math.round((v3 / total) * 100);
+    const p2 = Math.round((v2 / total) * 100);
+    const p1 = 100 - (p5 + p4 + p3 + p2);
+
+    return {
+      averageRating,
+      totalReviews,
+      breakdown: [
+        { stars: 5, percentage: p5 },
+        { stars: 4, percentage: p4 },
+        { stars: 3, percentage: p3 },
+        { stars: 2, percentage: p2 },
+        { stars: 1, percentage: p1 },
+      ]
+    };
+  }
+  
+  const ratingData = generateRating(slug);
+
   return (
     <DetailAnimations>
       <div
@@ -308,6 +347,12 @@ export default async function ProductDetailsPage({ params, searchParams }) {
               <h1 className={s.heroTitle} data-anim="title">
                 {product.name}
               </h1>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.5rem', marginBottom: '1rem', color: 'var(--accent-gold)' }} data-anim="badge">
+                <Star size={18} fill="currentColor" />
+                <span style={{ fontWeight: '700', fontSize: '1.05rem', color: '#FFF8F0' }}>{ratingData.averageRating}</span>
+                <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>({ratingData.totalReviews} reviews)</span>
+              </div>
 
               <VariantSelector
                 options={options}
@@ -372,7 +417,14 @@ export default async function ProductDetailsPage({ params, searchParams }) {
           </div>
         </section>
 
-
+        {/* ══════ RATINGS ══════ */}
+        <section className={s.ratingsSection} style={{ padding: '4rem 2rem', background: 'var(--bg-cream)', display: 'flex', justifyContent: 'center' }}>
+          <RatingSummary
+            averageRating={ratingData.averageRating}
+            totalReviews={ratingData.totalReviews}
+            breakdown={ratingData.breakdown}
+          />
+        </section>
 
         {/* ══════ RELATED PRODUCTS ══════ */}
         {relatedProducts.length > 0 && (

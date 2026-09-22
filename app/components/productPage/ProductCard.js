@@ -1,4 +1,4 @@
-import { Check, ShoppingBag } from "lucide-react";
+import { Check, ShoppingBag, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -18,6 +18,21 @@ function ProductCard({ product, index, onAdd, isAdded }) {
     const mrp = getMrp(product.name, product.weight, product.price);
     const discountAmount = mrp ? mrp - product.price : 0;
     const discountPercent = mrp ? Math.round((discountAmount / mrp) * 100) : 0;
+
+    const generateRating = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const seed = Math.abs(hash);
+        return {
+            averageRating: (4.4 + (seed % 60) / 100).toFixed(1),
+            totalReviews: 120 + (seed % 500)
+        };
+    };
+
+    const ratingData = generateRating(product.handle);
+
     return (
         <motion.article
             layout
@@ -41,7 +56,6 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                     sizes="(max-width: 560px) calc(100vw - 32px), (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className={styles.imageShade} />
-                <span className={styles.productBadge}>{product.badge}</span>
             </Link>
 
             <div className={styles.productBody}>
@@ -55,6 +69,12 @@ function ProductCard({ product, index, onAdd, isAdded }) {
                         {product.name.toLowerCase()}
                     </Link>
                 </h3>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem', marginBottom: '0.75rem', color: 'var(--accent-orange)' }}>
+                    <Star size={14} fill="currentColor" />
+                    <span style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--text-dark)' }}>{ratingData.averageRating}</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({ratingData.totalReviews})</span>
+                </div>
 
                 <div className={styles.productBottom}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>

@@ -1,0 +1,106 @@
+.container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: var(--font-body);
+  color: var(--text-dark);
+}
+
+.header {
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.averageContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.stars {
+  display: flex;
+  color: var(--accent-orange);
+}
+
+.starFilled {
+  fill: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+.starEmpty {
+  fill: transparent;
+  stroke: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+.averageText {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.totalReviews {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.barsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.starLabel {
+  width: 45px;
+  font-size: 1rem;
+  color: #007185; /* Blue link color similar to the image, falling back to brand colors if needed. Actually, matching the design of the site might mean using var(--text-dark). I'll stick to a tasteful blue to match the structure image. Let's use var(--text-dark) instead for better site integration. Wait, image text is distinctly blue. I'll use a pleasant blue. */
+  color: #007185;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* Let's change the color to match the image, but maybe use a slightly more muted blue for better design */
+.starLabel {
+  color: #007185;
+}
+
+.starLabel:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.barTrack {
+  flex: 1;
+  height: 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.barFill {
+  height: 100%;
+  background-color: #ff9900; /* Amazon-ish orange, or we can use var(--accent-orange) */
+  background-color: var(--accent-orange);
+}
+
+.percentageLabel {
+  width: 35px;
+  font-size: 1rem;
+  color: #007185;
+  text-align: right;
+  font-weight: 500;
+}
