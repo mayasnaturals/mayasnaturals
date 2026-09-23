@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, ChevronDown, ChevronUp, Mail, Phone, MapPin, Search } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp, Mail, Phone, MapPin, Search, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function UsersTable() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedUser, setExpandedUser] = useState(null);
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,10 +46,10 @@ export default function UsersTable() {
   return (
     <div className="w-full flex flex-col p-4 md:p-6 gap-6">
       
-      {/* Search Bar */}
-      <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center flex-1 px-4 py-2 bg-gray-50 rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
-          <Search className="w-5 h-5 text-gray-400 mr-3" />
+      {/* Search Bar & Controls */}
+      <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex items-center flex-1 w-full px-4 py-2 bg-gray-50 rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
+          <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
           <input
             type="text"
             placeholder="Search by name, email, or phone number..."
@@ -57,6 +58,23 @@ export default function UsersTable() {
             className="w-full bg-transparent border-none focus:outline-none text-sm text-gray-900 placeholder-gray-500"
           />
         </div>
+        <button 
+          onClick={() => {
+            setIsRefreshing(true);
+            fetch("/api/admin/users")
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) setUsers(data.users);
+                setIsRefreshing(false);
+              })
+              .catch(() => setIsRefreshing(false));
+          }}
+          disabled={isRefreshing || loading}
+          className="flex items-center gap-1.5 px-4 py-2 w-full sm:w-auto justify-center text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50"
+        >
+          <RefreshCw size={18} className={isRefreshing ? "animate-spin" : ""} />
+          <span className="sm:hidden lg:inline">Refresh</span>
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative min-h-[400px] flex flex-col">

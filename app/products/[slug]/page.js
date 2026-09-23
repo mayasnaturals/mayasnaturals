@@ -20,6 +20,7 @@ import DetailAnimations from "./DetailAnimations";
 import VariantSelector from "./VariantSelector";
 import ImageGallery from "./ImageGallery";
 import RatingSummary from "@/app/components/RatingSummary/RatingSummary";
+import ReviewList from "@/app/components/ReviewList/ReviewList";
 
 export const dynamicParams = true;
 export const dynamic = 'force-dynamic';
@@ -418,12 +419,19 @@ export default async function ProductDetailsPage({ params, searchParams }) {
         </section>
 
         {/* ══════ RATINGS ══════ */}
-        <section className={s.ratingsSection} style={{ padding: '4rem 2rem', background: 'var(--bg-cream)', display: 'flex', justifyContent: 'center' }}>
+        <section className={s.ratingsSection} style={{ padding: '4rem 2rem', background: 'var(--bg-cream)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <RatingSummary
             averageRating={ratingData.averageRating}
             totalReviews={ratingData.totalReviews}
             breakdown={ratingData.breakdown}
           />
+          <div style={{ width: '100%', maxWidth: '1200px' }}>
+            <ReviewList 
+              productHandle={product.handle} 
+              productName={product.name} 
+              autoOpen={resolvedSearchParams?.review === 'true'} 
+            />
+          </div>
         </section>
 
         {/* ══════ RELATED PRODUCTS ══════ */}

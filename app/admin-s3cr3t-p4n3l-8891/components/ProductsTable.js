@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Package, Tag, Archive, Edit, Trash2, Plus } from "lucide-react";
+import { Loader2, Package, Tag, Archive, Edit, Trash2, Plus, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductForm from "./ProductForm";
 
@@ -147,18 +147,40 @@ export default function ProductsTable() {
 
       {/* Filters and Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm gap-4">
-        <div className="flex bg-gray-100 p-1 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <div className="flex bg-gray-100 p-1 rounded-xl w-full sm:w-auto justify-center">
+            <button 
+              onClick={() => setIsArchivedTab(false)} 
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${!isArchivedTab ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Active Products
+            </button>
+            <button 
+              onClick={() => setIsArchivedTab(true)} 
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isArchivedTab ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Archived
+            </button>
+          </div>
           <button 
-            onClick={() => setIsArchivedTab(false)} 
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${!isArchivedTab ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={() => {
+              setIsActionLoading(true);
+              fetch(`/api/admin/products?archived=${isArchivedTab}`, { cache: 'no-store' })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.success) {
+                    setProducts(data.products);
+                    setSelectedProducts([]); 
+                  }
+                  setIsActionLoading(false);
+                })
+                .catch(() => setIsActionLoading(false));
+            }}
+            disabled={isActionLoading || loading}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
           >
-            Active Products
-          </button>
-          <button 
-            onClick={() => setIsArchivedTab(true)} 
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isArchivedTab ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-          >
-            Archived
+            <RefreshCw size={16} className={isActionLoading ? "animate-spin" : ""} />
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
         

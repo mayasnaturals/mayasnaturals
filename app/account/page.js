@@ -213,6 +213,12 @@ export default function AccountPage() {
                                 {item.variant?.title && item.variant.title !== "Default Title" && (
                                   <div className={styles.itemVariant}>{item.variant.title}</div>
                                 )}
+                                <Link 
+                                  href={`/products/${item.variant?.product?.handle || item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}?review=true`}
+                                  style={{ fontSize: '0.75rem', color: 'var(--accent-orange)', textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}
+                                >
+                                  Write a Review
+                                </Link>
                               </div>
                             </div>
                             <div className={styles.itemQty}>{item.quantity}</div>

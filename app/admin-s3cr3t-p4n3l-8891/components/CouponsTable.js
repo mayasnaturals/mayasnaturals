@@ -1,21 +1,34 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, ChevronDown, ChevronUp, Ticket, Users } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp, Ticket, Users, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CouponsTable() {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedCoupon, setExpandedCoupon] = useState(null);
   const [filter, setFilter] = useState("");
 
-  useEffect(() => {
+  const fetchCoupons = (showRefresh = false) => {
+    if (showRefresh) setIsRefreshing(true);
+    else setLoading(true);
+
     fetch("/api/admin/coupons")
       .then(res => res.json())
       .then(data => {
         if (data.success) setCoupons(data.coupons);
         setLoading(false);
+        setIsRefreshing(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setIsRefreshing(false);
       });
+  };
+
+  useEffect(() => {
+    fetchCoupons();
   }, []);
 
   const filteredCoupons = coupons.filter(c => 
@@ -23,22 +36,32 @@ export default function CouponsTable() {
     c.title?.toLowerCase().includes(filter.toLowerCase())
   );
 
-  if (loading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
+  if (loading && !isRefreshing) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
 
   return (
     <div className="w-full flex flex-col h-full overflow-hidden">
-      <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-2xl shrink-0">
-        <div className="relative w-48 md:w-64">
-          <input 
-            type="text" 
-            placeholder="Search coupons..." 
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors shadow-sm"
-          />
-          <Ticket className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-2xl shrink-0 gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative w-48 md:w-64">
+            <input 
+              type="text" 
+              placeholder="Search coupons..." 
+              value={filter}
+              onChange={e => setFilter(e.target.value)}
+              className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors shadow-sm"
+            />
+            <Ticket className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          </div>
+          <button 
+            onClick={() => fetchCoupons(true)}
+            disabled={isRefreshing || loading}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
         </div>
-        <div className="text-sm text-gray-500 font-medium">
+        <div className="text-sm text-gray-500 font-medium whitespace-nowrap">
           <span className="hidden sm:inline">Showing </span>{filteredCoupons.length}
         </div>
       </div>

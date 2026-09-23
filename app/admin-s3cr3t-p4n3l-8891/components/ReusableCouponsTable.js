@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, Plus, AlertTriangle } from "lucide-react";
+import { Trash2, Plus, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function ReusableCouponsTable() {
   const [coupons, setCoupons] = useState([]);
@@ -106,6 +106,18 @@ export default function ReusableCouponsTable() {
         >
           <Plus className="w-4 h-4" />
           {adding ? "Adding..." : "Add Reusable Coupon"}
+        </button>
+        <button 
+          type="button"
+          onClick={() => {
+            setLoading(true);
+            fetchCoupons();
+          }}
+          disabled={loading}
+          className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 ml-auto"
+        >
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          Refresh
         </button>
       </form>
 
