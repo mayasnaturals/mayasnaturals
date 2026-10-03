@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
@@ -11,14 +14,74 @@ const tickerItems = [
   "No boring bites",
 ];
 
+const images = [
+  "/images/product_banner_2.png",
+  "/images/product_banner_3.png",
+  "/images/product_banner_4.png",
+];
+
 export default function CatalogHero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className={styles.hero}>
+      {/* Spacer image to maintain correct height on mobile */}
       <img
-        src="/images/snack_hero_background.png"
-        alt="Premium crunchy muesli and makhana background"
+        src={images[0]}
+        alt=""
         className={styles.heroImage}
+        style={{ opacity: 0, pointerEvents: "none", visibility: "hidden" }}
       />
+      
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={(e, { offset }) => {
+          if (offset.x < -50) {
+            // Swiped left
+            setCurrentIndex((prev) => (prev + 1) % images.length);
+          } else if (offset.x > 50) {
+            // Swiped right
+            setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+          }
+        }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1,
+          cursor: "grab",
+        }}
+        whileTap={{ cursor: "grabbing" }}
+      >
+        {images.map((src, index) => (
+          <img
+            key={src}
+            src={src}
+            alt={`Banner ${index + 1}`}
+            className={styles.heroImage}
+            style={{
+              opacity: currentIndex === index ? 1 : 0,
+              transition: "opacity 1s ease-in-out",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+      </motion.div>
+      
       {/* <div className={styles.heroImageOverlay} /> */}
       <div className={styles.heroInner}>
         {/* <motion.div
