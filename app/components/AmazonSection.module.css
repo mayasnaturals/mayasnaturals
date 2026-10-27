@@ -1,0 +1,157 @@
+/* # Keep a modest handoff to the footer; its top padding supplies the remaining breathing room. */
+.section {
+  background: var(--bg-deep-brown);
+  padding: 0 2.5rem 1rem;
+}
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 3rem;
+  max-width: 1320px;
+  margin: 0 auto;
+  /* # Slightly tighten the card vertically without narrowing its horizontal inset. */
+  padding: clamp(2rem, 3vw, 3rem) clamp(2rem, 4vw, 4rem);
+  border: 1px solid rgba(245, 179, 35, 0.25);
+  border-radius: 28px;
+  background: radial-gradient(ellipse at top right, rgba(232, 117, 42, 0.13), transparent 65%), #322116;
+}
+
+.copy {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  color: var(--accent-gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.heading {
+  color: #FFF8F0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.2vw, 4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+.heading span {
+  background: var(--gradient-gold);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.description {
+  max-width: 490px;
+  margin-top: 1.25rem;
+  color: rgba(255, 248, 240, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.destination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bag {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 0.25rem;
+  border: 1px solid rgba(245, 179, 35, 0.25);
+  border-radius: 24px;
+  background: rgba(245, 179, 35, 0.07);
+  color: var(--accent-gold);
+  transform: rotate(-6deg);
+}
+
+.store {
+  color: rgba(255, 248, 240, 0.7);
+  font-size: 0.8rem;
+}
+
+/* # Match the existing pill CTAs with a visible keyboard focus state. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-radius: 60px;
+  background: var(--gradient-primary);
+  color: #FFF8F0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(232, 117, 42, 0.3);
+}
+
+.button:focus-visible {
+  outline: 2px solid #FFF8F0;
+  outline-offset: 5px;
+}
+
+/* # Stack the announcement on small screens while preserving comfortable link targets. */
+@media (max-width: 768px) {
+  .section {
+    padding: 0 1.5rem 1rem;
+  }
+
+  .panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding: 2rem 1.5rem;
+    border-radius: 24px;
+  }
+
+  .destination {
+    align-items: flex-start;
+  }
+
+  .bag {
+    display: none;
+  }
+}
+
+/* # Respect reduced-motion preferences for the link's hover treatment. */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:hover {
+    transform: none;
+  }
+}

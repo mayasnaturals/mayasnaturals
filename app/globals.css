@@ -931,7 +931,8 @@ body {
 .footer-wrapper {
   background: var(--bg-deep-brown);
   color: rgba(255, 248, 240, 0.85);
-  padding: 5rem 0 2.5rem;
+  /* # Bring the footer closer to the Amazon panel while retaining a clear section break. */
+  padding: 3rem 0 2rem;
   position: relative;
 }
 
@@ -945,9 +946,10 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
-  padding-bottom: 3rem;
+  /* # Keep the divider spacing consistent with the more compact footer rows. */
+  padding-bottom: 2rem;
   border-bottom: 1px solid rgba(255, 248, 240, 0.08);
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .footer-brand-block {
@@ -957,6 +959,11 @@ body {
 }
 
 .footer-brand {
+  /* # Frame only the wordmark area of the transparent square logo asset. */
+  position: relative;
+  width: 220px;
+  height: 80px;
+  overflow: hidden;
   font-family: var(--font-display);
   font-size: 2.2rem;
   font-weight: 900;
@@ -967,6 +974,17 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+}
+
+.footer-logo {
+  /* # Center the original asset inside the frame without changing the image file. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  max-width: none;
+  transform: translate(-50%, -50%);
 }
 
 .footer-tagline {
@@ -1080,9 +1098,10 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
-  padding-bottom: 3rem;
+  /* # Reduce excess space before the copyright divider while keeping links comfortably spaced. */
+  padding-bottom: 2rem;
   border-bottom: 1px solid rgba(255, 248, 240, 0.08);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .footer-col {
@@ -1199,7 +1218,8 @@ body {
   }
 
   .footer-wrapper {
-    padding: 3.5rem 0 2rem;
+    /* # Preserve comfortable mobile separation with less unused vertical space. */
+    padding: 2.5rem 0 1.75rem;
   }
 
   .footer-inner {
@@ -1208,7 +1228,8 @@ body {
 
   .footer-top {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    /* # Keep the stacked brand and newsletter groups moderately close on mobile. */
+    gap: 2rem;
   }
 
   .footer-links-row {

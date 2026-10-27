@@ -32,8 +32,8 @@ export default function CTASection() {
         />
       </div> */}
 
-      {/* Main CTA Content */}
-      <div className="relative z-10 text-center max-w-[1100px] mx-auto px-5 md:px-6 py-20 md:py-36 flex flex-col items-center" style={{ justifyContent: "center", margin: "0 auto 30px auto" }}>
+      {/* # Reduce closing-section padding while retaining clearance beneath the wavy divider. */}
+      <div className="relative z-10 text-center max-w-[1100px] mx-auto px-5 md:px-6 pt-20 pb-12 md:pt-28 md:pb-20 flex flex-col items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -43,7 +43,7 @@ export default function CTASection() {
 
         >
           <h2
-            className="text-4xl md:text-8xl lg:text-[9rem] font-display font-black uppercase tracking-tighter leading-[0.85] mb-6 md:mb-8"
+            className="text-4xl md:text-8xl lg:text-[9rem] font-display font-black uppercase tracking-tighter leading-[0.85] mb-6"
             style={{ color: "#FFF8F0" }}
           >
             Join The
@@ -62,7 +62,7 @@ export default function CTASection() {
         </motion.div>
 
         <motion.p
-          className="text-base md:text-xl font-body max-w-2xl mb-8 md:mb-12 font-medium px-2"
+          className="text-base md:text-xl font-body max-w-2xl mb-6 md:mb-8 font-medium px-2"
           style={{ color: "rgba(255,248,240,0.65)" }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -73,15 +73,15 @@ export default function CTASection() {
           most vibrant, energizing muesli on the planet.
         </motion.p>
 
+        {/* # Let the paragraph margin provide the button gap instead of stacking two margins. */}
         <motion.button
-          className="group relative rounded-full font-display font-black text-xl md:text-2xl uppercase tracking-widest overflow-hidden cursor-pointer mt-10"
+          className="group relative rounded-full font-display font-black text-xl md:text-2xl uppercase tracking-widest overflow-hidden cursor-pointer"
           style={{
             background: "linear-gradient(135deg, #E8752A, #F5A623)",
             color: "#FFF8F0",
             border: "none",
             boxShadow: "0 8px 30px rgba(232,117,42,0.3)",
             padding: "14px 30px",
-            marginTop: "20px",
           }}
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}

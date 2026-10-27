@@ -7,6 +7,7 @@ import CarouselSection from "./components/CarouselSection";
 import MarqueeSection from "./components/MarqueeSection";
 import StorytellingSection from "./components/StorytellingSection";
 import CTASection from "./components/CTASection";
+import AmazonSection from "./components/AmazonSection";
 import { getProducts } from "../lib/shopify";
 
 export const dynamic = 'force-dynamic';
@@ -55,6 +56,9 @@ export default async function Home() {
 
         {/* SECTION 6 — CTA */}
         <CTASection />
+
+        {/* # Amazon storefront announcement sits between the closing CTA and footer. */}
+        <AmazonSection />
       </main>
     </SmoothScroller>
   );

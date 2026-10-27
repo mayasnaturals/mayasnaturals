@@ -68,12 +68,13 @@ const reels = [
   { id: 5, label: "Behind the Scenes", video: "/videos/video5.mp4" },
 ];
 
+// # Preserve the milestone titles and add the supplied short stories beneath them.
 const timelineEvents = [
-  { year: "2022", title: "The Kitchen Experiment", desc: "It started with a bag of oats, a frying pan and an obsession with getting the crunch right." },
-  { year: "2023", title: "First 100 Jars", desc: "Friends, family, and a few brave strangers — our first tasters became our loudest fans." },
-  { year: "2024", title: "Going Clean Label", desc: "We ditched palm oil, cut added sugar to zero, and earned our clean-label certification." },
-  { year: "2025", title: "Makhana Launch", desc: "Crunchy fox nuts in four bold flavours — our first non-muesli line hit shelves." },
-  { year: "2026", title: "10,000+ Happy Bowls", desc: "Growing one crunchy morning at a time, from a kitchen to a community." },
+  { year: "2022", title: "The Kitchen Experiment", desc: "Burnt three batches. Loved the fourth." },
+  { year: "2023", title: "First 100 Jars", desc: "Packed by hand, sold to friends and family." },
+  { year: "2024", title: "Going Clean Label", desc: "Cut every ingredient we couldn't pronounce." },
+  { year: "2025", title: "Makhana Launch", desc: "Our crunchiest idea yet, finally in your hands." },
+  { year: "2026", title: "10,000+ Happy Bowls", desc: "And we're just getting started." },
 ];
 
 /* ──────────────────────────── component ──────────────────────────── */

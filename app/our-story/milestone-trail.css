@@ -1,57 +1,55 @@
-/* ============================================
-   MILESTONE TRAIL (New Zigzag Timeline)
-   ============================================ */
+/* # Retain the cream-section zigzag and reserve room for story copy and the final CTA. */
 
 .os-trail {
   position: relative;
   width: 100%;
-  min-height: 800px;
+  height: 1040px;
   margin: 60px 0 40px;
+  isolation: isolate;
 }
 
-/* SVG layer */
 .os-trail-svg {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
-.os-trail-path-desktop {
-  display: block;
+.os-trail-svg path {
+  fill: none;
+  stroke: #ffc833;
+  stroke-width: 8px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
-.os-trail-path-mobile {
-  display: none;
+.os-trail-track {
+  opacity: 0.25;
 }
 
-/* Nodes layer */
 .os-trail-nodes {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
+  inset: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
   pointer-events: none;
+  z-index: 3;
 }
 
 .os-trail-node-container {
   position: absolute;
   left: var(--x-desk);
   top: var(--y-desk);
-  /* The anchor point is the exact center of the container */
   transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
+  display: grid;
+  place-items: center;
 }
 
-/* The circular badge */
+/* # Keep a muted outline visible until the colored inner layer pops into place. */
+
 .os-trail-badge {
   position: relative;
   width: 52px;
@@ -59,66 +57,169 @@
   border-radius: 50%;
   border: 3px solid #29180e;
   box-shadow: 4px 4px 0 #29180e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff9ed;
-  z-index: 3;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  cursor: pointer;
+  background: #eee6d8;
+  pointer-events: auto;
+  transition: transform 0.2s ease;
+}
+
+.os-trail-badge-fill, .os-trail-badge-outline {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  display: grid;
+  place-items: center;
+}
+
+.os-trail-badge-fill {
+  background: var(--node-color);
+  color: #fffdf8;
+  z-index: 1;
+}
+
+.os-trail-badge-outline {
+  color: #a39582;
+}
+
+.os-trail-badge svg {
+  width: 24px;
+  height: 24px;
 }
 
 .os-trail-badge:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 #29180e;
+  transform: scale(1.15);
 }
 
-/* Latest node glow */
-.os-trail-badge-active::before {
+.os-trail-badge:hover svg {
+  animation: trailWiggle 0.4s ease;
+}
+
+.os-trail-ripple {
+  position: absolute;
+  inset: -5px;
+  border: 2px solid var(--node-color);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.is-final .os-trail-badge {
+  width: 65px;
+  height: 65px;
+}
+
+.is-final.is-reached .os-trail-badge {
+  animation: trailFinalPulse 2.4s ease-in-out infinite;
+}
+
+.is-final.is-reached .os-trail-badge:hover {
+  animation: none;
+}
+
+.is-final.is-reached .os-trail-badge::after {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: -9px;
   border-radius: 50%;
-  border: 2px solid #ffc833;
-  animation: trailPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  z-index: -1;
+  border: 2px solid #75b843;
+  animation: trailHalo 2.4s ease-out infinite;
+  pointer-events: none;
 }
 
-@keyframes trailPulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
+/* # Separate GSAP entrance transforms from sticker tilt and pointer interactions. */
 
-/* The card */
 .os-trail-card {
   position: absolute;
   width: 280px;
-  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: auto;
-  transition: transform 0.25s ease;
 }
 
+.card-left-desk .os-trail-card {
+  right: calc(50% + 46px);
+}
 
+.card-right-desk .os-trail-card {
+  left: calc(50% + 46px);
+}
+
+/* # Retain the small dark connectors between the original cards and their round nodes. */
+
+.os-trail-card::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 2px;
+  background: #29180e;
+}
+
+.card-left-desk .os-trail-card::before {
+  right: -20px;
+}
+
+.card-right-desk .os-trail-card::before {
+  left: -20px;
+}
 
 .os-trail-card-content {
-  padding: 20px 22px;
+  position: relative;
+  isolation: isolate;
+  padding: 22px 24px;
   border: 2px solid #29180e;
   border-radius: 16px;
   background: #fffdf8;
-  box-shadow: 5px 5px 0 #29180e;
-  text-align: left;
-  transform: rotate(-1deg);
-  position: relative;
+  color: #29180e;
+  transform: rotate(var(--tilt));
+  transition: transform 0.2s ease;
 }
 
-/* Content typography */
+.os-trail-shadow {
+  position: absolute;
+  inset: -2px;
+  z-index: -2;
+  border-radius: inherit;
+  background: #29180e;
+  transform: translate(6px, 6px);
+  transition: translate 0.2s ease;
+}
+
+.os-trail-card-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 14px;
+  background: #fffdf8;
+}
+
+.os-trail-card-content:hover, .os-trail-card-content:focus-visible {
+  transform: translateY(-4px) rotate(0);
+}
+
+.os-trail-card-content:hover .os-trail-shadow, .os-trail-card-content:focus-visible .os-trail-shadow {
+  translate: 4px 4px;
+}
+
+.os-trail-card-content:active {
+  transform: translate(3px, 3px) rotate(0);
+}
+
+.os-trail-card-content:active .os-trail-shadow {
+  translate: -4px -4px;
+}
+
+.os-trail-card-content:focus-visible, .os-trail-cta:focus-visible {
+  outline: 3px solid #f25c2a;
+  outline-offset: 6px;
+}
+
 .os-trail-card-year {
   display: inline-block;
   padding: 4px 10px;
   border: 2px solid #29180e;
   border-radius: 999px;
   background: #ffc833;
-  color: #29180e;
   font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -130,8 +231,7 @@
   font-size: 1.3rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: #29180e;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   line-height: 1.1;
 }
 
@@ -141,98 +241,247 @@
   color: #715a4b;
 }
 
-/* Desktop positioning */
-/* card-right-desk: node is on the left, card goes right */
-.card-right-desk .os-trail-card {
-  left: 60px;
-  top: 50%;
-  transform: translateY(-50%);
+.os-trail-counter {
+  font-variant-numeric: tabular-nums;
 }
 
-.os-trail-node-container.card-right-desk:hover .os-trail-card {
-  transform: translateY(-50%) scale(1.02);
+.os-trail-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 12px 16px;
+  border: 2px solid #29180e;
+  border-radius: 12px;
+  background: #ffc833;
+  color: #29180e;
+  box-shadow: 6px 6px 0 #29180e;
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.2s ease;
 }
 
-.card-right-desk .os-trail-card-stem {
+/* # Place the payoff below the card without shifting the final card away from its node. */
+
+.os-trail-cta {
   position: absolute;
-  left: -20px;
-  top: 50%;
-  width: 20px;
-  height: 2px;
-  background: #29180e;
-  border-bottom: 2px dashed #29180e;
+  top: 100%;
+  left: 0;
+  right: 0;
 }
 
-/* card-left-desk: node is on the right, card goes left */
-.card-left-desk .os-trail-card {
-  right: 60px;
-  top: 50%;
-  transform: translateY(-50%);
+.os-trail-cta svg {
+  transition: transform 0.2s ease;
 }
 
-.os-trail-node-container.card-left-desk:hover .os-trail-card {
-  transform: translateY(-50%) scale(1.02);
+.os-trail-cta:hover svg {
+  transform: translateX(4px);
 }
 
-.card-left-desk .os-trail-card-content {
-  transform: rotate(1deg); /* Slight opposite tilt for variety */
+.os-trail-cta:active {
+  transform: translate(3px, 3px);
 }
 
-.card-left-desk .os-trail-card-stem {
+/* # Keep the jar above the path and below the cards; all decorative elements ignore pointer input. */
+
+.os-trail-mascot {
   position: absolute;
-  right: -20px;
-  top: 50%;
-  width: 20px;
-  height: 2px;
-  background: #29180e;
-  border-bottom: 2px dashed #29180e;
+  top: 0;
+  left: 0;
+  width: 46px;
+  height: 50px;
+  margin: -25px 0 0 -23px;
+  z-index: 2;
+  pointer-events: none;
+  visibility: hidden;
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .os-trail-path-desktop {
-    display: none;
-  }
-  .os-trail-path-mobile {
-    display: block;
-  }
+.is-animated .os-trail-mascot {
+  visibility: visible;
+}
 
+.os-trail-mascot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.os-trail-mascot-idle {
+  transform-origin: center bottom;
+}
+
+.os-trail-doodle {
+  position: absolute;
+  z-index: 1;
+  width: 96px;
+  color: #9a753e;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.os-trail-doodle svg {
+  width: 70px;
+  height: 56px;
+}
+
+.os-trail-doodle span {
+  display: block;
+  font-family: "Segoe Print", "Bradley Hand", cursive;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.os-trail-doodle-drift {
+  animation: trailDrift 5s ease-in-out infinite alternate;
+}
+
+.doodle-one {
+  left: 6%;
+  top: 22%;
+  transform: rotate(-9deg);
+}
+
+.doodle-two {
+  right: 7%;
+  top: 5%;
+}
+
+.doodle-three {
+  right: 3%;
+  top: 49%;
+  transform: rotate(8deg);
+}
+
+.doodle-four {
+  left: 9%;
+  top: 65%;
+}
+
+.doodle-three .os-trail-doodle-drift, .doodle-four .os-trail-doodle-drift {
+  animation-delay: -2.5s;
+}
+
+.os-trail-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 300;
+}
+
+/* # Preserve desktop alternation; stack all mobile cards to the right of the measured path. */
+
+@media (max-width: 767px) {
+  .os-trail {
+    height: 1120px;
+    margin-top: 30px;
+  }
   .os-trail-node-container {
     left: var(--x-mob);
     top: var(--y-mob);
   }
-
-  /* Reset all cards to sit on the right of the node on mobile */
-  .os-trail-card {
-    left: 45px !important;
-    right: auto !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    width: calc(100vw - 120px); /* Fill remaining space safely */
-    max-width: 280px;
+  .os-trail-badge {
+    width: 42px;
+    height: 42px;
   }
-  
-  .os-trail-node-container:hover .os-trail-card {
-    transform: translateY(-50%) scale(1.02) !important;
+  .is-final .os-trail-badge {
+    width: 52px;
+    height: 52px;
   }
-
+  .os-trail-badge svg {
+    width: 21px;
+    height: 21px;
+  }
+  .os-trail-svg path {
+    stroke-width: 6px;
+  }
+  .os-trail-node-container .os-trail-card {
+    left: 40px;
+    right: auto;
+    width: min(280px, calc(92vw - 92px));
+  }
+  .os-trail-card::before {
+    display: none;
+  }
   .os-trail-card-content {
-    transform: rotate(0) !important;
-    padding: 16px 18px;
+    padding: 18px;
   }
-
   .os-trail-card h3 {
     font-size: 1.1rem;
   }
-
   .os-trail-card-year {
     font-size: 0.62rem;
     padding: 3px 8px;
     margin-bottom: 8px;
   }
+  .os-trail-mascot {
+    width: 38px;
+    height: 42px;
+    margin: -21px 0 0 -19px;
+  }
+  .doodle-one, .doodle-three {
+    display: none;
+  }
+  .os-trail-doodle svg {
+    width: 46px;
+    height: 36px;
+  }
+  .doodle-two {
+    right: 6%;
+    top: 16%;
+  }
+  .doodle-four {
+    left: auto;
+    right: 8%;
+    top: 55%;
+  }
+}
 
-  /* Hide stems on mobile for cleaner look */
-  .os-trail-card-stem {
+/* # Transform/opacity-only keyframes keep the floating details inexpensive to animate. */
+
+@keyframes trailWiggle {
+  25% {
+    transform: rotate(-12deg);
+  }
+  75% {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes trailFinalPulse {
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes trailHalo {
+  from {
+    transform: scale(0.9);
+    opacity: 0.45;
+  }
+  to {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@keyframes trailDrift {
+  to {
+    transform: translateY(-5px) rotate(3deg);
+  }
+}
+
+/* # Show the complete story immediately when reduced motion is requested. */
+
+@media (prefers-reduced-motion: reduce) {
+  .os-trail *, .os-trail *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .os-trail-mascot, .os-trail-confetti {
     display: none;
   }
 }

@@ -10,7 +10,8 @@ export default function Footer() {
         <div className="footer-top">
           <div className="footer-brand-block">
             <div className="footer-brand">
-              <Image src="/logo.png" alt="Maya" width={200} height={80} className="h-20 w-auto object-contain" style={{ width: "auto", height: "auto" }} />
+              {/* # Crop the square asset's transparent padding so it does not push the tagline down. */}
+              <Image src="/logo.png" alt="Maya" width={260} height={260} className="footer-logo" />
             </div>
             <p className="footer-tagline">
               Premium craft muesli for the modern adventurer. Wholesome,
