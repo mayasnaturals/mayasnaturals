@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import DiwaliGarland from "./DiwaliGarland";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -164,6 +165,8 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+        {/* # Keep the festive decoration on the storefront header only. */}
+        {!isSpecialPage && <DiwaliGarland />}
       </header>
 
       {/* Mobile Menu Overlay */}

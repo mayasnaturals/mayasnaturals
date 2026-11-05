@@ -1,0 +1,149 @@
+/* # Match the reference's centered, deep curve: the ends meet the header's top
+   around its inner quarters, while the midpoint dips 40px below the header.
+   Relative height keeps the curve attached when the sticky header shrinks. */
+.garland {
+  position: absolute;
+  top: 0;
+  left: 23%;
+  width: 53%;
+  height: calc(100% + 40px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.cord {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 1px rgb(93 44 13 / 12%));
+}
+
+/* # Rotate each complete pendant around its attachment point, including the
+   thread. Negative delays make the lamps move independently from first paint. */
+.pendant {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 68px;
+  margin-left: -34px;
+  transform-origin: top center;
+  animation: diya-sway 5.5s ease-in-out infinite;
+  animation-delay: var(--sway-delay);
+}
+
+.thread {
+  position: relative;
+  width: 2px;
+  height: var(--thread-length);
+  background: linear-gradient(90deg, #b87526, #ffe3a3);
+}
+
+/* # Small gold beads finish the hanging threads like a traditional toran. */
+.thread::before,
+.thread::after {
+  position: absolute;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #d49a3c;
+  border-radius: 50%;
+  background: #ffe3a3;
+  content: "";
+  transform: translateX(-50%);
+}
+
+.thread::before {
+  top: 0;
+}
+
+.thread::after {
+  bottom: -2px;
+}
+
+.diya {
+  display: block;
+  width: 68px;
+  height: auto;
+  margin-top: -3px;
+  overflow: visible;
+  /* # A dark shadow supports the ivory outline over both cream and photography. */
+  filter: drop-shadow(0 2px 1px rgb(52 13 21 / 45%));
+}
+
+.flame {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: flame-flicker 2.4s ease-in-out infinite;
+  animation-delay: var(--sway-delay);
+}
+
+@keyframes diya-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes flame-flicker {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: rotate(-3deg) scaleY(0.96);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(3deg) scaleY(1.04);
+  }
+}
+
+/* # Mobile uses only the 22%, 50%, and 78% attachments: three evenly spaced
+   lamps instead of five crowded around the center. Keep the complete drop under
+   64px so the decoration has breathing room above the hero's offer badge. */
+@media (max-width: 768px) {
+  .garland {
+    top: calc(100% - 3px);
+    left: 4%;
+    width: 92%;
+    height: 24px;
+  }
+
+  .pendant {
+    width: 38px;
+    margin-left: -19px;
+    /* # A steady cord and lamps keep this compact mobile arrangement tidy. */
+    animation: none;
+  }
+
+  .thread {
+    height: 8px;
+  }
+
+  .thread::before,
+  .thread::after {
+    width: 4px;
+    height: 4px;
+  }
+
+  .diya {
+    width: 38px;
+  }
+
+  .mobileHidden {
+    display: none;
+  }
+}
+
+/* # Respect the visitor's motion preference while retaining the decoration. */
+@media (prefers-reduced-motion: reduce) {
+  .pendant,
+  .flame {
+    animation: none;
+  }
+}
