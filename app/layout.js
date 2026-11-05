@@ -2,7 +2,7 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import SalePopup from "./components/SalePopup";
+import StorefrontWelcome from "./components/StorefrontWelcome";
 import { Providers } from "./providers";
 
 const inter = Inter({
@@ -39,7 +39,8 @@ export default function RootLayout({ children }) {
     >
       <body className="antialiased">
         <Providers>
-          <SalePopup />
+          {/* # Complete the Diwali welcome before starting the sale popup timer. */}
+          <StorefrontWelcome />
           <Navbar />
           <main style={{ paddingTop: '150px' }}>{children}</main>
           <Footer />

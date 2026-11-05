@@ -1,0 +1,179 @@
+/* # A transparent, noninteractive layer lets customers keep using the site
+   throughout the short opening celebration. No backdrop or scroll lock. */
+.overlay {
+  --burst-radius: clamp(140px, 26vw, 350px);
+
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.firework {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+}
+
+/* # The striped rocket flies from below the viewport to its burst position.
+   Its launch and sparks share one delay so the explosion follows the flight. */
+.rocket {
+  position: absolute;
+  width: 12px;
+  height: 34px;
+  border: 1px solid #ffd16c;
+  border-radius: 55% 55% 2px 2px;
+  background: repeating-linear-gradient(
+    -35deg,
+    #bd2138 0 5px,
+    #ffdc72 5px 8px
+  );
+  opacity: 0;
+  animation: rocket-flight var(--flight-duration)
+    cubic-bezier(0.15, 0.5, 0.3, 1) both;
+  animation-delay: var(--launch-delay);
+}
+
+.rocket::after {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 7px;
+  height: 120px;
+  background: linear-gradient(#fff6be, #ffae22 25%, transparent);
+  content: "";
+  transform: translateX(-50%);
+  filter: drop-shadow(0 0 4px #ffb327);
+}
+
+.spark {
+  position: absolute;
+  width: 4px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--spark-color);
+  box-shadow:
+    0 0 7px var(--spark-color),
+    0 0 2px #fff5cf;
+  opacity: 0;
+  animation: spark-burst var(--burst-duration)
+    cubic-bezier(0.12, 0.65, 0.3, 1) both;
+  animation-delay: var(--burst-delay);
+}
+
+/* # A soft expanding glow fills out each large burst without a screen flash. */
+.burstGlow {
+  position: absolute;
+  width: calc(var(--burst-radius) * 1.5);
+  height: calc(var(--burst-radius) * 1.5);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--spark-color), transparent 65%);
+  opacity: 0;
+  animation: burst-glow var(--burst-duration) ease-out both;
+  animation-delay: var(--burst-delay);
+}
+
+/* # Only the sound control captures clicks; the rest of the overlay is passive. */
+.soundToggle {
+  position: absolute;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #e5bf75;
+  border-radius: 30px;
+  background: #351b16;
+  color: #fff0ca;
+  font: 600 13px var(--font-body);
+  box-shadow: 0 3px 16px rgb(53 27 22 / 18%);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.soundToggle:focus-visible {
+  outline: 3px solid #ffbd32;
+  outline-offset: 3px;
+}
+
+@keyframes rocket-flight {
+  0% {
+    opacity: 0;
+    transform: translate(-35px, 85vh) rotate(-8deg);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  94% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0);
+  }
+}
+
+@keyframes spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(var(--spark-angle)) scale(0.3);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  65% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(var(--spark-x) * var(--burst-radius)),
+        calc(var(--spark-y) * var(--burst-radius) + 55px)
+      )
+      rotate(var(--spark-angle)) scale(0.2);
+  }
+}
+
+@keyframes burst-glow {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+
+  15% {
+    opacity: 0.18;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+}
+
+/* # Five mobile launches still span the screen, with a radius suited to phones. */
+@media (max-width: 768px) {
+  .overlay {
+    --burst-radius: clamp(140px, 36vw, 240px);
+  }
+}
+
+/* # Also stop immediately if motion preferences change while an effect runs. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    display: none;
+  }
+
+  .rocket,
+  .spark,
+  .burstGlow {
+    animation: none;
+  }
+}

@@ -33,7 +33,7 @@ export default async function Home() {
 
         <Link href="/products/chocolate-protein-muesli?variant=46084069949638" className="block cursor-pointer hover:opacity-90 transition-opacity">
           <MarqueeBanner
-            text="🚨 LIMITED TIME OFFER: ₹100 OFF CHOCO MUESLI! USE CODE GANESH AT CHECKOUT - CLICK HERE TO SHOP 🚨"
+            text="🚨 LIMITED TIME OFFER: ₹100 OFF CHOCO MUESLI! USE CODE DIWALI AT CHECKOUT - CLICK HERE TO SHOP 🚨"
             bgColor="#FBB03B"
             textColor="#000000"
             speed={55}

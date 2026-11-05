@@ -22,7 +22,7 @@ const SLIDES = [
     description: "Decadent dark chocolate paired with crunchy oats.<br />High protein, zero guilt.<br />A perfect start to your day."
   },
   {
-    image: "/hero3.png",
+    image: "/hero3-diwali.png",
     badge: "New Arrival",
     titleStart: "Makhana",
     titleHighlight: "Roasted",

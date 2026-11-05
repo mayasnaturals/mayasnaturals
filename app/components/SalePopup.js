@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { ENABLE_SALE_POPUP } from "@/config/features";
 
-export default function SalePopup() {
+export default function SalePopup({ enabled = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -16,7 +16,8 @@ export default function SalePopup() {
 
   useEffect(() => {
     setMounted(true);
-    if (!ENABLE_SALE_POPUP || isSpecialPage) return;
+    // # The welcome sequence enables this only after the final sparks disappear.
+    if (!enabled || !ENABLE_SALE_POPUP || isSpecialPage) return;
 
     const hasSeen = sessionStorage.getItem("hasSeenSalePopup");
     if (!hasSeen) {
@@ -26,9 +27,9 @@ export default function SalePopup() {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [isSpecialPage]);
+  }, [enabled, isSpecialPage]);
 
-  if (!mounted || !isOpen || isSpecialPage) return null;
+  if (!enabled || !mounted || !isOpen || isSpecialPage) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
